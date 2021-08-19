@@ -1,7 +1,7 @@
 name: Build and upload frontend
 on:
     push:
-        branches: [ main ]
+        branches: [  ] #main
 jobs:
     build-site:
         name: Build and upload
