@@ -12,5 +12,7 @@ services:
   paceme-frontend:
     build:
       context: ./src/webapp
+    volumes:
+      - ./src/webapp:/app
     ports:
       - "3000:3000"

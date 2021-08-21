@@ -9,6 +9,8 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 import Amplify, { Auth } from 'aws-amplify';
+import React, { useState } from 'react';
+
 Amplify.configure({
   Auth: {
 
@@ -56,6 +58,10 @@ Amplify.configure({
   }
 });
 
+const configuration = {
+  apiRoot: "http://localhost:3030/"
+}
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -76,6 +82,8 @@ function App() {
     },
   });
   const classes = useStyles();
+  const [apiResponse, setApiResponse] = useState("None yet...");
+  fetch(configuration.apiRoot).then(res => res.text()).then(text => setApiResponse(text));
   return (
     <ThemeProvider theme={theme}>
       <Helmet>
@@ -99,6 +107,9 @@ function App() {
           <AmplifySignOut></AmplifySignOut>
         </Toolbar>
       </AppBar>
+      <div>
+        {apiResponse}
+      </div>
     </ThemeProvider>
   );
 }
