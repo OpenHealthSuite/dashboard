@@ -105,8 +105,8 @@ class CognitoMiddleware {
         this.validate(req.headers.authorization?.replace('Bearer ', ''), (err, tokenclaims) => {
             if (!!err) {
                 res.sendStatus(401)
-            } 
-            else 
+            }
+            else
             {
                 res.locals.claims = tokenclaims
                 next();
