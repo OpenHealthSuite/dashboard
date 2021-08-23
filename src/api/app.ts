@@ -15,11 +15,9 @@ app.use(cors({
   origin: 'http://localhost:3000'
 }))
 
-app.use((req, res, next) => cognitoMiddleware.cognitoMiddleware(req, res, next))
+app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send(`Hello ${res.locals.claims.email} (${res.locals.claims.sub})!`)
-});
+app.use((req, res, next) => cognitoMiddleware.cognitoMiddleware(req, res, next))
 
 // TODO: Look into structuring this
 // TODO: Also need validation on all this - incl error codes
@@ -38,6 +36,11 @@ app.get('/trainingplans/:trainingPlanId', (req, res) => {
 
 app.put('/trainingplans/:trainingPlanId', (req, res) => {
   trainingPlanService.updateTrainingPlansForUserById(res.locals.claims.sub, req.params.trainingPlanId, req.body)
+  res.sendStatus(200)
+})
+
+app.delete('/trainingplans/:trainingPlanId', (req, res) => {
+  trainingPlanService.deleteTrainingPlansForUserById(res.locals.claims.sub, req.params.trainingPlanId)
   res.sendStatus(200)
 })
 

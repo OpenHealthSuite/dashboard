@@ -31,3 +31,10 @@ export function updateTrainingPlansForUserById(userId: string, trainingPlanId: s
         trainingPlans[index].name = trainingPlan.name;
     }
 }
+
+export function deleteTrainingPlansForUserById(userId: string, trainingPlanId: string): void {
+    const index = trainingPlans.findIndex(x => x.userId === userId && x.id === trainingPlanId)
+    if( index > -1){
+        trainingPlans.splice(index, 1);
+    }
+}
