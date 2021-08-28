@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "paceme-api"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1bedx5xudjnm2"
+s3_prefix = "paceme-api"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"

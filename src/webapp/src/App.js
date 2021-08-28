@@ -20,7 +20,7 @@ const configuration = {
 
 Amplify.configure({
   Auth: {
-
+      // TODO: Populate this all from config and feed in the info from terraform...
       // REQUIRED only for Federated Authentication - Amazon Cognito Identity Pool ID
       //identityPoolId: 'arn:aws:cognito-idp:us-east-1:553904485373:userpool/us-east-1_ecXTzrIg3',
 
@@ -28,10 +28,10 @@ Amplify.configure({
       region: 'us-east-1',
 
       // OPTIONAL - Amazon Cognito User Pool ID
-      userPoolId: 'us-east-1_ecXTzrIg3',
+      userPoolId: 'us-east-1_E4qrJGa9t',
 
       // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
-      userPoolWebClientId: '7umnq9tgbavli9duos9353qsnq',
+      userPoolWebClientId: '2baisg7qec8rgpk09ieikqlnvm',
 
       // OPTIONAL - Enforce user authentication prior to accessing AWS resources or not
       mandatorySignIn: true,

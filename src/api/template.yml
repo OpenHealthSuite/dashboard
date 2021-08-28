@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  paceme-api
+
+Transform:
+- AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: nodejs14.x
+    Timeout: 180
+    MemorySize: 128
+    Environment:
+      Variables:
+        TRAINING_PLAN_TABLE: !Ref TrainingPlanTable
+    Tags: { Key: Project, Value: PaceMeApp }
+
+Resources:
+  PaceMeApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: PaceMeCognitoAuthorizer
+        Authorizers:
+          PaceMeCognitoAuthorizer:
+            UserPoolArn: arn:aws:cognito-idp:us-east-1:553904485373:userpool/us-east-1_E4qrJGa9t
+
+  getAllTrainingPlans:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingplan/plan-get-all.planGetAll
+      Description: Get all training plans for logged in user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /
+            Method: GET
+  
+  # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
+  TrainingPlanTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      - AttributeName: userId
+        KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+
+Outputs:
+  WebEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${PaceMeApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
