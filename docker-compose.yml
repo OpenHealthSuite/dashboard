@@ -1,14 +1,5 @@
 version: "3.9"  # optional since v1.27.0
 services:
-  dynamodb:
-    image: amazon/dynamodb-local
-    ports:
-      - "8000:8000"
-  paceme-api:
-    build: 
-      context: ./src/api
-    ports:
-      - "3030:3030"
   paceme-frontend:
     build:
       context: ./src/webapp

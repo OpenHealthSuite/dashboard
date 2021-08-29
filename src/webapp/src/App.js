@@ -15,54 +15,32 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
 const configuration = {
-  apiRoot: "http://localhost:3030"
+  apiRoot: "https://9oa2qeovj9.execute-api.us-east-1.amazonaws.com/Prod/",
+  cognito: {
+    region: 'us-east-1',
+    userPoolId: "us-east-1_wdrYwofGE",
+    userPoolWebClientId: "1l50v8lejd05kd8ukp22sais8m",
+    mandatorySignIn: true,
+    authenticationFlowType: 'USER_PASSWORD_AUTH',
+    cookieStorage: {
+          domain: 'localhost', //.yourdomain.com
+          path: '/',
+          expires: 365,
+          sameSite: "lax",
+          secure: false
+    },
+    oauth: {
+      domain: 'pacemewebapp.auth.us-east-1.amazoncognito.com',
+      scope: ['phone', 'email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
+      redirectSignIn: 'http://localhost:3000/',
+      redirectSignOut: 'http://localhost:3000/',
+      responseType: 'code'
+    }
+  }
 }
 
 Amplify.configure({
-  Auth: {
-      // TODO: Populate this all from config and feed in the info from terraform...
-      // REQUIRED only for Federated Authentication - Amazon Cognito Identity Pool ID
-      //identityPoolId: 'arn:aws:cognito-idp:us-east-1:553904485373:userpool/us-east-1_ecXTzrIg3',
-
-      // REQUIRED - Amazon Cognito Region
-      region: 'us-east-1',
-
-      // OPTIONAL - Amazon Cognito User Pool ID
-      userPoolId: 'us-east-1_E4qrJGa9t',
-
-      // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
-      userPoolWebClientId: '2baisg7qec8rgpk09ieikqlnvm',
-
-      // OPTIONAL - Enforce user authentication prior to accessing AWS resources or not
-      mandatorySignIn: true,
-
-      // OPTIONAL - Configuration for cookie storage
-      // Note: if the secure flag is set to true, then the cookie transmission requires a secure protocol
-      cookieStorage: {
-      // REQUIRED - Cookie domain (only required if cookieStorage is provided)
-          domain: 'localhost', //.yourdomain.com
-      // OPTIONAL - Cookie path
-          path: '/',
-      // OPTIONAL - Cookie expiration in days
-          expires: 365,
-      // OPTIONAL - See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
-          sameSite: "lax",//"strict" | 
-      // OPTIONAL - Cookie secure flag
-      // Either true or false, indicating if the cookie transmission requires a secure protocol (https).
-          secure: false
-      },
-
-      // OPTIONAL - Manually set the authentication flow type. Default is 'USER_SRP_AUTH'
-      authenticationFlowType: 'USER_PASSWORD_AUTH',
-
-      oauth: {
-          domain: 'pacemewebapp.auth.us-east-1.amazoncognito.com',
-          scope: ['phone', 'email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
-          redirectSignIn: 'http://localhost:3000/',
-          redirectSignOut: 'http://localhost:3000/',
-          responseType: 'code'
-      }
-  }
+  Auth: configuration.cognito
 });
 
 const useStyles = makeStyles((theme) => ({

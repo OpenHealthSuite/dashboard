@@ -16,16 +16,63 @@ Globals:
     Tags: { Key: Project, Value: PaceMeApp }
 
 Resources:
+
+  PaceMeUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: PaceMeUserPool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+  
+  PaceMeUserPoolWebAppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - phone
+        - email
+        - profile
+        - openid
+        - aws.cognito.signin.user.admin
+      ExplicitAuthFlows: 
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      UserPoolId: !Ref PaceMeUserPool
+      ClientName: PaceMeUserPoolWebAppClient
+      GenerateSecret: false
+      CallbackURLs:
+        - http://localhost:3000/
+
+  PaceMeUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties: 
+      Domain: pacemewebapp
+      UserPoolId: !Ref PaceMeUserPool
+
   PaceMeApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Cors: "'*'"
+      Cors:
+        AllowMethods: "'POST, GET, PUT, DELETE, OPTIONS'"
+        AllowOrigin: "'localhost', 'app.paceme.info'"
+        MaxAge: "'600'"
+        AllowCredentials: true
       Auth:
         DefaultAuthorizer: PaceMeCognitoAuthorizer
         Authorizers:
           PaceMeCognitoAuthorizer:
-            UserPoolArn: arn:aws:cognito-idp:us-east-1:553904485373:userpool/us-east-1_E4qrJGa9t
+            UserPoolArn: !GetAtt PaceMeUserPool.Arn
 
   getAllTrainingPlans:
     Type: AWS::Serverless::Function
@@ -40,8 +87,40 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref PaceMeApi
-            Path: /
+            Path: /trainingplans
             Method: GET
+
+  createNewPlan:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingplan/plan-create.planCreate
+      Description: Get all training plans for logged in user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans
+            Method: POST
+
+  deleteTrainingPlan:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingplan/plan-get-all.planGetAll
+      Description: Get all training plans for logged in user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{id}
+            Method: DELETE
   
   # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
   TrainingPlanTable:
@@ -60,6 +139,12 @@ Resources:
           AttributeType: S
 
 Outputs:
-  WebEndpoint:
+  FunctionApiEndpoint:
     Description: "API Gateway endpoint URL for Prod stage"
     Value: !Sub "https://${PaceMeApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  UserPoolId:
+    Description: "Cognito UserPool Id"
+    Value: !Ref PaceMeUserPool
+  UserPoolWebClientId:
+    Description: "Cognito UserPool Web Client Id"
+    Value: !Ref PaceMeUserPoolWebAppClient
