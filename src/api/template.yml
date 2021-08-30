@@ -52,6 +52,7 @@ Resources:
       GenerateSecret: false
       CallbackURLs:
         - http://localhost:3000/
+        - https://app.paceme.info/
 
   PaceMeUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain

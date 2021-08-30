@@ -26,14 +26,13 @@ exports.planGetAll = async (event, context) => {
     // https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Scan.html
     var params = {
         TableName : tableName,
-        FilterExpression: "#userid = :contextUserId",
-        ExpressionAttributeNames:{
-            "#userid": "userId"
+        ProjectionExpression:"userId, id, #nm",
+        FilterExpression: "userId = :contextUserId",
+        ExpressionAttributeNames: {
+            "#nm": "name",
         },
         ExpressionAttributeValues: {
-            ":contextUserId": {
-                S: userId
-            }
+            ":contextUserId": userId
         }
     };
     const data = await docClient.scan(params).promise();
