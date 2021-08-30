@@ -3,6 +3,7 @@
 // Create a DocumentClient that represents the query to add an item
 const dynamodb = require('aws-sdk/clients/dynamodb');
 const docClient = new dynamodb.DocumentClient();
+const jwt = require('jsonwebtoken')
 
 // Get the DynamoDB table name from environment variables
 const tableName = process.env.TRAINING_PLAN_TABLE;
@@ -14,7 +15,9 @@ exports.planUpdate = async (event) => {
     if (event.httpMethod !== 'PUT') {
         throw new Error(`only accepts PUT method, you tried: ${event.httpMethod} method.`);
     }
-
+    // TODO: Start verifying JWT, but given AWS does it, not a huge deal.
+    const decodedJwt = jwt.decode(event.headers["Authorization"].replace('Bearer ', ''), { complete: true })
+    const userId = decodedJwt.payload.sub
     // All log statements are written to CloudWatch
     console.info('received:', event);
 
@@ -30,13 +33,13 @@ exports.planUpdate = async (event) => {
 
     const existing = await docClient.get(getParams).promise()
 
-    if (!!existing.Item || existing.Item.userId !== context.identity.cognitoIdentityId) {
+    if (!!existing.Item || existing.Item.userId !== userId) {
         throw new Error(`No item with ${id} found`);
     }
 
     const itemUpdate = { 
         id : id,
-        userId: context.identity.cognitoIdentityId,
+        userId: userId,
         name: name 
     }
 
@@ -51,6 +54,10 @@ exports.planUpdate = async (event) => {
 
     const response = {
         statusCode: 200,
+        headers: {
+            "Access-Control-Allow-Headers" : "Content-Type, Authorization",
+            "Access-Control-Allow-Origin": "*"
+        },
         body: JSON.stringify(itemUpdate)
     };
 

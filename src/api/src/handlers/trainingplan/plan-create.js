@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 // Create a DocumentClient that represents the query to add an item
 const dynamodb = require('aws-sdk/clients/dynamodb');
 const docClient = new dynamodb.DocumentClient();
+const jwt = require('jsonwebtoken')
 
 // Get the DynamoDB table name from environment variables
 const tableName = process.env.TRAINING_PLAN_TABLE;
@@ -20,13 +21,17 @@ exports.planCreate = async (event, context) => {
     // All log statements are written to CloudWatch
     console.info('received:', event);
 
+    // TODO: Start verifying JWT, but given AWS does it, not a huge deal.
+    const decodedJwt = jwt.decode(event.headers["Authorization"].replace('Bearer ', ''), { complete: true })
+    const userId = decodedJwt.payload.sub
+
     // Get id and name from the body of the request
     const body = JSON.parse(event.body)
     const name = body.name;
 
     const newItem = { 
         id : uuidv4(),
-        userId: context.identity.cognitoIdentityId,
+        userId: userId,
         name: name 
     }
 
@@ -41,6 +46,10 @@ exports.planCreate = async (event, context) => {
 
     const response = {
         statusCode: 200,
+        headers: {
+            "Access-Control-Allow-Headers" : "Content-Type, Authorization",
+            "Access-Control-Allow-Origin": "*"
+        },
         body: JSON.stringify(newItem)
     };
 
