@@ -65,10 +65,12 @@ Resources:
       StageName: Prod
       Cors:
         AllowMethods: "'POST, GET, PUT, DELETE, OPTIONS'"
-        AllowOrigin: "'localhost', 'app.paceme.info'"
+        AllowHeaders: "'Access-Control-Allow-Headers', 'Origin'"
+        AllowOrigin: "'http://localhost:3000', 'app.paceme.info'"
         MaxAge: "'600'"
         AllowCredentials: true
       Auth:
+        AddDefaultAuthorizerToCorsPreflight: false 
         DefaultAuthorizer: PaceMeCognitoAuthorizer
         Authorizers:
           PaceMeCognitoAuthorizer:
@@ -94,7 +96,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/handlers/trainingplan/plan-create.planCreate
-      Description: Get all training plans for logged in user
+      Description: Create training plan for user
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TrainingPlanTable
@@ -110,7 +112,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/handlers/trainingplan/plan-get-all.planGetAll
-      Description: Get all training plans for logged in user
+      Description: Delete training plan for logged in user
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TrainingPlanTable
@@ -121,6 +123,25 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{id}
             Method: DELETE
+
+  optionsTrainingPlan:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingplan/plan-option.handler
+      Description: Get Options
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{id}
+            Method: OPTIONS
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans
+            Method: OPTIONS
   
   # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
   TrainingPlanTable:
