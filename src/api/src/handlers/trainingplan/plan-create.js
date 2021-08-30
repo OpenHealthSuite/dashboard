@@ -1,9 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
-
 // Create clients and set shared const values outside of the handler.
 
 // Create a DocumentClient that represents the query to add an item
 const dynamodb = require('aws-sdk/clients/dynamodb');
+const { v4: uuidv4 } = require('uuid');
 const docClient = new dynamodb.DocumentClient();
 const jwt = require('jsonwebtoken')
 
