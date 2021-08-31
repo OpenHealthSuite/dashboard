@@ -25,18 +25,18 @@ exports.planDelete = async (event, context) => {
     var getParams = {
         TableName : tableName,
         Key: { 
-          "id": id,
-          "userId": userId
+          id: id,
+          userId: userId
         }
     };
 
     const existing = await docClient.get(getParams).promise();
 
-    if (!!existing.Item) {
+    if (!existing.Item) {
         throw new Error(`No item with ${id} found`);
     }
 
-    if (existing.Item.userId != userId) {
+    if (existing.Item.userId !== userId) {
         throw new Error(`No item for user ${userId} found under ${id}`);
     }
 

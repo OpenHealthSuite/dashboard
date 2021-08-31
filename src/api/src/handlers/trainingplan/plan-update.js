@@ -26,14 +26,14 @@ exports.planUpdate = async (event) => {
     var getParams = {
         TableName : tableName,
         Key: { 
-          "id": id,
-          "userId": userId
+            id: id,
+            userId: userId
         }
     };
 
     const existing = await docClient.get(getParams).promise()
 
-    if (!!existing.Item || existing.Item.userId !== userId) {
+    if (!existing.Item || existing.Item.userId !== userId) {
         throw new Error(`No item with ${id} found`);
     }
 
@@ -48,8 +48,8 @@ exports.planUpdate = async (event) => {
     var updateParams = {
         TableName: tableName,
         Key: { 
-          "id": id,
-          "userId": userId
+          id: id,
+          userId: userId
         },
         UpdateExpression: "set #nm = :name",
         ExpressionAttributeNames: {

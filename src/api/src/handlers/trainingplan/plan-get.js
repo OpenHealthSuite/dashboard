@@ -27,13 +27,13 @@ exports.planGet = async (event) => {
   var params = {
     TableName : tableName,
     Key: { 
-      "id": id,
-      "userId": userId
+      id: id,
+      userId: userId
     }
   };
   const data = await docClient.get(params).promise();
   
-  if (!!existing.Item || existing.Item.userId !== userId) {
+  if (!existing.Item || existing.Item.userId !== userId) {
     throw new Error(`No item with ${id} found`);
   }
 
