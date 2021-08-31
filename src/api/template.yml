@@ -67,7 +67,7 @@ Resources:
       Cors:
         AllowMethods: "'POST, GET, PUT, DELETE, OPTIONS'"
         AllowHeaders: "'Access-Control-Allow-Headers', 'Origin'"
-        AllowOrigin: "'http://localhost:3000', 'app.paceme.info'"
+        AllowOrigin: "'localhost:3000', 'app.paceme.info'"
         MaxAge: "'600'"
         AllowCredentials: true
       Auth:
@@ -77,6 +77,8 @@ Resources:
           PaceMeCognitoAuthorizer:
             UserPoolArn: !GetAtt PaceMeUserPool.Arn
 
+  #TODO: Look into this, maybe not creating a million handlers...           
+  #https://aws.amazon.com/blogs/aws/api-gateway-update-new-features-simplify-api-development/
   getAllTrainingPlans:
     Type: AWS::Serverless::Function
     Properties:
@@ -112,7 +114,7 @@ Resources:
   deleteTrainingPlan:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingplan/plan-get-all.planGetAll
+      Handler: src/handlers/trainingplan/plan-delete.planDelete
       Description: Delete training plan for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -131,27 +133,26 @@ Resources:
       Handler: src/handlers/trainingplan/plan-option.handler
       Description: Get Options
       Events:
-        Api:
+        TrainingPlanId:
           Type: Api
           Properties:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{id}
             Method: OPTIONS
-        Api:
+        TrainingPlanList:
           Type: Api
           Properties:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans
             Method: OPTIONS
   
-  # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
   TrainingPlanTable:
     Type: AWS::DynamoDB::Table
     Properties:
       KeySchema:
-      - AttributeName: id
-        KeyType: HASH
       - AttributeName: userId
+        KeyType: HASH
+      - AttributeName: id
         KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:

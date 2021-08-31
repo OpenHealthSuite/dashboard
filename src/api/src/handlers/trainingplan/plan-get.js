@@ -6,7 +6,6 @@ const tableName = process.env.TRAINING_PLAN_TABLE;
 // Create a DocumentClient that represents the query to add an item
 const dynamodb = require('aws-sdk/clients/dynamodb');
 const docClient = new dynamodb.DocumentClient();
-const jwt = require('jsonwebtoken')
 
 /**
  * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
@@ -18,9 +17,7 @@ exports.planGet = async (event) => {
   // All log statements are written to CloudWatch
   console.info('received:', event);
  
-  // TODO: Start verifying JWT, but given AWS does it, not a huge deal.
-  const decodedJwt = jwt.decode(event.headers["Authorization"].replace('Bearer ', ''), { complete: true })
-  const userId = decodedJwt.payload.sub
+  const userId = event.requestContext.authorizer.claims.sub
 
   // Get id from pathParameters from APIGateway because of `/{id}` at template.yml
   const id = event.pathParameters.id;
@@ -29,7 +26,10 @@ exports.planGet = async (event) => {
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#get-property
   var params = {
     TableName : tableName,
-    Key: { id: id },
+    Key: { 
+      "id": id,
+      "userId": userId
+    }
   };
   const data = await docClient.get(params).promise();
   

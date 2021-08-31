@@ -3,7 +3,6 @@
 // Create a DocumentClient that represents the query to add an item
 const dynamodb = require('aws-sdk/clients/dynamodb');
 const docClient = new dynamodb.DocumentClient();
-const jwt = require('jsonwebtoken')
 
 // Get the DynamoDB table name from environment variables
 const tableName = process.env.TRAINING_PLAN_TABLE;
@@ -15,9 +14,7 @@ exports.planUpdate = async (event) => {
     if (event.httpMethod !== 'PUT') {
         throw new Error(`only accepts PUT method, you tried: ${event.httpMethod} method.`);
     }
-    // TODO: Start verifying JWT, but given AWS does it, not a huge deal.
-    const decodedJwt = jwt.decode(event.headers["Authorization"].replace('Bearer ', ''), { complete: true })
-    const userId = decodedJwt.payload.sub
+    const userId = event.requestContext.authorizer.claims.sub
     // All log statements are written to CloudWatch
     console.info('received:', event);
 
@@ -28,7 +25,10 @@ exports.planUpdate = async (event) => {
 
     var getParams = {
         TableName : tableName,
-        Key: {id: id}
+        Key: { 
+          "id": id,
+          "userId": userId
+        }
     };
 
     const existing = await docClient.get(getParams).promise()
@@ -46,8 +46,19 @@ exports.planUpdate = async (event) => {
     // Creates a new item, or replaces an old item with a new item
     // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
     var updateParams = {
-        TableName : tableName,
-        Item: itemUpdate
+        TableName: tableName,
+        Key: { 
+          "id": id,
+          "userId": userId
+        },
+        UpdateExpression: "set #nm = :name",
+        ExpressionAttributeNames: {
+            "#nm": "name",
+        },
+        ExpressionAttributeValues:{
+            ":name":name,
+        },
+        ReturnValues:"UPDATED_NEW"
     };
 
     const result = await docClient.put(updateParams).promise();

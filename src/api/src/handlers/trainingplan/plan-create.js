@@ -4,7 +4,6 @@
 const dynamodb = require('aws-sdk/clients/dynamodb');
 const { v4: uuidv4 } = require('uuid');
 const docClient = new dynamodb.DocumentClient();
-const jwt = require('jsonwebtoken')
 
 // Get the DynamoDB table name from environment variables
 const tableName = process.env.TRAINING_PLAN_TABLE;
@@ -20,10 +19,7 @@ exports.planCreate = async (event, context) => {
     // All log statements are written to CloudWatch
     console.info('received:', event);
 
-    // TODO: Start verifying JWT, but given AWS does it, not a huge deal.
-    const decodedJwt = jwt.decode(event.headers["Authorization"].replace('Bearer ', ''), { complete: true })
-    const userId = decodedJwt.payload.sub
-
+    const userId = event.requestContext.authorizer.claims.sub
     // Get id and name from the body of the request
     const body = JSON.parse(event.body)
     const name = body.name;
