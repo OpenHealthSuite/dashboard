@@ -33,7 +33,7 @@ exports.planGet = async (event) => {
   };
   const data = await docClient.get(params).promise();
   
-  if (!existing.Item || existing.Item.userId !== userId) {
+  if (!data || !data.Item || data.Item.userId !== userId) {
     throw new Error(`No item with ${id} found`);
   }
 
