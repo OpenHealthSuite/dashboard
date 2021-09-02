@@ -35,8 +35,12 @@ test('plan-get.planGet :: Overall Happy Test :: Valid Id and User gets item', as
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
                     get: sinon.stub().callsFake((input) => {
-                        return { 
-                            promise: sinon.stub().resolves({ Item: mockItem })
+                        if(input.TableName == expectedParams.TableName &&
+                            input.Key.id == expectedParams.Key.id  &&
+                            input.Key.userId == expectedParams.Key.userId){
+                            return { 
+                                promise: sinon.stub().resolves({ Item: mockItem })
+                            }
                         }
                     })
                 }
