@@ -30,13 +30,9 @@ exports.planGet = async (event) => {
     throw new Error(`No item with ${id} found`);
   }
 
-  const item = data.Item;
- 
-  const response = {
+  return {
     statusCode: 200,
     headers: accessControlHeaders,
-    body: JSON.stringify(item)
+    body: JSON.stringify(data.Item)
   };
-
-  return response;
 }

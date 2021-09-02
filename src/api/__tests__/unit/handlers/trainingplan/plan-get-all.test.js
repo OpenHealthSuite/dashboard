@@ -4,38 +4,38 @@
 const test = require('tape');
 const proxyquire = require('proxyquire');
 const sinon = require("sinon");
+const _ = require("lodash")
  
 
-test('plan-get.planGet :: Overall Happy Test :: Valid Id and User gets item', async function (t) {
-    
-
+test('plan-get-all.planGetAll :: Overall Happy Test :: Valid User gets items', async function (t) {
     const testTableName = "TESTTABLE"
 
-    const expectedId = "123TESTEXPECTEDID"
     const expectedUserId = "456EXPECTEDUSERID"
 
-    const mockItem = { id: '123TESTEXPECTEDID', userId: "456EXPECTEDUSERID" }; 
+    const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId }]; 
 
     process.env.TRAINING_PLAN_TABLE = testTableName;
 
     var expectedParams = {
         TableName : testTableName,
-        Key: { 
-          id: expectedId,
-          userId: expectedUserId
+        ProjectionExpression:"userId, id, #nm",
+        FilterExpression: "userId = :contextUserId",
+        ExpressionAttributeNames: {
+            "#nm": "name",
+        },
+        ExpressionAttributeValues: {
+            ":contextUserId": expectedUserId
         }
       }
 
-    const lambda = proxyquire('../../../../src/handlers/trainingplan/plan-get.js', {
+    const lambda = proxyquire('../../../../src/handlers/trainingplan/plan-get-all.js', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    get: sinon.stub().callsFake((input) => {
-                        if(input.TableName == expectedParams.TableName &&
-                            input.Key.id == expectedParams.Key.id  &&
-                            input.Key.userId == expectedParams.Key.userId){
+                    scan: sinon.stub().callsFake((input) => {
+                        if(_.isEqual(input, expectedParams)){
                             return { 
-                                promise: sinon.stub().resolves({ Item: mockItem })
+                                promise: sinon.stub().resolves({ Items:  mockItems })
                             }
                         }
                     })
@@ -45,10 +45,7 @@ test('plan-get.planGet :: Overall Happy Test :: Valid Id and User gets item', as
     }); 
 
     const event = { 
-        httpMethod: 'GET', 
-        pathParameters: { 
-            id: expectedId 
-        },
+        httpMethod: 'GET',
         requestContext: {
             authorizer: {
                 claims: {
@@ -59,7 +56,7 @@ test('plan-get.planGet :: Overall Happy Test :: Valid Id and User gets item', as
     } 
 
     // Act
-    const result = await lambda.planGet(event); 
+    const result = await lambda.planGetAll(event); 
 
     // Assert
     const expectedResult = { 
@@ -68,7 +65,7 @@ test('plan-get.planGet :: Overall Happy Test :: Valid Id and User gets item', as
             "Access-Control-Allow-Headers" : "Content-Type, Authorization",
             "Access-Control-Allow-Origin": "*"
         },
-        body: JSON.stringify(mockItem) 
+        body: JSON.stringify(mockItems) 
     }; 
     
     t.deepLooseEqual(result, expectedResult);
