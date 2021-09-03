@@ -6,7 +6,7 @@ const tableName = process.env.TRAINING_PLAN_TABLE;
 /**
  * A simple example includes a HTTP get method to get all items from a DynamoDB table.
  */
-exports.planGetAll = async (event, context) => {
+exports.planGetAll = async (event) => {
     if (event.httpMethod !== 'GET') {
         throw new Error(`getAllItems only accept GET method, you tried: ${event.httpMethod}`);
     }

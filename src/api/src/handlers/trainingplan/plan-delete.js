@@ -10,7 +10,7 @@ const tableName = process.env.TRAINING_PLAN_TABLE;
 /**
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
  */
-exports.planDelete = async (event, context) => {
+exports.planDelete = async (event) => {
     if (event.httpMethod !== 'DELETE') {
         throw new Error(`only accepts DELETE method, you tried: ${event.httpMethod} method.`);
     }
