@@ -1,6 +1,3 @@
-// Import all functions from get-by-id.js 
-
-// Import dynamodb from aws-sdk 
 const test = require('tape');
 const proxyquire = require('proxyquire');
 const sinon = require("sinon");
@@ -8,62 +5,29 @@ const _ = require("lodash")
  
 
 test('plan-get.planGet :: Overall Happy Test :: Valid Id and User gets item', async function (t) {
-    const testTableName = "TESTTABLE"
-
     const expectedId = "123TESTEXPECTEDID"
     const expectedUserId = "456EXPECTEDUSERID"
-    const expectedName = "EXPECTEDNAME9342"
-
-    const mockItem = { id: '123TESTEXPECTEDID', userId: "456EXPECTEDUSERID", originalName: "ORIGINALNAME" }; 
-
-    process.env.TRAINING_PLAN_TABLE = testTableName;
-
-    let expectedUpdate = false;
-
-    var expectedGetParams = {
-        TableName : testTableName,
-        Key: { 
-          id: expectedId,
-          userId: expectedUserId
-        }
+    const expectedName = "askdaskdmNAME"
+    const inputBody = {
+        name: expectedName
       }
-
-    var expectedUpdateParams = {
-        TableName: testTableName,
-        Key: { 
-          id: expectedId,
-          userId: expectedUserId
-        },
-        UpdateExpression: "set #nm = :name",
-        ExpressionAttributeNames: {
-            "#nm": "name",
-        },
-        ExpressionAttributeValues:{
-            ":name":expectedName,
-        },
-        ReturnValues:"UPDATED_NEW"
-    };
+    const expectedInputUpdate = {
+        id: expectedId,
+        userId: expectedUserId,
+        name: expectedName
+    }
+    const mockItem = { id: expectedId, userId: expectedUserId }; 
 
     const lambda = proxyquire('../../../../src/handlers/trainingplan/plan-update.js', {
-        'aws-sdk/clients/dynamodb': {
-            DocumentClient: sinon.stub().callsFake(() => {
-                return {
-                    get: sinon.stub().callsFake((input) => {
-                        if(_.isEqual(input, expectedGetParams)){
-                            return { 
-                                promise: sinon.stub().resolves({ Item: mockItem })
-                            }
-                        }
-                    }),
-                    put: sinon.stub().callsFake((input) => {
-                        if(_.isEqual(input, expectedUpdateParams)){
-                            expectedUpdate = true;
-                            return { 
-                                promise: sinon.stub().resolves()
-                            }
-                        }
-                    })
-                }
+        '../../repositories/trainingPlanRepository': {
+            getTrainingPlan: sinon.stub().callsFake((userId, itemId) => {
+                t.isEqual(userId, expectedUserId)
+                t.isEqual(itemId, expectedId)
+                return mockItem
+            }),
+            updateTrainingPlan: sinon.stub().callsFake((inputUpdate) => {
+                t.deepLooseEqual(inputUpdate, expectedInputUpdate)
+                return inputUpdate
             })
         }
     }); 
@@ -80,11 +44,7 @@ test('plan-get.planGet :: Overall Happy Test :: Valid Id and User gets item', as
                 }
             }
         },
-        body: JSON.stringify({ 
-            id: expectedId,
-            userId: expectedUserId,
-            name: expectedName
-          })
+        body: JSON.stringify(inputBody)
     } 
 
     // Act
@@ -97,14 +57,9 @@ test('plan-get.planGet :: Overall Happy Test :: Valid Id and User gets item', as
             "Access-Control-Allow-Headers" : "Content-Type, Authorization",
             "Access-Control-Allow-Origin": "*"
         },
-        body: JSON.stringify({ 
-            id: expectedId,
-            userId: expectedUserId,
-            name: expectedName
-          })
+        body: JSON.stringify(expectedInputUpdate)
     }; 
     
     t.deepLooseEqual(result, expectedResult);
-    t.true(expectedUpdate);
     t.end();
 })

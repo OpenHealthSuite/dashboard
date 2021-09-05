@@ -1,9 +1,5 @@
 const { accessControlHeaders } = require('../../helpers/requiredHeaders');
-const dynamodb = require('aws-sdk/clients/dynamodb');
-const docClient = new dynamodb.DocumentClient();
-
-const tableName = process.env.TRAINING_PLAN_TABLE;
-
+const { getTrainingPlan, deleteTrainingPlan } = require('../../repositories/trainingPlanRepository');
 /**
  * Delete a training plan
  */
@@ -16,21 +12,13 @@ exports.planDelete = async (event) => {
 
     const id = event.pathParameters.id;
 
-    var getParams = {
-        TableName : tableName,
-        Key: { 
-          id: id,
-          userId: userId
-        }
-    };
+    const existing = await getTrainingPlan(userId, id);
 
-    const existing = await docClient.get(getParams).promise();
-
-    if (!existing || !existing.Item || existing.Item.userId !== userId) {
+    if (!existing || existing.userId !== userId) {
         throw new Error(`No item for user ${userId} found under ${id}`);
     }
 
-    await docClient.delete(getParams).promise();
+    await deleteTrainingPlan(userId, id);
 
     const response = {
         statusCode: 200,

@@ -147,7 +147,7 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
     const expectedUserId = "456EXPECTEDUSERID"
     const expectedName = "EXPECTEDNAME9342"
 
-    const input = { name: expectedName }; 
+    const input = { id: expectedId, userId: expectedUserId, name: expectedName }; 
 
     process.env.TRAINING_PLAN_TABLE = testTableName;
 
@@ -185,7 +185,7 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
     }); 
 
     // Act
-    await updateTrainingPlan(expectedUserId, expectedId, input); 
+    await updateTrainingPlan(input); 
 
     // Assert
     

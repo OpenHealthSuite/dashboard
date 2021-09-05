@@ -8,38 +8,15 @@ const _ = require("lodash")
  
 
 test('plan-get-all.planGetAll :: Overall Happy Test :: Valid User gets items', async function (t) {
-    const testTableName = "TESTTABLE"
-
     const expectedUserId = "456EXPECTEDUSERID"
 
     const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId }]; 
 
-    process.env.TRAINING_PLAN_TABLE = testTableName;
-
-    var expectedParams = {
-        TableName : testTableName,
-        ProjectionExpression:"userId, id, #nm",
-        FilterExpression: "userId = :contextUserId",
-        ExpressionAttributeNames: {
-            "#nm": "name",
-        },
-        ExpressionAttributeValues: {
-            ":contextUserId": expectedUserId
-        }
-      }
-
     const lambda = proxyquire('../../../../src/handlers/trainingplan/plan-get-all.js', {
-        'aws-sdk/clients/dynamodb': {
-            DocumentClient: sinon.stub().callsFake(() => {
-                return {
-                    scan: sinon.stub().callsFake((input) => {
-                        if(_.isEqual(input, expectedParams)){
-                            return { 
-                                promise: sinon.stub().resolves({ Items:  mockItems })
-                            }
-                        }
-                    })
-                }
+        '../../repositories/trainingPlanRepository': {
+            getTrainingPlansForUser: sinon.stub().callsFake((userId) => {
+                t.isEqual(userId, expectedUserId)
+                return mockItems
             })
         }
     }); 

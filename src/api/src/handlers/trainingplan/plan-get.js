@@ -1,9 +1,5 @@
-// Get the DynamoDB table name from environment variables
 const { accessControlHeaders } = require('../../helpers/requiredHeaders');
-const dynamodb = require('aws-sdk/clients/dynamodb');
-const docClient = new dynamodb.DocumentClient();
-
-const tableName = process.env.TRAINING_PLAN_TABLE;
+const { getTrainingPlan } = require('../../repositories/trainingPlanRepository');
 
 /**
  * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
@@ -17,22 +13,15 @@ exports.planGet = async (event) => {
   // Get id from pathParameters from APIGateway because of `/{id}` at template.yml
   const id = event.pathParameters.id;
  
-  var params = {
-    TableName : tableName,
-    Key: { 
-      id: id,
-      userId: userId
-    }
-  };
-  const data = await docClient.get(params).promise();
+  let plan = await getTrainingPlan(userId, id);
   
-  if (!data || !data.Item || data.Item.userId !== userId) {
+  if (!plan || plan.userId !== userId) {
     throw new Error(`No item with ${id} found`);
   }
 
   return {
     statusCode: 200,
     headers: accessControlHeaders,
-    body: JSON.stringify(data.Item)
+    body: JSON.stringify(plan)
   };
 }

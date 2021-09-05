@@ -1,8 +1,5 @@
 const { accessControlHeaders } = require('../../helpers/requiredHeaders');
-const dynamodb = require('aws-sdk/clients/dynamodb');
-const docClient = new dynamodb.DocumentClient();
-
-const tableName = process.env.TRAINING_PLAN_TABLE;
+const { getTrainingPlan, updateTrainingPlan } = require('../../repositories/trainingPlanRepository');
 
 /**
  * Update a training plan
@@ -17,17 +14,9 @@ exports.planUpdate = async (event) => {
     const id = event.pathParameters.id;
     const name = body.name;
 
-    var getParams = {
-        TableName : tableName,
-        Key: { 
-            id: id,
-            userId: userId
-        }
-    };
+    const existing = await getTrainingPlan(userId, id)
 
-    const existing = await docClient.get(getParams).promise()
-
-    if (!existing || !existing.Item || existing.Item.userId !== userId) {
+    if (!existing || existing.userId !== userId) {
         throw new Error(`No item with ${id} found`);
     }
 
@@ -37,23 +26,7 @@ exports.planUpdate = async (event) => {
         name: name 
     }
     
-    var updateParams = {
-        TableName: tableName,
-        Key: { 
-          id: id,
-          userId: userId
-        },
-        UpdateExpression: "set #nm = :name",
-        ExpressionAttributeNames: {
-            "#nm": "name",
-        },
-        ExpressionAttributeValues:{
-            ":name":name,
-        },
-        ReturnValues:"UPDATED_NEW"
-    };
-
-    await docClient.put(updateParams).promise();
+    await updateTrainingPlan(itemUpdate)
 
     const response = {
         statusCode: 200,

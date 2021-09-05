@@ -4,6 +4,8 @@ const docClient = new dynamodb.DocumentClient();
 
 const tableName = process.env.TRAINING_PLAN_TABLE;
 
+const editableFields = ["name"]
+
 module.exports = {
     /**
      * 
@@ -41,10 +43,13 @@ module.exports = {
     createTrainingPlan: async function (userId, newItem) {
         const newTableItem = { 
             id : uuidv4(),
-            userId: userId,
-            ...newItem
+            userId: userId
         }
-    
+
+        editableFields.forEach(field => {
+            newTableItem[field] = newItem[field]
+        })
+        
         var params = {
             TableName : tableName,
             Item: newTableItem
@@ -54,31 +59,27 @@ module.exports = {
         return newTableItem;
     },
     
-    updateTrainingPlan: async function (userId, planId, itemUpdate) {
-        const itemTableUpdate = { 
-            id : planId,
-            userId: userId,
-            ...itemUpdate
-        }
+    updateTrainingPlan: async function (itemUpdate) {
         
         var updateParams = {
             TableName: tableName,
             Key: { 
-              id: itemTableUpdate.id,
-              userId: itemTableUpdate.userId
+              id: itemUpdate.id,
+              userId: itemUpdate.userId
             },
             UpdateExpression: "set #nm = :name",
             ExpressionAttributeNames: {
                 "#nm": "name",
             },
             ExpressionAttributeValues:{
-                ":name":itemTableUpdate.name,
+                ":name":itemUpdate.name,
             },
             ReturnValues:"UPDATED_NEW"
         };
     
         await docClient.put(updateParams).promise();
     },
+
     deleteTrainingPlan: async function (userId, planId) {
         var deleteParams = {
             TableName : tableName,
