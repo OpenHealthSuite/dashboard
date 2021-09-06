@@ -13,6 +13,7 @@ Globals:
     Environment:
       Variables:
         TRAINING_PLAN_TABLE: !Ref TrainingPlanTable
+        TRAINING_PLAN_ACTIVITY_TABLE: !Ref TrainingPlanActivityTable
     Tags: { Key: Project, Value: PaceMeApp }
 
 Resources:
@@ -82,7 +83,7 @@ Resources:
   getAllTrainingPlans:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingplan/plan-get-all.planGetAll
+      Handler: src/handlers/trainingPlanHandlers.planGetAll
       Description: Get all training plans for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -98,7 +99,7 @@ Resources:
   createNewPlan:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingplan/plan-create.planCreate
+      Handler: src/handlers/trainingPlanHandlers.planCreate
       Description: Create training plan for user
       Policies:
         - DynamoDBCrudPolicy:
@@ -114,7 +115,7 @@ Resources:
   deleteTrainingPlan:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingplan/plan-delete.planDelete
+      Handler: src/handlers/trainingPlanHandlers.planDelete
       Description: Delete training plan for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -130,7 +131,7 @@ Resources:
   optionsTrainingPlan:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingplan/plan-option.handler
+      Handler: src/handlers/optionHandler.handler
       Description: Get Options
       Events:
         TrainingPlanId:
@@ -159,6 +160,20 @@ Resources:
         - AttributeName: id
           AttributeType: S
         - AttributeName: userId
+          AttributeType: S
+  TrainingPlanActivityTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+      - AttributeName: trainingPlanId
+        KeyType: HASH
+      - AttributeName: id
+        KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: trainingPlanId
           AttributeType: S
 
 Outputs:
