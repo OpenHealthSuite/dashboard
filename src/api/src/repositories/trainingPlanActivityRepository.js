@@ -7,7 +7,8 @@ const tableName = process.env.TRAINING_PLAN_ACTIVITY_TABLE;
 const expressionAttributeNames = {
     "#nm": "name",
     "#acttime": "activityTime",
-    "#segments": "segments"
+    "#segments": "segments",
+    "#complete": "complete"
 }
 
 const updateExpression = `set ${Object.keys(expressionAttributeNames).map(mapKeyToUpdateExpression).join(', ')}`

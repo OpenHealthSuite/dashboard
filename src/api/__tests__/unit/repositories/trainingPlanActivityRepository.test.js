@@ -11,8 +11,9 @@ test('trainingPlanActivityRepository.createTrainingPlanActivity :: Overall Happy
     const expectedName = "NAMEINPUT"
     const expectedActivityTime = new Date(2020, 12, 25)
     const expectedSegments = [{something:"whatever"}]
+    const expectedComplete = false
 
-    const mockItem = { name: expectedName, activityTime: expectedActivityTime, segments: expectedSegments }; 
+    const mockItem = { name: expectedName, activityTime: expectedActivityTime, segments: expectedSegments, complete: expectedComplete }; 
 
     process.env.TRAINING_PLAN_ACTIVITY_TABLE = testTableName;
 
@@ -21,7 +22,8 @@ test('trainingPlanActivityRepository.createTrainingPlanActivity :: Overall Happy
         trainingPlanId: expectedUserId,
         name: expectedName,
         activityTime: expectedActivityTime,
-        segments: expectedSegments
+        segments: expectedSegments,
+        complete: expectedComplete
     }
     var expectedParams = {
         TableName : testTableName,
@@ -66,12 +68,13 @@ test('trainingPlanActivityRepository.getTrainingPlanActivitiesForTrainingPlan ::
 
     var expectedParams = {
         TableName : testTableName,
-        ProjectionExpression:"trainingPlanId, id, #nm, #acttime, #segments",
+        ProjectionExpression:"trainingPlanId, id, #nm, #acttime, #segments, #complete",
         FilterExpression: "trainingPlanId = :contextPlanId",
         ExpressionAttributeNames: {
             "#nm": "name",
             "#acttime": "activityTime",
-            "#segments": "segments"
+            "#segments": "segments",
+            "#complete": "complete"
         },
         ExpressionAttributeValues: {
             ":contextPlanId": expectedPlanId
@@ -150,8 +153,9 @@ test('trainingPlanActivityRepository.updateTrainingPlanActivity :: Overall Happy
     const expectedName = "EXPECTEDNAME9342"
     const expectedActivityTime = new Date(2020, 12, 25)
     const expectedSegments = [{something:"whatever"}]
+    const expectedComplete = false
 
-    const input = { id: expectedId, trainingPlanId: expectedPlanId, name: expectedName, activityTime: expectedActivityTime, segments: expectedSegments }; 
+    const input = { id: expectedId, trainingPlanId: expectedPlanId, name: expectedName, activityTime: expectedActivityTime, segments: expectedSegments, complete: expectedComplete }; 
 
     process.env.TRAINING_PLAN_ACTIVITY_TABLE = testTableName;
 
@@ -161,16 +165,18 @@ test('trainingPlanActivityRepository.updateTrainingPlanActivity :: Overall Happy
           id: expectedId,
           trainingPlanId: expectedPlanId
         },
-        UpdateExpression: "set #nm = :name, #acttime = :activityTime, #segments = :segments",
+        UpdateExpression: "set #nm = :name, #acttime = :activityTime, #segments = :segments, #complete = :complete",
         ExpressionAttributeNames: {
             "#nm": "name",
             "#acttime": "activityTime",
-            "#segments": "segments"
+            "#segments": "segments",
+            "#complete": "complete"
         },
         ExpressionAttributeValues:{
             ":name":expectedName,
             ":activityTime":expectedActivityTime,
-            ":segments":expectedSegments
+            ":segments":expectedSegments,
+            ":complete":expectedComplete
         },
         ReturnValues:"UPDATED_NEW"
     };
