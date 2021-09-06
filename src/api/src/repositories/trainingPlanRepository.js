@@ -4,7 +4,16 @@ const docClient = new dynamodb.DocumentClient();
 
 const tableName = process.env.TRAINING_PLAN_TABLE;
 
-const editableFields = ["name"]
+const expressionAttributeNames = {
+    "#nm": "name",
+    "#active": "active"
+}
+
+const updateExpression = `set ${Object.keys(expressionAttributeNames).map(mapKeyToUpdateExpression).join(', ')}`
+
+function mapKeyToUpdateExpression(key){
+    return `${key} = :${expressionAttributeNames[key]}`
+}
 
 module.exports = {
     /**
@@ -15,11 +24,9 @@ module.exports = {
     getTrainingPlansForUser: async function (userId) {
         var params = {
             TableName : tableName,
-            ProjectionExpression:"userId, id, #nm",
+            ProjectionExpression:`userId, id, ${Object.keys(expressionAttributeNames).join(', ')}`,
             FilterExpression: "userId = :contextUserId",
-            ExpressionAttributeNames: {
-                "#nm": "name",
-            },
+            ExpressionAttributeNames: expressionAttributeNames,
             ExpressionAttributeValues: {
                 ":contextUserId": userId
             }
@@ -46,7 +53,7 @@ module.exports = {
             userId: userId
         }
 
-        editableFields.forEach(field => {
+        Object.values(expressionAttributeNames).forEach(field => {
             newTableItem[field] = newItem[field]
         })
         
@@ -60,6 +67,11 @@ module.exports = {
     },
     
     updateTrainingPlan: async function (itemUpdate) {
+        var updateValues = {};
+
+        Object.values(expressionAttributeNames).forEach(attr => {
+            updateValues[":"+attr] = itemUpdate[attr]
+        })
         
         var updateParams = {
             TableName: tableName,
@@ -67,13 +79,9 @@ module.exports = {
               id: itemUpdate.id,
               userId: itemUpdate.userId
             },
-            UpdateExpression: "set #nm = :name",
-            ExpressionAttributeNames: {
-                "#nm": "name",
-            },
-            ExpressionAttributeValues:{
-                ":name":itemUpdate.name,
-            },
+            UpdateExpression: updateExpression,
+            ExpressionAttributeNames: expressionAttributeNames,
+            ExpressionAttributeValues: updateValues,
             ReturnValues:"UPDATED_NEW"
         };
     

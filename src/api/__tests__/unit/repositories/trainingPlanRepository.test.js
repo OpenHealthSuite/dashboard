@@ -9,15 +9,17 @@ test('trainingPlanRepository.createTrainingPlan :: Overall Happy Test :: Creates
     const expectedId = "123TESTEXPECTEDID"
     const expectedUserId = "456EXPECTEDUSERID"
     const expectedName = "NAMEINPUT"
+    const expectedActive = true
 
-    const mockItem = { name: expectedName }; 
+    const mockItem = { name: expectedName, active: expectedActive }; 
 
     process.env.TRAINING_PLAN_TABLE = testTableName;
 
     var newItem = { 
         id: expectedId,
         userId: expectedUserId,
-        name: expectedName
+        name: expectedName,
+        active: expectedActive
     }
     var expectedParams = {
         TableName : testTableName,
@@ -64,10 +66,11 @@ test('trainingPlanRepository.getTrainingPlansForUser :: Overall Happy Test :: Ge
 
     var expectedParams = {
         TableName : testTableName,
-        ProjectionExpression:"userId, id, #nm",
+        ProjectionExpression:"userId, id, #nm, #active",
         FilterExpression: "userId = :contextUserId",
         ExpressionAttributeNames: {
             "#nm": "name",
+            "#active": "active"
         },
         ExpressionAttributeValues: {
             ":contextUserId": expectedUserId
@@ -146,8 +149,10 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
     const expectedId = "123TESTEXPECTEDID"
     const expectedUserId = "456EXPECTEDUSERID"
     const expectedName = "EXPECTEDNAME9342"
+    const expectedActive = true
 
-    const input = { id: expectedId, userId: expectedUserId, name: expectedName }; 
+
+    const input = { id: expectedId, userId: expectedUserId, name: expectedName, active: expectedActive }; 
 
     process.env.TRAINING_PLAN_TABLE = testTableName;
 
@@ -157,12 +162,14 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
           id: expectedId,
           userId: expectedUserId
         },
-        UpdateExpression: "set #nm = :name",
+        UpdateExpression: "set #nm = :name, #active = :active",
         ExpressionAttributeNames: {
             "#nm": "name",
+            "#active": "active"
         },
         ExpressionAttributeValues:{
             ":name":expectedName,
+            ":active":expectedActive,
         },
         ReturnValues:"UPDATED_NEW"
     };
