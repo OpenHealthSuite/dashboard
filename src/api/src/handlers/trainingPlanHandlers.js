@@ -27,7 +27,7 @@ exports.planDelete = async (event) => {
 
     const userId = event.requestContext.authorizer.claims.sub
 
-    const id = event.pathParameters.id;
+    const id = event.pathParameters.trainingPlanId;
 
     const existing = await getTrainingPlan(userId, id);
 
@@ -69,7 +69,7 @@ exports.planGet = async (event) => {
     const userId = event.requestContext.authorizer.claims.sub
 
     // Get id from pathParameters from APIGateway because of `/{id}` at template.yml
-    const id = event.pathParameters.id;
+    const id = event.pathParameters.trainingPlanId;
 
     let plan = await getTrainingPlan(userId, id);
 
@@ -91,7 +91,7 @@ exports.planUpdate = async (event) => {
     const userId = event.requestContext.authorizer.claims.sub
 
     const body = JSON.parse(event.body)
-    const id = event.pathParameters.id;
+    const id = event.pathParameters.trainingPlanId;
     const { name, active } = body;
 
     const existing = await getTrainingPlan(userId, id)

@@ -76,7 +76,7 @@ test('trainingPlanHandlers.planDelete :: Overall Happy Test :: Valid Id and User
     const event = {
         httpMethod: 'DELETE',
         pathParameters: {
-            id: expectedId
+            trainingPlanId: expectedId
         },
         requestContext: {
             authorizer: {
@@ -164,7 +164,7 @@ test('trainingPlanHandlers.planGet :: Overall Happy Test :: Valid Id and User ge
     const event = {
         httpMethod: 'GET',
         pathParameters: {
-            id: expectedId
+            trainingPlanId: expectedId
         },
         requestContext: {
             authorizer: {
@@ -226,7 +226,7 @@ test('trainingPlanHandlers.planUpdate :: Overall Happy Test :: Valid Id and User
     const event = {
         httpMethod: 'PUT',
         pathParameters: {
-            id: expectedId
+            trainingPlanId: expectedId
         },
         requestContext: {
             authorizer: {

@@ -112,6 +112,38 @@ Resources:
             Path: /trainingplans
             Method: POST
 
+  getTrainingPlan:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingPlanHandlers.planGet
+      Description: Get training plan for logged in user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{trainingPlanId}
+            Method: GET
+
+  updateTrainingPlan:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingPlanHandlers.planUpdate
+      Description: Update training plan for logged in user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{trainingPlanId}
+            Method: PUT
+
   deleteTrainingPlan:
     Type: AWS::Serverless::Function
     Properties:
@@ -125,10 +157,101 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref PaceMeApi
-            Path: /trainingplans/{id}
+            Path: /trainingplans/{trainingPlanId}
             Method: DELETE
 
-  optionsTrainingPlan:
+
+  getAllTrainingActivities:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingPlanActivityHandlers.activityGetAll
+      Description: Get all training plans for logged in user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanActivityTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{trainingPlanId}/activities
+            Method: GET
+
+  createNewActivity:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingPlanActivityHandlers.activityCreate
+      Description: Create training plan for user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanActivityTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{trainingPlanId}/activities
+            Method: POST
+
+  getTrainingPlanActivity:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingPlanActivityHandlers.activityGet
+      Description: Get training plan activity for logged in user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanActivityTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{trainingPlanId}/activities/{activityId}
+            Method: GET
+
+  updateTrainingPlanActivity:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingPlanActivityHandlers.activityUpdate
+      Description: Update training plan activity for logged in user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanActivityTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{trainingPlanId}/activities/{activityId}
+            Method: PUT
+
+  deleteTrainingPlanActivity:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/trainingPlanActivityHandlers.activityDelete
+      Description: Delete training plan activity for logged in user
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TrainingPlanActivityTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{trainingPlanId}/activities/{activityId}
+            Method: DELETE
+
+  optionsHandler:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/handlers/optionHandler.handler
@@ -138,13 +261,25 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref PaceMeApi
-            Path: /trainingplans/{id}
+            Path: /trainingplans/{trainingPlanId}
             Method: OPTIONS
         TrainingPlanList:
           Type: Api
           Properties:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans
+            Method: OPTIONS
+        TrainingPlanActivityId:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{trainingPlanId}/activities/{activityId}
+            Method: OPTIONS
+        TrainingPlanActivityList:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PaceMeApi
+            Path: /trainingplans/{trainingPlanId}/activities
             Method: OPTIONS
   
   TrainingPlanTable:
