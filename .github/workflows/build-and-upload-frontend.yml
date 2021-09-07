@@ -4,8 +4,18 @@ on:
         branches: [ main ]
 jobs:
     build-site:
+        environment: Production
         name: Build and upload
         runs-on: ubuntu-latest
+        env:
+          REACT_APP_API_ROOT: ${{ secrets.REACT_APP_API_ROOT }}
+          REACT_APP_AWS_REGION: ${{ secrets.REACT_APP_AWS_REGION }}
+          REACT_APP_AWS_USER_POOL_ID: ${{ secrets.REACT_APP_AWS_USER_POOL_ID }}
+          REACT_APP_AWS_USER_POOL_CLIENTID: ${{ secrets.REACT_APP_AWS_USER_POOL_CLIENTID }}
+          REACT_APP_AWS_COOKIE_STORAGE_DOMAIN: ${{ secrets.REACT_APP_AWS_COOKIE_STORAGE_DOMAIN }}
+          REACT_APP_AWS_OAUTH_DOMAIN: ${{ secrets.REACT_APP_AWS_OAUTH_DOMAIN }}
+          REACT_APP_AWS_OAUTH_REDIRECTSIGNIN: ${{ secrets.REACT_APP_AWS_OAUTH_REDIRECTSIGNIN }}
+          REACT_APP_AWS_OAUTH_REDIRECTSIGNOUT: ${{ secrets.REACT_APP_AWS_OAUTH_REDIRECTSIGNOUT }}
         steps:
         - uses: actions/checkout@v2
           with:
