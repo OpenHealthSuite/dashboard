@@ -15,25 +15,25 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
 const configuration = {
-  apiRoot: "https://9oa2qeovj9.execute-api.us-east-1.amazonaws.com/Prod/",
+  apiRoot: process.env.REACT_APP_API_ROOT,
   cognito: {
-    region: 'us-east-1',
-    userPoolId: "us-east-1_wdrYwofGE",
-    userPoolWebClientId: "1l50v8lejd05kd8ukp22sais8m",
+    region: process.env.REACT_APP_AWS_REGION,
+    userPoolId: process.env.REACT_APP_AWS_USER_POOL_ID,
+    userPoolWebClientId: process.env.REACT_APP_AWS_USER_POOL_CLIENTID,
     mandatorySignIn: true,
     authenticationFlowType: 'USER_PASSWORD_AUTH',
     cookieStorage: {
-          domain: 'localhost', //.yourdomain.com
+          domain: process.env.REACT_APP_AWS_COOKIE_STORAGE_DOMAIN, //.yourdomain.com
           path: '/',
           expires: 365,
-          sameSite: "lax",
-          secure: false
+          sameSite: process.env.NODE_ENV !== 'production' ? "lax" : "strict",
+          secure: process.env.NODE_ENV !== 'production'
     },
     oauth: {
-      domain: 'pacemewebapp.auth.us-east-1.amazoncognito.com',
+      domain: process.env.REACT_APP_AWS_OAUTH_DOMAIN,
       scope: ['phone', 'email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
-      redirectSignIn: 'http://localhost:3000/',
-      redirectSignOut: 'http://localhost:3000/',
+      redirectSignIn: process.env.REACT_APP_AWS_OAUTH_REDIRECTSIGNIN,
+      redirectSignOut: process.env.REACT_APP_AWS_OAUTH_REDIRECTSIGNOUT,
       responseType: 'code'
     }
   }
