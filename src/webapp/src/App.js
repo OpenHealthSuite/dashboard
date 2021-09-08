@@ -13,6 +13,16 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import Drawer from '@material-ui/core/Drawer';
+
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 
 const configuration = {
   apiRoot: process.env.REACT_APP_API_ROOT,
@@ -67,34 +77,59 @@ function App() {
       type: 'dark',
     },
   });
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
   const classes = useStyles();
+  const toggleDrawer = (open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+
+    setDrawerOpen(open);
+  };
   return (
-    <ThemeProvider theme={theme}>
-      <Helmet>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-        <meta
-          name="viewport"
-          content="minimum-scale=1, initial-scale=1, width=device-width"
-        />
-      </Helmet>
-      <CssBaseline />
-
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            PaceMe
-          </Typography>
-          <AmplifySignOut></AmplifySignOut>
-        </Toolbar>
-      </AppBar>
-      <TrainingPlanGrid>
-
-      </TrainingPlanGrid>
-    </ThemeProvider>
+    <Router>
+      <ThemeProvider theme={theme}>
+        <Helmet>
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+          <meta
+            name="viewport"
+            content="minimum-scale=1, initial-scale=1, width=device-width"
+          />
+        </Helmet>
+        <CssBaseline />
+        <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
+          <List>
+            <ListItem button key="dashboard">
+              <Link to="/">Dashboard</Link>
+            </ListItem>
+            <ListItem button key="trainingplans">
+              <Link to="/trainingplans">Training Plans</Link>
+            </ListItem>
+          </List>
+        </Drawer>
+        <AppBar position="static">
+          <Toolbar>
+            <IconButton edge="start" onClick={toggleDrawer(true)} className={classes.menuButton} color="inherit" aria-label="menu">
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" className={classes.title}>
+              PaceMe
+            </Typography>
+            <AmplifySignOut></AmplifySignOut>
+          </Toolbar>
+        </AppBar>
+        <Switch>
+          <Route path="/trainingplans">
+            <TrainingPlanGrid/>
+          </Route>
+          <Route path="/">
+            <div>dashboard</div>
+          </Route>
+        </Switch>
+      </ThemeProvider>
+    </Router>
+    
   );
 }
 
