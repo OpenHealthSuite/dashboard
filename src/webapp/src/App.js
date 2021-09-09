@@ -7,13 +7,10 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
-import Amplify, { Auth } from 'aws-amplify';
+import Amplify from 'aws-amplify';
 import React from 'react';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import Drawer from '@material-ui/core/Drawer';
+import TrainingPlanGrid from './components/trainingplan/TrainingPlanGrid'
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -100,11 +97,11 @@ function App() {
         <CssBaseline />
         <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
           <List>
-            <ListItem button key="dashboard">
-              <Link to="/">Dashboard</Link>
+            <ListItem button component={Link} to="/" key="dashboard">
+              Dashboard
             </ListItem>
-            <ListItem button key="trainingplans">
-              <Link to="/trainingplans">Training Plans</Link>
+            <ListItem button component={Link} to="/trainingplans" key="trainingplans">
+              Training Plans
             </ListItem>
           </List>
         </Drawer>
@@ -133,105 +130,5 @@ function App() {
   );
 }
 
-class TrainingPlanGrid extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      existing: [],
-      new: {name: ''}
-    };
-
-
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  componentDidMount() {
-    this.getUsersTrainingPlans();
-  }
-
-  handleChange(event) {    
-    this.setState({new: {name: event.target.value}});  
-  }
-
-  handleSubmit(event) {
-    this.createNewPlan(this.state.new).then(() => this.getUsersTrainingPlans())
-    event.preventDefault();
-  }
-
-  handleDelete(traingPlanId) {
-    this.deleteTrainingPlan(traingPlanId).then(() => this.getUsersTrainingPlans())
-  }
-
-  createNewPlan(newplan) {
-    console.log(newplan)
-    return Auth.currentSession().then(session => {
-      fetch(configuration.apiRoot+"/trainingplans", { 
-        method: "POST",
-        headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
-        body: JSON.stringify(newplan)
-      }).then(() => this.setState({new: {name: '', userId: newplan.userId}}));
-    })
-  }
-
-  getUsersTrainingPlans(){
-    return Auth.currentSession().then(session => {
-      fetch(configuration.apiRoot+"/trainingplans", { 
-        headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
-      }).then((res) => 
-      {
-        return res.json()
-      }
-      ).then(results => this.setState({existing: results}));
-    })
-  }
-
-  deleteTrainingPlan(trainingPlanId) {
-    return Auth.currentSession().then(session => {
-      fetch(configuration.apiRoot+"/trainingplans/"+trainingPlanId, { 
-        method: "DELETE",
-        headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
-      });
-    })
-  }
-
-
-  render() {
-    let existingItems = this.state.existing.map((x, i) => {
-      return (<Grid key={i} item xs={12}>
-          <Paper>{x.name}
-          <Button
-            type="submit"
-            variant="contained"
-            color="secondary"
-            size="large"
-            onClick={() => {this.handleDelete(x.id)}}
-          >
-            Delete
-          </Button>
-          </Paper>
-        </Grid>)
-    })
-    return (
-      <Grid container spacing={3}>
-        {existingItems}
-        <Grid item xs={12}>
-        <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
-          <TextField id="name" label="Name" value={this.state.value} onChange={this.handleChange}/>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            size="large"
-          >
-            Save
-          </Button>
-        </form>
-        </Grid>
-      </Grid>
-    )
-  }
-
-}
 
 export default withAuthenticator(App);
