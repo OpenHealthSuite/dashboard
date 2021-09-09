@@ -69,6 +69,11 @@ resource "aws_cloudfront_distribution" "pacme_frontend_distribution" {
 
   comment             = ""
   default_root_object = "index.html"
+  custom_error_response {
+    error_code = 404
+    response_code = 200
+    response_page_path = "/index.html"
+  }      
   price_class         = "PriceClass_100"
 
   restrictions {
