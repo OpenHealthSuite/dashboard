@@ -19,13 +19,15 @@ export default class TrainingPlanGrid extends React.Component {
     componentDidMount() {
       this.getUsersTrainingPlans();
     }
-  
-    handleChange(event) {    
-      this.setState({new: {name: event.target.value}});  
-    }
 
     createPlanCallback = async (newPlan) => {
       await this.createNewPlan(newPlan)
+      await this.getUsersTrainingPlans()
+    }
+
+
+    editPlanCallback = async (editedPlan) => {
+      await this.editPlan(editedPlan)
       await this.getUsersTrainingPlans()
     }
   
@@ -40,6 +42,16 @@ export default class TrainingPlanGrid extends React.Component {
         method: "POST",
         headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
         body: JSON.stringify(newplan)
+      })
+    }
+
+
+    async editPlan(editedPlan) {
+      let session = await Auth.currentSession()
+      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+editedPlan.id, { 
+        method: "PUT",
+        headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
+        body: JSON.stringify(editedPlan)
       })
     }
   
@@ -65,13 +77,14 @@ export default class TrainingPlanGrid extends React.Component {
       let existingItems = this.state.existing
         .map((x, i) => {
           return (<Grid key={i} item xs={12} sm={6} md={4} lg={3}>
-              <Card elevation={1}>
+              <Card elevation={1} style={{backgroundColor: x.active ? "green" : ""}}>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
                   {x.name}
                 </Typography>
                 </CardContent>
                 <CardActions>
+                  <TrainingPlanEditor inputPlan={x} submitCallback={this.editPlanCallback}/>
                   <Button
                     type="submit"
                     variant="contained"

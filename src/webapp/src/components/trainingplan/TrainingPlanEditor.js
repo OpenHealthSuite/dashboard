@@ -2,6 +2,9 @@ import React from 'react';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -23,11 +26,15 @@ export default class TrainingPlanEditor extends React.Component {
     }
   
     handleEditName(event) {    
-      this.setState({planEditing: {name: event.target.value}});  
+      var plan = {...this.state.planEditing}
+      plan.name = event.target.value
+      this.setState({planEditing: plan});  
     }
 
     handleEditActive(event) {    
-      this.setState({planEditing: {active: event.target.value}});  
+      var plan = {...this.state.planEditing}
+      plan.active = event.target.checked
+      this.setState({planEditing: plan});  
     }
 
     handleOpen() {
@@ -77,6 +84,12 @@ export default class TrainingPlanEditor extends React.Component {
                 {this.props.inputPlan ? "Edit Plan" : "Create Plan"}
               </Typography>
               <TextField id="name" label="Name" value={this.state.planEditing.name} onChange={this.handleEditName}/>
+              <FormGroup row>
+                <FormControlLabel
+                  control={<Switch checked={this.state.planEditing.active} onChange={this.handleEditActive} name="Active" />}
+                  label="Active"
+                />
+              </FormGroup>
             </CardContent>
             <CardActions>
                 <Button
