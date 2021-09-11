@@ -1,5 +1,8 @@
 import React from 'react';
-import Paper from '@material-ui/core/Paper';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TrainingPlanEditor from './TrainingPlanEditor';
@@ -11,10 +14,6 @@ export default class TrainingPlanGrid extends React.Component {
       this.state = {
         existing: []
       };
-  
-  
-      this.handleChange = this.handleChange.bind(this);
-      this.handleSubmit = this.handleSubmit.bind(this);
     }
   
     componentDidMount() {
@@ -25,7 +24,7 @@ export default class TrainingPlanGrid extends React.Component {
       this.setState({new: {name: event.target.value}});  
     }
 
-    async createPlanCallback(newPlan){
+    createPlanCallback = async (newPlan) => {
       await this.createNewPlan(newPlan)
       await this.getUsersTrainingPlans()
     }
@@ -63,28 +62,36 @@ export default class TrainingPlanGrid extends React.Component {
   
   
     render() {
-      let existingItems = this.state.existing.map((x, i) => {
-        return (<Grid key={i} item xs={12}>
-            <Paper>{x.name}
-            <Button
-              type="submit"
-              variant="contained"
-              color="secondary"
-              size="large"
-              onClick={async () => { await this.handleDelete(x.id) }}
-            >
-              Delete
-            </Button>
-            </Paper>
-          </Grid>)
-      })
+      let existingItems = this.state.existing
+        .map((x, i) => {
+          return (<Grid key={i} item xs={12} sm={6} md={4} lg={3}>
+              <Card elevation={1}>
+              <CardContent>
+                <Typography color="textSecondary" gutterBottom>
+                  {x.name}
+                </Typography>
+                </CardContent>
+                <CardActions>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="secondary"
+                    size="large"
+                    onClick={async () => { await this.handleDelete(x.id) }}
+                  >
+                    Delete
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>)
+        })
       return (
-        <Grid container spacing={3}>
-          {existingItems}
-          <Grid item xs={12}>
-            <TrainingPlanEditor submitCallback={this.createPlanCallback}/>
+        <>
+          <TrainingPlanEditor submitCallback={this.createPlanCallback}/>
+          <Grid container spacing={3}>
+            {existingItems}
           </Grid>
-        </Grid>
+        </>
       )
     }
   

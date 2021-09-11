@@ -1,5 +1,9 @@
 import React from 'react';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Modal from '@material-ui/core/Modal';
 
@@ -10,14 +14,12 @@ export default class TrainingPlanEditor extends React.Component {
         open: false,
         planEditing: {}
       };
+      this.handleOpen = this.handleOpen.bind(this);
+      this.handleClose = this.handleClose.bind(this);
 
       this.handleEditActive = this.handleEditActive.bind(this);
       this.handleEditName = this.handleEditName.bind(this);
       this.handleSubmit = this.handleSubmit.bind(this);
-    }
-  
-    componentDidMount() {
-      this.getUsersTrainingPlans();
     }
   
     handleEditName(event) {    
@@ -68,17 +70,26 @@ export default class TrainingPlanEditor extends React.Component {
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
         >
-        <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
-        <TextField id="name" label="Name" value={this.state.planEditing.name} onChange={this.handleEditName}/>
-            <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            size="large"
-            >
-            Save
-        </Button>
-        </form>
+          <Card elevation={3}>
+            <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
+            <CardContent>
+              <Typography color="textSecondary" gutterBottom>
+                {this.props.inputPlan ? "Edit Plan" : "Create Plan"}
+              </Typography>
+              <TextField id="name" label="Name" value={this.state.planEditing.name} onChange={this.handleEditName}/>
+            </CardContent>
+            <CardActions>
+                <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                size="large"
+                >
+                Save
+            </Button>
+            </CardActions>
+            </form>
+          </Card>
         </Modal>
         </>
       )
