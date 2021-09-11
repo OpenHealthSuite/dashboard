@@ -2,15 +2,14 @@ import React from 'react';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import TrainingPlanEditor from './TrainingPlanEditor';
 import { Auth } from 'aws-amplify';
 
 export default class TrainingPlanGrid extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
-        existing: [],
-        new: {name: ''}
+        existing: []
       };
   
   
@@ -25,10 +24,9 @@ export default class TrainingPlanGrid extends React.Component {
     handleChange(event) {    
       this.setState({new: {name: event.target.value}});  
     }
-  
-    async handleSubmit(event) {
-      event.preventDefault();
-      await this.createNewPlan(this.state.new)
+
+    async createPlanCallback(newPlan){
+      await this.createNewPlan(newPlan)
       await this.getUsersTrainingPlans()
     }
   
@@ -44,7 +42,6 @@ export default class TrainingPlanGrid extends React.Component {
         headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
         body: JSON.stringify(newplan)
       })
-      this.setState({new: {name: '', userId: newplan.userId}})
     }
   
     async getUsersTrainingPlans(){
@@ -85,20 +82,10 @@ export default class TrainingPlanGrid extends React.Component {
         <Grid container spacing={3}>
           {existingItems}
           <Grid item xs={12}>
-          <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
-            <TextField id="name" label="Name" value={this.state.value} onChange={this.handleChange}/>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              size="large"
-            >
-              Save
-            </Button>
-          </form>
+            <TrainingPlanEditor submitCallback={this.createPlanCallback}/>
           </Grid>
         </Grid>
       )
     }
   
-  }
+}
