@@ -5,68 +5,79 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import TrainingPlanEditor from './TrainingPlanEditor';
+import TrainingPlanActivityEditor from './TrainingPlanActivityEditor';
 import { Auth } from 'aws-amplify';
 
-export default class TrainingPlanGrid extends React.Component {
+export default class TrainingPlanActivityBrowser extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
+        plan: {},
         existing: []
       };
     }
   
     async componentDidMount() {
-      await this.getUsersTrainingPlans();
+      await this.getUsersTrainingPlan();
+      await this.getUsersTrainingPlanActivites();
     }
 
-    createPlanCallback = async (newPlan) => {
-      await this.createNewPlan(newPlan)
-      await this.getUsersTrainingPlans()
+    createActivityCallback = async (newPlan) => {
+      await this.createNewActivity(newPlan)
+      await this.getUsersTrainingPlanActivites()
     }
 
 
-    editPlanCallback = async (editedPlan) => {
-      await this.editPlan(editedPlan)
-      await this.getUsersTrainingPlans()
+    editActivityCallback = async (editedPlan) => {
+      await this.editActivity(editedPlan)
+      await this.getUsersTrainingPlanActivites()
     }
   
-    async handleDelete(traingPlanId) {
-      await this.deleteTrainingPlan(traingPlanId)
-      await this.getUsersTrainingPlans()
+    async handleDelete(trainingPlanActivityId) {
+      await this.deleteTrainingPlanActivity(trainingPlanActivityId)
+      await this.getUsersTrainingPlanActivites()
     }
   
-    async createNewPlan(newplan) {
+    async createNewActivity(newActivity) {
       let session = await Auth.currentSession()
-      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans", { 
+      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId+"/activities", { 
         method: "POST",
         headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
-        body: JSON.stringify(newplan)
+        body: JSON.stringify(newActivity)
       })
     }
 
 
-    async editPlan(editedPlan) {
+    async editActivity(editedActivity) {
       let session = await Auth.currentSession()
-      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+editedPlan.id, { 
+      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId+"/activities/"+editedActivity.id, { 
         method: "PUT",
         headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
-        body: JSON.stringify(editedPlan)
+        body: JSON.stringify(editedActivity)
       })
     }
-  
-    async getUsersTrainingPlans(){
+
+    async getUsersTrainingPlan(){
         let session = await Auth.currentSession()
-        let result = await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans", { 
+        let result = await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId, { 
+            headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
+        })
+        let body = await result.json()
+        this.setState({plan: body});
+    }
+  
+    async getUsersTrainingPlanActivites(){
+        let session = await Auth.currentSession()
+        let result = await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId+"/activities", { 
             headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
         })
         let body = await result.json()
         this.setState({existing: body});
     }
   
-    async deleteTrainingPlan(trainingPlanId) {
+    async deleteTrainingPlanActivity(activityId) {
       let session = await Auth.currentSession()
-      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+trainingPlanId, { 
+      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId+"/activities/"+activityId, { 
           method: "DELETE",
           headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
         });
@@ -77,17 +88,14 @@ export default class TrainingPlanGrid extends React.Component {
       let existingItems = this.state.existing
         .map((x, i) => {
           return (<Grid key={i} item xs={12} sm={6} md={4} lg={3}>
-              <Card elevation={1} style={{backgroundColor: x.active ? "green" : ""}}>
+              <Card elevation={1} style={{backgroundColor: x.complete ? "green" : ""}}>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
                   {x.name}
                 </Typography>
                 </CardContent>
-                <CardActions>                
-                  <Button variant="contained" color="primary" href={"/trainingplans/"+x.id}>
-                    Activities
-                  </Button>
-                  <TrainingPlanEditor inputPlan={x} submitCallback={this.editPlanCallback}/>
+                <CardActions>
+                  <TrainingPlanActivityEditor inputActivity={x} submitCallback={this.editActivityCallback}/>
                   <Button
                     type="submit"
                     variant="contained"
@@ -103,7 +111,7 @@ export default class TrainingPlanGrid extends React.Component {
         })
       return (
         <>
-          <TrainingPlanEditor submitCallback={this.createPlanCallback}/>
+          <TrainingPlanActivityEditor submitCallback={this.createActivityCallback}/>
           <Grid container spacing={3}>
             {existingItems}
           </Grid>

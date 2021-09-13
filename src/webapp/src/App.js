@@ -11,6 +11,7 @@ import Amplify from 'aws-amplify';
 import React from 'react';
 import Drawer from '@material-ui/core/Drawer';
 import TrainingPlanGrid from './components/trainingplan/TrainingPlanGrid'
+import TrainingPlanActivityBrowser from './components/trainingplanactivity/TrainingPlanActivityBrowser'
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -18,7 +19,8 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
+  Link,
+  useParams
 } from "react-router-dom";
 
 const configuration = {
@@ -117,6 +119,7 @@ function App() {
           </Toolbar>
         </AppBar>
         <Switch>
+          <Route path="/trainingplans/:trainingPlanId" children={<TrainingPlanRouteChild />} />
           <Route path="/trainingplans">
             <TrainingPlanGrid/>
           </Route>
@@ -130,5 +133,14 @@ function App() {
   );
 }
 
+function TrainingPlanRouteChild() {
+  // We can use the `useParams` hook here to access
+  // the dynamic pieces of the URL.
+  const { trainingPlanId } = useParams();
+
+  return (
+    <TrainingPlanActivityBrowser trainingPlanId={trainingPlanId} />
+  );
+}
 
 export default withAuthenticator(App);
