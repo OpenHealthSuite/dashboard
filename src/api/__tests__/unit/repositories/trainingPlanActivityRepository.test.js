@@ -161,24 +161,7 @@ test('trainingPlanActivityRepository.updateTrainingPlanActivity :: Overall Happy
 
     var expectedUpdateParams = {
         TableName: testTableName,
-        Key: { 
-          id: expectedId,
-          trainingPlanId: expectedPlanId
-        },
-        UpdateExpression: "set #nm = :name, #acttime = :activityTime, #segments = :segments, #complete = :complete",
-        ExpressionAttributeNames: {
-            "#nm": "name",
-            "#acttime": "activityTime",
-            "#segments": "segments",
-            "#complete": "complete"
-        },
-        ExpressionAttributeValues:{
-            ":name":expectedName,
-            ":activityTime":expectedActivityTime,
-            ":segments":expectedSegments,
-            ":complete":expectedComplete
-        },
-        ReturnValues:"UPDATED_NEW"
+        Item: input
     };
 
     const { updateTrainingPlanActivity } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.js', {

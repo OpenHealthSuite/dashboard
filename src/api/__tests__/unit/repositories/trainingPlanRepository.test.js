@@ -158,20 +158,7 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
 
     var expectedUpdateParams = {
         TableName: testTableName,
-        Key: { 
-          id: expectedId,
-          userId: expectedUserId
-        },
-        UpdateExpression: "set #nm = :name, #active = :active",
-        ExpressionAttributeNames: {
-            "#nm": "name",
-            "#active": "active"
-        },
-        ExpressionAttributeValues:{
-            ":name":expectedName,
-            ":active":expectedActive,
-        },
-        ReturnValues:"UPDATED_NEW"
+        Item: input
     };
 
     var actualUpdateParams;

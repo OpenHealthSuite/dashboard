@@ -67,22 +67,18 @@ module.exports = {
     },
     
     updateTrainingPlan: async function (itemUpdate) {
-        var updateValues = {};
+        const updateTableItem = {
+            id: itemUpdate.id,
+            userId: itemUpdate.userId
+        };
 
-        Object.values(expressionAttributeNames).forEach(attr => {
-            updateValues[":"+attr] = itemUpdate[attr]
+        Object.values(expressionAttributeNames).forEach(field => {
+            updateTableItem[field] = itemUpdate[field]
         })
         
         var updateParams = {
             TableName: tableName,
-            Key: { 
-              id: itemUpdate.id,
-              userId: itemUpdate.userId
-            },
-            UpdateExpression: updateExpression,
-            ExpressionAttributeNames: expressionAttributeNames,
-            ExpressionAttributeValues: updateValues,
-            ReturnValues:"UPDATED_NEW"
+            Item: updateTableItem
         };
     
         await docClient.put(updateParams).promise();
