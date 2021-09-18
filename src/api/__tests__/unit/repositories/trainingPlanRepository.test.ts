@@ -1,4 +1,4 @@
-const test = require('tape');
+import * as test from "tape";
 const proxyquire = require('proxyquire');
 const sinon = require("sinon");
 const _ = require("lodash")
@@ -27,11 +27,11 @@ test('trainingPlanRepository.createTrainingPlan :: Overall Happy Test :: Creates
     }
     var inputParams;
 
-    const { createTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.js', {
+    const { createTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    put: sinon.stub().callsFake((input) => {
+                    put: sinon.stub().callsFake((input: any) => {
                         inputParams = input;
                         return { 
                             promise: sinon.stub().resolves()
@@ -76,11 +76,11 @@ test('trainingPlanRepository.getTrainingPlansForUser :: Overall Happy Test :: Ge
             ":contextUserId": expectedUserId
         }
       }
-    const { getTrainingPlansForUser } = proxyquire('../../../src/repositories/trainingPlanRepository.js', {
+    const { getTrainingPlansForUser } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    scan: sinon.stub().callsFake((input) => {
+                    scan: sinon.stub().callsFake((input: any) => {
                         if(_.isEqual(input, expectedParams)){
                             return { 
                                 promise: sinon.stub().resolves({ Items:  mockItems })
@@ -118,11 +118,11 @@ test('trainingPlanRepository.getTrainingPlan :: Overall Happy Test :: Gets train
           userId: expectedUserId
         }
       }
-    const { getTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.js', {
+    const { getTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    get: sinon.stub().callsFake((input) => {
+                    get: sinon.stub().callsFake((input: any) => {
                         if(_.isEqual(input, expectedParams)){
                             return { 
                                 promise: sinon.stub().resolves({ Item: mockItem })
@@ -163,11 +163,11 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
 
     var actualUpdateParams;
 
-    const { updateTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.js', {
+    const { updateTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    put: sinon.stub().callsFake((input) => {
+                    put: sinon.stub().callsFake((input: any) => {
                         actualUpdateParams = input;
                         return { 
                             promise: sinon.stub().resolves()
@@ -203,11 +203,11 @@ test('trainingPlanRepository.deleteTrainingPlan :: Overall Happy Test :: Gets tr
         }
       }
     var actualParams;
-    const { deleteTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.js', {
+    const { deleteTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    delete: sinon.stub().callsFake((input) => {
+                    delete: sinon.stub().callsFake((input: any) => {
                         actualParams = input;
                         return { 
                             promise: sinon.stub().resolves()

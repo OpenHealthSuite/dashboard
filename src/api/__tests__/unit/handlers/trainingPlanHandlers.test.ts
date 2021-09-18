@@ -1,4 +1,4 @@
-const test = require('tape');
+import * as test from "tape";
 const proxyquire = require('proxyquire');
 const sinon = require("sinon");
 const _ = require("lodash")
@@ -14,9 +14,9 @@ test('trainingPlanHandlers.planCreate :: Overall Happy Test :: Creates new item 
         name: expectedName
     }
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            createTrainingPlan: sinon.stub().callsFake((userId, inputItem) => {
+            createTrainingPlan: sinon.stub().callsFake((userId: any, inputItem: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.deepLooseEqual(inputItem, inputBody)
                 return mockItem
@@ -59,14 +59,14 @@ test('trainingPlanHandlers.planDelete :: Overall Happy Test :: Valid Id and User
 
     const mockItem = { id: expectedId, userId: expectedUserId };
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId, itemId) => {
+            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.isEqual(itemId, expectedId)
                 return mockItem
             }),
-            deleteTrainingPlan: sinon.stub().callsFake((userId, itemId) => {
+            deleteTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.isEqual(itemId, expectedId)
             })
@@ -108,9 +108,9 @@ test('trainingPlanHandlers.planGetAll :: Overall Happy Test :: Valid User gets i
 
     const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId }];
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            getTrainingPlansForUser: sinon.stub().callsFake((userId) => {
+            getTrainingPlansForUser: sinon.stub().callsFake((userId: any) => {
                 t.isEqual(userId, expectedUserId)
                 return mockItems
             })
@@ -151,9 +151,9 @@ test('trainingPlanHandlers.planGet :: Overall Happy Test :: Valid Id and User ge
 
     const mockItem = { id: '123TESTEXPECTEDID', userId: "456EXPECTEDUSERID" };
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId, itemId) => {
+            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.isEqual(itemId, expectedId)
                 return mockItem
@@ -209,14 +209,14 @@ test('trainingPlanHandlers.planUpdate :: Overall Happy Test :: Valid Id and User
     }
     const mockItem = { id: expectedId, userId: expectedUserId };
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId, itemId) => {
+            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.isEqual(itemId, expectedId)
                 return mockItem
             }),
-            updateTrainingPlan: sinon.stub().callsFake((inputUpdate) => {
+            updateTrainingPlan: sinon.stub().callsFake((inputUpdate: any) => {
                 t.deepLooseEqual(inputUpdate, expectedInputUpdate)
                 return inputUpdate
             })

@@ -1,4 +1,4 @@
-const test = require('tape');
+import * as test from "tape";
 const proxyquire = require('proxyquire');
 const sinon = require("sinon");
 const _ = require("lodash")
@@ -15,16 +15,16 @@ test('trainingPlanActivityHandlers.activityCreate :: Overall Happy Test :: Creat
         name: expectedName
     }
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId, trainingPlanId) => {
+            getTrainingPlan: sinon.stub().callsFake((userId: any, trainingPlanId: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.isEqual(trainingPlanId, expectedTrainingPlanId)
                 return mockItem
             })
         },
         '../repositories/trainingPlanActivityRepository': {
-            createTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId, inputItem) => {
+            createTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId: any, inputItem: any) => {
                 t.isEqual(trainingPlanId, expectedTrainingPlanId)
                 t.deepLooseEqual(inputItem, inputBody)
                 return mockItem
@@ -72,21 +72,21 @@ test('trainingPlanActivityHandlers.activityDelete :: Overall Happy Test :: Valid
     const mockItem = { id: expectedTrainingPlanId, userId: expectedUserId };
     const mockActivityItem = { id: expectedActivityId, trainingPlanId: expectedTrainingPlanId };
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId, itemId) => {
+            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.isEqual(itemId, expectedTrainingPlanId)
                 return mockItem
             }),
         },
         '../repositories/trainingPlanActivityRepository': {
-            getTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId, activityId) => {
+            getTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId: any, activityId: any) => {
                 t.isEqual(trainingPlanId, expectedTrainingPlanId)
                 t.isEqual(activityId, expectedActivityId)
                 return mockActivityItem
             }),
-            deleteTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId, activityId) => {
+            deleteTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId: any, activityId: any) => {
                 t.isEqual(trainingPlanId, expectedTrainingPlanId)
                 t.isEqual(activityId, expectedActivityId)
             })
@@ -131,16 +131,16 @@ test('trainingPlanActivityHandlers.activityGetAll :: Overall Happy Test :: Valid
     const mockItem = { id: expectedTrainingPlanId, userId: expectedUserId };
     const mockActivityItems = [{ id: '123TESTEXPECTEDID', trainingPlanId: expectedTrainingPlanId }];
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId, itemId) => {
+            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.isEqual(itemId, expectedTrainingPlanId)
                 return mockItem
             }),
         },
         '../repositories/trainingPlanActivityRepository': {
-            getTrainingPlanActivitiesForTrainingPlan: sinon.stub().callsFake((trainingPlanId) => {
+            getTrainingPlanActivitiesForTrainingPlan: sinon.stub().callsFake((trainingPlanId: any) => {
                 t.isEqual(trainingPlanId, expectedTrainingPlanId)
                 return mockActivityItems
             }),
@@ -186,16 +186,16 @@ test('trainingPlanActivityHandlers.activityGet :: Overall Happy Test :: Valid Id
     const mockItem = { id: expectedTrainingPlanId, userId: expectedUserId };
     const mockActivityItem = { id: expectedActivityId, trainingPlanId: expectedTrainingPlanId };
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId, itemId) => {
+            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.isEqual(itemId, expectedTrainingPlanId)
                 return mockItem
             }),
         },
         '../repositories/trainingPlanActivityRepository': {
-            getTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId, activityId) => {
+            getTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId: any, activityId: any) => {
                 t.isEqual(trainingPlanId, expectedTrainingPlanId)
                 t.isEqual(activityId, expectedActivityId)
                 return mockActivityItem
@@ -265,21 +265,21 @@ test('trainingPlanActivityHandlers.activityUpdate :: Overall Happy Test :: Valid
     }))
 
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.js', {
+    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
         '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId, itemId) => {
+            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
                 t.isEqual(userId, expectedUserId)
                 t.isEqual(itemId, expectedTrainingPlanId)
                 return mockItem
             }),
         },
         '../repositories/trainingPlanActivityRepository': {
-            getTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId, activityId) => {
+            getTrainingPlanActivity: sinon.stub().callsFake((trainingPlanId: any, activityId: any) => {
                 t.isEqual(trainingPlanId, expectedTrainingPlanId)
                 t.isEqual(activityId, expectedActivityId)
                 return mockActivityItem
             }),
-            updateTrainingPlanActivity: sinon.stub().callsFake((itemUpdate) => {
+            updateTrainingPlanActivity: sinon.stub().callsFake((itemUpdate: any) => {
                 t.deepLooseEqual(itemUpdate, expectedItemUpdate)
                 return mockActivityItem
             }),

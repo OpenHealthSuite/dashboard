@@ -1,4 +1,4 @@
-const test = require('tape');
+import * as test from "tape";
 const proxyquire = require('proxyquire');
 const sinon = require("sinon");
 const _ = require("lodash")
@@ -30,11 +30,11 @@ test('trainingPlanActivityRepository.createTrainingPlanActivity :: Overall Happy
         Item: newItem
     }
 
-    const { createTrainingPlanActivity } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.js', {
+    const { createTrainingPlanActivity } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    put: sinon.stub().callsFake((input) => {
+                    put: sinon.stub().callsFake((input: any) => {
                         t.deepLooseEqual(input, expectedParams);
                         return { 
                             promise: sinon.stub().resolves()
@@ -80,11 +80,11 @@ test('trainingPlanActivityRepository.getTrainingPlanActivitiesForTrainingPlan ::
             ":contextPlanId": expectedPlanId
         }
       }
-    const { getTrainingPlanActivitiesForTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.js', {
+    const { getTrainingPlanActivitiesForTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    scan: sinon.stub().callsFake((input) => {
+                    scan: sinon.stub().callsFake((input: any) => {
                         t.deepLooseEqual(input, expectedParams)
                         return { 
                             promise: sinon.stub().resolves({ Items:  mockItems })
@@ -121,11 +121,11 @@ test('trainingPlanActivityRepository.getTrainingPlanActivity :: Overall Happy Te
           id: expectedId
         }
       }
-    const { getTrainingPlanActivity } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.js', {
+    const { getTrainingPlanActivity } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    get: sinon.stub().callsFake((input) => {
+                    get: sinon.stub().callsFake((input: any) => {
                         t.deepLooseEqual(input, expectedParams)
                         return { 
                             promise: sinon.stub().resolves({ Item: mockItem })
@@ -164,11 +164,11 @@ test('trainingPlanActivityRepository.updateTrainingPlanActivity :: Overall Happy
         Item: input
     };
 
-    const { updateTrainingPlanActivity } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.js', {
+    const { updateTrainingPlanActivity } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    put: sinon.stub().callsFake((input) => {
+                    put: sinon.stub().callsFake((input: any) => {
                         t.deepLooseEqual(input, expectedUpdateParams);
                         return { 
                             promise: sinon.stub().resolves()
@@ -203,11 +203,11 @@ test('trainingPlanActivityRepository.deleteTrainingPlanActivity :: Overall Happy
         }
       }
     
-    const { deleteTrainingPlanActivity } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.js', {
+    const { deleteTrainingPlanActivity } = proxyquire('../../../src/repositories/trainingPlanActivityRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
-                    delete: sinon.stub().callsFake((input) => {
+                    delete: sinon.stub().callsFake((input: any) => {
                         t.deepLooseEqual(input, expectedParams);
                         return { 
                             promise: sinon.stub().resolves()
