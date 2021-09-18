@@ -3,7 +3,7 @@ const proxyquire = require('proxyquire');
 const sinon = require("sinon");
 const _ = require("lodash")
 
-test('trainingPlanRepository.createTrainingPlan :: Overall Happy Test :: Creates new training plan', async function (t) {
+test('baseDynamoRepository.create :: Overall Happy Test :: Creates new item', async function (t) {
     const testTableName = "TESTTABLE"
 
     const expectedId = "123TESTEXPECTEDID"
@@ -11,9 +11,13 @@ test('trainingPlanRepository.createTrainingPlan :: Overall Happy Test :: Creates
     const expectedName = "NAMEINPUT"
     const expectedActive = true
 
-    const mockItem = { name: expectedName, active: expectedActive }; 
+    const expectedPartitionKey = "userId"
+    const expectedSortKey = "id"
 
-    process.env.TRAINING_PLAN_TABLE = testTableName;
+    const expectedExpressionAttributes = {
+        "#nm": "name",
+        "#active": "active"
+    }
 
     var newItem = { 
         id: expectedId,
@@ -27,7 +31,7 @@ test('trainingPlanRepository.createTrainingPlan :: Overall Happy Test :: Creates
     }
     var inputParams;
 
-    const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+    const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
@@ -39,16 +43,13 @@ test('trainingPlanRepository.createTrainingPlan :: Overall Happy Test :: Creates
                     })
                 }
             })
-        },
-        'uuid': {
-            v4: sinon.stub().callsFake(() => expectedId)
         }
     }); 
 
-    let repository = new TrainingPlanRepository()
+    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    const result = await repository.createTrainingPlan(expectedUserId, mockItem); 
+    const result = await repository.create(newItem); 
 
     // Assert
     
@@ -57,36 +58,38 @@ test('trainingPlanRepository.createTrainingPlan :: Overall Happy Test :: Creates
     t.end();
 })
 
-test('trainingPlanRepository.getTrainingPlansForUser :: Overall Happy Test :: Get users training plan ', async function (t) {
+test('baseDynamoRepository.getAllByPartitionKey :: Overall Happy Test :: Gets and returns items ', async function (t) {
     const testTableName = "TESTTABLE"
 
     const expectedUserId = "456EXPECTEDUSERID"
 
     const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId }]; 
 
-    process.env.TRAINING_PLAN_TABLE = testTableName;
+    const expectedPartitionKey = "userId"
+    const expectedSortKey = "id"
+
+    const expectedExpressionAttributes = {
+        "#nm": "name",
+        "#active": "active"
+    }
 
     var expectedParams = {
         TableName : testTableName,
         ProjectionExpression:"userId, id, #nm, #active",
-        FilterExpression: "userId = :contextUserId",
-        ExpressionAttributeNames: {
-            "#nm": "name",
-            "#active": "active"
-        },
+        FilterExpression: "userId = :requestedPartitionKey",
+        ExpressionAttributeNames: expectedExpressionAttributes,
         ExpressionAttributeValues: {
-            ":contextUserId": expectedUserId
+            ":requestedPartitionKey": expectedUserId
         }
       }
-      const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+      const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
                     scan: sinon.stub().callsFake((input: any) => {
-                        if(_.isEqual(input, expectedParams)){
-                            return { 
-                                promise: sinon.stub().resolves({ Items:  mockItems })
-                            }
+                        t.deepLooseEqual(input, expectedParams);
+                        return { 
+                            promise: sinon.stub().resolves({ Items:  mockItems })
                         }
                     })
                 }
@@ -94,10 +97,10 @@ test('trainingPlanRepository.getTrainingPlansForUser :: Overall Happy Test :: Ge
         }
     }); 
 
-    let repository = new TrainingPlanRepository()
+    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    const result = await repository.getTrainingPlansForUser(expectedUserId); 
+    const result = await repository.getAllByPartitionKey(expectedUserId); 
 
     // Assert
     
@@ -105,15 +108,21 @@ test('trainingPlanRepository.getTrainingPlansForUser :: Overall Happy Test :: Ge
     t.end();
 })
 
-test('trainingPlanRepository.getTrainingPlan :: Overall Happy Test :: Gets training plan ', async function (t) {
+test('baseDynamoRepository.getByPartitionAndSortKeys :: Overall Happy Test :: Gets item and returns it ', async function (t) {
     const testTableName = "TESTTABLE"
 
     const expectedId = "123TESTEXPECTEDID"
     const expectedUserId = "456EXPECTEDUSERID"
 
-    const mockItem = { id: '123TESTEXPECTEDID', userId: "456EXPECTEDUSERID" }; 
+    const expectedPartitionKey = "userId"
+    const expectedSortKey = "id"
 
-    process.env.TRAINING_PLAN_TABLE = testTableName;
+    const expectedExpressionAttributes = {
+        "#nm": "name",
+        "#active": "active"
+    }
+
+    const mockItem = { id: '123TESTEXPECTEDID', userId: "456EXPECTEDUSERID" }; 
 
     var expectedParams = {
         TableName : testTableName,
@@ -122,15 +131,14 @@ test('trainingPlanRepository.getTrainingPlan :: Overall Happy Test :: Gets train
           userId: expectedUserId
         }
       }
-      const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+      const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
                     get: sinon.stub().callsFake((input: any) => {
-                        if(_.isEqual(input, expectedParams)){
-                            return { 
-                                promise: sinon.stub().resolves({ Item: mockItem })
-                            }
+                        t.deepLooseEqual(input, expectedParams);
+                        return { 
+                            promise: sinon.stub().resolves({ Item: mockItem })
                         }
                     })
                 }
@@ -138,10 +146,10 @@ test('trainingPlanRepository.getTrainingPlan :: Overall Happy Test :: Gets train
         }
     }); 
 
-    let repository = new TrainingPlanRepository()
+    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    const result = await repository.getTrainingPlan(expectedUserId, expectedId); 
+    const result = await repository.getByPartitionAndSortKeys(expectedUserId, expectedId); 
 
     // Assert
     
@@ -149,7 +157,7 @@ test('trainingPlanRepository.getTrainingPlan :: Overall Happy Test :: Gets train
     t.end();
 })
 
-test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates training plan ', async function (t) {
+test('BaseDynamoRepository.update :: Overall Happy Test :: updates item ', async function (t) {
     const testTableName = "TESTTABLE"
 
     const expectedId = "123TESTEXPECTEDID"
@@ -157,10 +165,15 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
     const expectedName = "EXPECTEDNAME9342"
     const expectedActive = true
 
+    const expectedPartitionKey = "userId"
+    const expectedSortKey = "id"
+
+    const expectedExpressionAttributes = {
+        "#nm": "name",
+        "#active": "active"
+    }
 
     const input = { id: expectedId, userId: expectedUserId, name: expectedName, active: expectedActive }; 
-
-    process.env.TRAINING_PLAN_TABLE = testTableName;
 
     var expectedUpdateParams = {
         TableName: testTableName,
@@ -169,7 +182,7 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
 
     var actualUpdateParams;
 
-    const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+    const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
@@ -184,10 +197,11 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
         }
     }); 
 
-    let repository = new TrainingPlanRepository()
+
+    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    await repository.updateTrainingPlan(input); 
+    await repository.update(input); 
 
     // Assert
     
@@ -195,13 +209,19 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
     t.end();
 })
 
-test('trainingPlanRepository.deleteTrainingPlan :: Overall Happy Test :: Gets training plan ', async function (t) {
+test('BaseDynamoRepository.delete :: Overall Happy Test :: deletes item ', async function (t) {
     const testTableName = "TESTTABLE"
 
     const expectedId = "123TESTEXPECTEDID"
     const expectedUserId = "456EXPECTEDUSERID"
 
-    process.env.TRAINING_PLAN_TABLE = testTableName;
+    const expectedPartitionKey = "userId"
+    const expectedSortKey = "id"
+
+    const expectedExpressionAttributes = {
+        "#nm": "name",
+        "#active": "active"
+    }
 
     var expectedParams = {
         TableName : testTableName,
@@ -211,7 +231,7 @@ test('trainingPlanRepository.deleteTrainingPlan :: Overall Happy Test :: Gets tr
         }
       }
     var actualParams;
-    const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+    const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
@@ -227,10 +247,10 @@ test('trainingPlanRepository.deleteTrainingPlan :: Overall Happy Test :: Gets tr
         }
     }); 
 
-    let repository = new TrainingPlanRepository()
+    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    await repository.deleteTrainingPlan(expectedUserId, expectedId); 
+    await repository.deleteByPartitionAndSortKey(expectedUserId, expectedId); 
 
     // Assert
     
