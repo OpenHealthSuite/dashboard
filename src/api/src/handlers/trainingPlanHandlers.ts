@@ -1,7 +1,7 @@
 const { accessControlHeaders } = require('../helpers/requiredHeaders');
 const { createTrainingPlan, getTrainingPlan, deleteTrainingPlan, getTrainingPlansForUser, updateTrainingPlan } = require('../repositories/trainingPlanRepository');
 
-exports.planCreate = async (event) => {
+export const planCreate = async (event: any) => {
     if (event.httpMethod !== 'POST') {
         throw new Error(`postMethod only accepts POST method, you tried: ${event.httpMethod} method.`);
     }
@@ -20,7 +20,7 @@ exports.planCreate = async (event) => {
     return response;
 }
 
-exports.planDelete = async (event) => {
+export const planDelete = async (event: any) => {
     if (event.httpMethod !== 'DELETE') {
         throw new Error(`only accepts DELETE method, you tried: ${event.httpMethod} method.`);
     }
@@ -45,7 +45,7 @@ exports.planDelete = async (event) => {
     return response;
 }
 
-exports.planGetAll = async (event) => {
+export const planGetAll = async (event: any) => {
     if (event.httpMethod !== 'GET') {
         throw new Error(`getAllItems only accept GET method, you tried: ${event.httpMethod}`);
     }
@@ -62,7 +62,7 @@ exports.planGetAll = async (event) => {
     return response;
 }
 
-exports.planGet = async (event) => {
+export const planGet = async (event: any) => {
     if (event.httpMethod !== 'GET') {
         throw new Error(`getMethod only accept GET method, you tried: ${event.httpMethod}`);
     }
@@ -84,7 +84,7 @@ exports.planGet = async (event) => {
     };
 }
 
-exports.planUpdate = async (event) => {
+export const planUpdate = async (event: any) => {
     if (event.httpMethod !== 'PUT') {
         throw new Error(`only accepts PUT method, you tried: ${event.httpMethod} method.`);
     }

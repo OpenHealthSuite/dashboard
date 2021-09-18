@@ -2,7 +2,7 @@ const { accessControlHeaders } = require('../helpers/requiredHeaders');
 const { getTrainingPlan } = require('../repositories/trainingPlanRepository');
 const { getTrainingPlanActivitiesForTrainingPlan, getTrainingPlanActivity, createTrainingPlanActivity, updateTrainingPlanActivity, deleteTrainingPlanActivity } = require('../repositories/trainingPlanActivityRepository');
 
-exports.activityCreate = async (event) => {
+export const activityCreate = async (event: any) => {
     if (event.httpMethod !== 'POST') {
         throw new Error(`postMethod only accepts POST method, you tried: ${event.httpMethod} method.`);
     }
@@ -13,7 +13,7 @@ exports.activityCreate = async (event) => {
     const existing = await getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
-        throw new Error(`No item for user ${userId} found under ${id}`);
+        throw new Error(`No item for user ${userId} found under ${trainingPlanId}`);
     }
 
     const body = JSON.parse(event.body)
@@ -29,7 +29,7 @@ exports.activityCreate = async (event) => {
     return response;
 }
 
-exports.activityDelete = async (event) => {
+export const activityDelete = async (event: any) => {
     if (event.httpMethod !== 'DELETE') {
         throw new Error(`only accepts DELETE method, you tried: ${event.httpMethod} method.`);
     }
@@ -41,7 +41,7 @@ exports.activityDelete = async (event) => {
     const existing = await getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
-        throw new Error(`No item for user ${userId} found under ${id}`);
+        throw new Error(`No item for user ${userId} found under ${activityId}`);
     }
 
     const existingActivity = await getTrainingPlanActivity(trainingPlanId, activityId)
@@ -60,7 +60,7 @@ exports.activityDelete = async (event) => {
     return response;
 }
 
-exports.activityGetAll = async (event) => {
+export const activityGetAll = async (event: any) => {
     if (event.httpMethod !== 'GET') {
         throw new Error(`getAllItems only accept GET method, you tried: ${event.httpMethod}`);
     }
@@ -72,7 +72,7 @@ exports.activityGetAll = async (event) => {
     const existing = await getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
-        throw new Error(`No item for user ${userId} found under ${id}`);
+        throw new Error(`No item for user ${userId} found under ${trainingPlanId}`);
     }
 
     let items = await getTrainingPlanActivitiesForTrainingPlan(trainingPlanId);
@@ -85,7 +85,7 @@ exports.activityGetAll = async (event) => {
     return response;
 }
 
-exports.activityGet = async (event) => {
+export const activityGet = async (event: any) => {
     if (event.httpMethod !== 'GET') {
         throw new Error(`getMethod only accept GET method, you tried: ${event.httpMethod}`);
     }
@@ -96,7 +96,7 @@ exports.activityGet = async (event) => {
     const existing = await getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
-        throw new Error(`No item for user ${userId} found under ${id}`);
+        throw new Error(`No item for user ${userId} found under ${trainingPlanId}`);
     }
 
     const activity = getTrainingPlanActivity(trainingPlanId, activityId)
@@ -108,7 +108,7 @@ exports.activityGet = async (event) => {
     };
 }
 
-exports.activityUpdate = async (event) => {
+export const activityUpdate = async (event: any) => {
     if (event.httpMethod !== 'PUT') {
         throw new Error(`only accepts PUT method, you tried: ${event.httpMethod} method.`);
     }
@@ -122,7 +122,7 @@ exports.activityUpdate = async (event) => {
     const existing = await getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
-        throw new Error(`No item for user ${userId} found under ${id}`);
+        throw new Error(`No item for user ${userId} found under ${trainingPlanId}`);
     }
 
     const existingActivity = await getTrainingPlanActivity(trainingPlanId, activityId)

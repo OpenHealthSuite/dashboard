@@ -2,11 +2,14 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   paceme-api
 
-Transform:
-- AWS::Serverless-2016-10-31
+Transform: AWS::Serverless-2016-10-31
 
+
+    
 Globals:
   Function:
+    Layers:
+      - !Ref RuntimeDependenciesLayer
     Runtime: nodejs14.x
     Timeout: 180
     MemorySize: 128
@@ -17,6 +20,17 @@ Globals:
     Tags: { Key: Project, Value: PaceMeApp }
 
 Resources:
+
+  RuntimeDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Description: Runtime dependencies for Lambdas
+      ContentUri: ./
+      CompatibleRuntimes:
+        - nodejs14.x
+      RetentionPolicy: Retain
 
   PaceMeUserPool:
     Type: AWS::Cognito::UserPool
@@ -83,7 +97,7 @@ Resources:
   getAllTrainingPlans:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanHandlers.planGetAll
+      Handler: dist/handlers/trainingPlanHandlers.planGetAll
       Description: Get all training plans for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -95,11 +109,13 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans
             Method: GET
+    Metadata:
+      BuildMethod: makefile
 
   createNewPlan:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanHandlers.planCreate
+      Handler: dist/handlers/trainingPlanHandlers.planCreate
       Description: Create training plan for user
       Policies:
         - DynamoDBCrudPolicy:
@@ -111,11 +127,13 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans
             Method: POST
+    Metadata:
+      BuildMethod: makefile
 
   getTrainingPlan:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanHandlers.planGet
+      Handler: dist/handlers/trainingPlanHandlers.planGet
       Description: Get training plan for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -127,11 +145,13 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{trainingPlanId}
             Method: GET
+    Metadata:
+      BuildMethod: makefile
 
   updateTrainingPlan:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanHandlers.planUpdate
+      Handler: dist/handlers/trainingPlanHandlers.planUpdate
       Description: Update training plan for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -143,11 +163,13 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{trainingPlanId}
             Method: PUT
+    Metadata:
+      BuildMethod: makefile
 
   deleteTrainingPlan:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanHandlers.planDelete
+      Handler: dist/handlers/trainingPlanHandlers.planDelete
       Description: Delete training plan for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -159,12 +181,14 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{trainingPlanId}
             Method: DELETE
+    Metadata:
+      BuildMethod: makefile
 
 
   getAllTrainingActivities:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanActivityHandlers.activityGetAll
+      Handler: dist/handlers/trainingPlanActivityHandlers.activityGetAll
       Description: Get all training plans for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -178,11 +202,13 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{trainingPlanId}/activities
             Method: GET
+    Metadata:
+      BuildMethod: makefile
 
   createNewActivity:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanActivityHandlers.activityCreate
+      Handler: dist/handlers/trainingPlanActivityHandlers.activityCreate
       Description: Create training plan for user
       Policies:
         - DynamoDBCrudPolicy:
@@ -196,11 +222,13 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{trainingPlanId}/activities
             Method: POST
+    Metadata:
+      BuildMethod: makefile
 
   getTrainingPlanActivity:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanActivityHandlers.activityGet
+      Handler: dist/handlers/trainingPlanActivityHandlers.activityGet
       Description: Get training plan activity for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -214,11 +242,13 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{trainingPlanId}/activities/{activityId}
             Method: GET
+    Metadata:
+      BuildMethod: makefile
 
   updateTrainingPlanActivity:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanActivityHandlers.activityUpdate
+      Handler: dist/handlers/trainingPlanActivityHandlers.activityUpdate
       Description: Update training plan activity for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -232,11 +262,13 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{trainingPlanId}/activities/{activityId}
             Method: PUT
+    Metadata:
+      BuildMethod: makefile
 
   deleteTrainingPlanActivity:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/trainingPlanActivityHandlers.activityDelete
+      Handler: dist/handlers/trainingPlanActivityHandlers.activityDelete
       Description: Delete training plan activity for logged in user
       Policies:
         - DynamoDBCrudPolicy:
@@ -250,11 +282,13 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{trainingPlanId}/activities/{activityId}
             Method: DELETE
+    Metadata:
+      BuildMethod: makefile
 
   optionsHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/optionHandler.handler
+      Handler: dist/handlers/optionHandler.handler
       Description: Get Options
       Events:
         TrainingPlanId:
@@ -281,6 +315,8 @@ Resources:
             RestApiId: !Ref PaceMeApi
             Path: /trainingplans/{trainingPlanId}/activities
             Method: OPTIONS
+    Metadata:
+      BuildMethod: makefile
   
   TrainingPlanTable:
     Type: AWS::DynamoDB::Table
