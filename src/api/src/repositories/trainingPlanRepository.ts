@@ -1,81 +1,88 @@
-const dynamodb = require('aws-sdk/clients/dynamodb');
-const { v4: uuidv4 } = require('uuid');
-const docClient = new dynamodb.DocumentClient();
+import * as dynamodb from 'aws-sdk/clients/dynamodb';
+import { v4 as uuidv4 } from 'uuid';
 
-const tableName = process.env.TRAINING_PLAN_TABLE;
-
-const expressionAttributeNames = {
-    "#nm": "name",
-    "#active": "active"
+export interface ITrainingPlan {
+    id : string,
+    userId: string,
+    name: string,
+    active: boolean
 }
 
-export const getTrainingPlansForUser = async function (userId: any) {
-    var params = {
-        TableName : tableName,
-        ProjectionExpression:`userId, id, ${Object.keys(expressionAttributeNames).join(', ')}`,
-        FilterExpression: "userId = :contextUserId",
-        ExpressionAttributeNames: expressionAttributeNames,
-        ExpressionAttributeValues: {
-            ":contextUserId": userId
-        }
-    };
+export class TrainingPlanRepository {
+    private _tableName: string = process.env.TRAINING_PLAN_TABLE ?? "TrainingPlan";
+    private _expressionAttributeNames = {
+        "#nm": "name",
+        "#active": "active"
+    }
+    private _docClient: dynamodb.DocumentClient;
 
-    const data = await docClient.scan(params).promise();
-    return data.Items;
-}
-    
-export const getTrainingPlan = async function (userId: any, planId: any) {
-    var params = {
-        TableName : tableName,
-        Key: { 
-            id: planId,
-            userId: userId
-        }
-        };
-        const data = await docClient.get(params).promise();
-        return data.Item;
-}
-export const createTrainingPlan = async function (userId: any, newItem: any) {
-    const newTableItem = { 
-        id : uuidv4(),
-        userId: userId,
-        name: newItem.name,
-        active: newItem.active
+    constructor() {
+        this._docClient = new dynamodb.DocumentClient()
     }
 
-    var params = {
-        TableName : tableName,
-        Item: newTableItem
-    };
-
-    await docClient.put(params).promise();
-    return newTableItem;
-}
-
-export const updateTrainingPlan = async function (itemUpdate: any) {
-    const updateTableItem = {
-        id: itemUpdate.id,
-        userId: itemUpdate.userId,
-        name: itemUpdate.name,
-        active: itemUpdate.active
-    };
+    public async getTrainingPlansForUser (userId: string): Promise<ITrainingPlan[]> {
+        var params = {
+            TableName : this._tableName,
+            ProjectionExpression:`userId, id, ${Object.keys(this._expressionAttributeNames).join(', ')}`,
+            FilterExpression: "userId = :contextUserId",
+            ExpressionAttributeNames: this._expressionAttributeNames,
+            ExpressionAttributeValues: {
+                ":contextUserId": userId
+            }
+        };
     
-    var updateParams = {
-        TableName: tableName,
-        Item: updateTableItem
-    };
-
-    await docClient.put(updateParams).promise();
-}
-
-export const deleteTrainingPlan = async function (userId: any, planId: any) {
-    var deleteParams = {
-        TableName : tableName,
-        Key: { 
-            id: planId,
-            userId: userId
+        const data = await this._docClient.scan(params).promise();
+        return data.Items as ITrainingPlan[];
+    }
+        
+    public async getTrainingPlan (userId: string, planId: string): Promise<ITrainingPlan> {
+        var params = {
+            TableName : this._tableName,
+            Key: { 
+                id: planId,
+                userId: userId
+            }
+            };
+            const data = await this._docClient.get(params).promise();
+            return data.Item as ITrainingPlan;
+    }
+    
+    public async createTrainingPlan (userId: string, newItem: ITrainingPlan): Promise<ITrainingPlan> {
+        const newTableItem = { 
+            id : uuidv4(),
+            userId: userId,
+            name: newItem.name,
+            active: newItem.active
         }
-    };
-
-    await docClient.delete(deleteParams).promise();
+    
+        var params = {
+            TableName : this._tableName,
+            Item: newTableItem
+        };
+    
+        await this._docClient.put(params).promise();
+        return newTableItem;
+    }
+    
+    public async updateTrainingPlan (itemUpdate: ITrainingPlan): Promise<void> {
+        
+        var updateParams = {
+            TableName: this._tableName,
+            Item: itemUpdate
+        };
+    
+        await this._docClient.put(updateParams).promise();
+    }
+    
+    public async deleteTrainingPlan (userId: string, planId: string): Promise<void> {
+        var deleteParams = {
+            TableName : this._tableName,
+            Key: { 
+                id: planId,
+                userId: userId
+            }
+        };
+    
+        await this._docClient.delete(deleteParams).promise();
+    }
 }

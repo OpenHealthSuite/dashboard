@@ -1,27 +1,30 @@
 import * as test from "tape";
-const proxyquire = require('proxyquire');
-const sinon = require("sinon");
-const _ = require("lodash")
+import * as proxyquire from 'proxyquire';
+import * as sinon from "sinon";
+import * as _ from "lodash";
+
+import { TrainingPlanRepository, ITrainingPlan } from "../../../src/repositories/trainingPlanRepository" 
 
 test('trainingPlanHandlers.planCreate :: Overall Happy Test :: Creates new item for user', async function (t) {
     const expectedId = "123TESTEXPECTEDID"
     const expectedUserId = "456EXPECTEDUSERID"
     const expectedName = "NAMEINPUT"
+    const expectedActive = true
 
-    const mockItem = { id: expectedId, userId: expectedUserId, name: expectedName };
+    const mockItem = { id: expectedId, userId: expectedUserId, name: expectedName, active: expectedActive };
 
     var inputBody = {
         name: expectedName
     }
 
+    sinon.stub(TrainingPlanRepository.prototype, "createTrainingPlan").callsFake((userId: string, inputItem: ITrainingPlan) => {
+        t.isEqual(userId, expectedUserId)
+        t.deepLooseEqual(inputItem, inputBody)
+        return new Promise((resolve) => resolve(mockItem))
+    })
+
     const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-            createTrainingPlan: sinon.stub().callsFake((userId: any, inputItem: any) => {
-                t.isEqual(userId, expectedUserId)
-                t.deepLooseEqual(inputItem, inputBody)
-                return mockItem
-            })
-        }
+        '../repositories/trainingPlanRepository': {}
     });
 
     const event = {
@@ -51,26 +54,29 @@ test('trainingPlanHandlers.planCreate :: Overall Happy Test :: Creates new item 
 
     t.deepLooseEqual(result, expectedResult);
     t.end();
+    sinon.restore();
 })
 
 test('trainingPlanHandlers.planDelete :: Overall Happy Test :: Valid Id and User deletes item', async function (t) {
     const expectedId = "123TESTEXPECTEDID"
     const expectedUserId = "456EXPECTEDUSERID"
 
-    const mockItem = { id: expectedId, userId: expectedUserId };
+    const mockItem = { id: expectedId, userId: expectedUserId, active: false, name: "" };
+
+    sinon.stub(TrainingPlanRepository.prototype, "getTrainingPlan").callsFake((userId: string, itemId: string) => {
+        t.isEqual(userId, expectedUserId)
+        t.isEqual(itemId, expectedId)
+        return new Promise((resolve) => resolve(mockItem))
+    })
+
+    sinon.stub(TrainingPlanRepository.prototype, "deleteTrainingPlan").callsFake((userId: string, itemId: string) => {
+        t.isEqual(userId, expectedUserId)
+        t.isEqual(itemId, expectedId)
+        return new Promise((resolve) => resolve())
+    })
 
     const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
-                t.isEqual(userId, expectedUserId)
-                t.isEqual(itemId, expectedId)
-                return mockItem
-            }),
-            deleteTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
-                t.isEqual(userId, expectedUserId)
-                t.isEqual(itemId, expectedId)
-            })
-        }
+        '../repositories/trainingPlanRepository': { }
     });
 
     const event = {
@@ -101,20 +107,21 @@ test('trainingPlanHandlers.planDelete :: Overall Happy Test :: Valid Id and User
 
     t.deepLooseEqual(result, expectedResult);
     t.end();
+    sinon.restore();
 })
 
 test('trainingPlanHandlers.planGetAll :: Overall Happy Test :: Valid User gets items', async function (t) {
     const expectedUserId = "456EXPECTEDUSERID"
 
-    const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId }];
+    const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId , name: "", active: false}];
+
+    sinon.stub(TrainingPlanRepository.prototype, "getTrainingPlansForUser").callsFake((userId: string) => {
+        t.isEqual(userId, expectedUserId)
+        return new Promise((resolve) => resolve(mockItems))
+    })
 
     const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-            getTrainingPlansForUser: sinon.stub().callsFake((userId: any) => {
-                t.isEqual(userId, expectedUserId)
-                return mockItems
-            })
-        }
+        '../repositories/trainingPlanRepository': {}
     });
 
     const event = {
@@ -143,22 +150,23 @@ test('trainingPlanHandlers.planGetAll :: Overall Happy Test :: Valid User gets i
 
     t.deepLooseEqual(result, expectedResult);
     t.end();
+    sinon.restore();
 })
 
 test('trainingPlanHandlers.planGet :: Overall Happy Test :: Valid Id and User gets item', async function (t) {
     const expectedId = "123TESTEXPECTEDID"
     const expectedUserId = "456EXPECTEDUSERID"
 
-    const mockItem = { id: '123TESTEXPECTEDID', userId: "456EXPECTEDUSERID" };
+    const mockItem = { id: expectedId, userId: expectedUserId, active: false, name: "" };
+
+    sinon.stub(TrainingPlanRepository.prototype, "getTrainingPlan").callsFake((userId: string, itemId: string) => {
+        t.isEqual(userId, expectedUserId)
+        t.isEqual(itemId, expectedId)
+        return new Promise((resolve) => resolve(mockItem))
+    })
 
     const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
-                t.isEqual(userId, expectedUserId)
-                t.isEqual(itemId, expectedId)
-                return mockItem
-            })
-        }
+        '../repositories/trainingPlanRepository': { }
     });
 
     const event = {
@@ -190,6 +198,7 @@ test('trainingPlanHandlers.planGet :: Overall Happy Test :: Valid Id and User ge
 
     t.deepLooseEqual(result, expectedResult);
     t.end();
+    sinon.restore();
 })
 
 test('trainingPlanHandlers.planUpdate :: Overall Happy Test :: Valid Id and UserId updates item', async function (t) {
@@ -207,20 +216,21 @@ test('trainingPlanHandlers.planUpdate :: Overall Happy Test :: Valid Id and User
         name: expectedName,
         active: expectedActive
     }
-    const mockItem = { id: expectedId, userId: expectedUserId };
+    const mockItem = { id: expectedId, userId: expectedUserId, active: false, name: "" };
+
+    sinon.stub(TrainingPlanRepository.prototype, "getTrainingPlan").callsFake((userId: string, itemId: string) => {
+        t.isEqual(userId, expectedUserId)
+        t.isEqual(itemId, expectedId)
+        return new Promise((resolve) => resolve(mockItem))
+    })
+
+    sinon.stub(TrainingPlanRepository.prototype, "updateTrainingPlan").callsFake((inputUpdate: ITrainingPlan) => {
+        t.deepLooseEqual(inputUpdate, expectedInputUpdate)
+        return new Promise((resolve) => resolve())
+    })
 
     const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-            getTrainingPlan: sinon.stub().callsFake((userId: any, itemId: any) => {
-                t.isEqual(userId, expectedUserId)
-                t.isEqual(itemId, expectedId)
-                return mockItem
-            }),
-            updateTrainingPlan: sinon.stub().callsFake((inputUpdate: any) => {
-                t.deepLooseEqual(inputUpdate, expectedInputUpdate)
-                return inputUpdate
-            })
-        }
+        '../repositories/trainingPlanRepository': { }
     });
 
     const event = {
@@ -253,4 +263,5 @@ test('trainingPlanHandlers.planUpdate :: Overall Happy Test :: Valid Id and User
 
     t.deepLooseEqual(result, expectedResult);
     t.end();
+    sinon.restore();
 })

@@ -27,7 +27,7 @@ test('trainingPlanRepository.createTrainingPlan :: Overall Happy Test :: Creates
     }
     var inputParams;
 
-    const { createTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+    const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
@@ -45,8 +45,10 @@ test('trainingPlanRepository.createTrainingPlan :: Overall Happy Test :: Creates
         }
     }); 
 
+    let repository = new TrainingPlanRepository()
+
     // Act
-    const result = await createTrainingPlan(expectedUserId, mockItem); 
+    const result = await repository.createTrainingPlan(expectedUserId, mockItem); 
 
     // Assert
     
@@ -76,7 +78,7 @@ test('trainingPlanRepository.getTrainingPlansForUser :: Overall Happy Test :: Ge
             ":contextUserId": expectedUserId
         }
       }
-    const { getTrainingPlansForUser } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+      const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
@@ -92,8 +94,10 @@ test('trainingPlanRepository.getTrainingPlansForUser :: Overall Happy Test :: Ge
         }
     }); 
 
+    let repository = new TrainingPlanRepository()
+
     // Act
-    const result = await getTrainingPlansForUser(expectedUserId); 
+    const result = await repository.getTrainingPlansForUser(expectedUserId); 
 
     // Assert
     
@@ -118,7 +122,7 @@ test('trainingPlanRepository.getTrainingPlan :: Overall Happy Test :: Gets train
           userId: expectedUserId
         }
       }
-    const { getTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+      const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
@@ -134,8 +138,10 @@ test('trainingPlanRepository.getTrainingPlan :: Overall Happy Test :: Gets train
         }
     }); 
 
+    let repository = new TrainingPlanRepository()
+
     // Act
-    const result = await getTrainingPlan(expectedUserId, expectedId); 
+    const result = await repository.getTrainingPlan(expectedUserId, expectedId); 
 
     // Assert
     
@@ -163,7 +169,7 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
 
     var actualUpdateParams;
 
-    const { updateTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+    const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
@@ -178,8 +184,10 @@ test('trainingPlanRepository.updateTrainingPlan :: Overall Happy Test :: updates
         }
     }); 
 
+    let repository = new TrainingPlanRepository()
+
     // Act
-    await updateTrainingPlan(input); 
+    await repository.updateTrainingPlan(input); 
 
     // Assert
     
@@ -203,7 +211,7 @@ test('trainingPlanRepository.deleteTrainingPlan :: Overall Happy Test :: Gets tr
         }
       }
     var actualParams;
-    const { deleteTrainingPlan } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
+    const { TrainingPlanRepository } = proxyquire('../../../src/repositories/trainingPlanRepository.ts', {
         'aws-sdk/clients/dynamodb': {
             DocumentClient: sinon.stub().callsFake(() => {
                 return {
@@ -219,8 +227,10 @@ test('trainingPlanRepository.deleteTrainingPlan :: Overall Happy Test :: Gets tr
         }
     }); 
 
+    let repository = new TrainingPlanRepository()
+
     // Act
-    await deleteTrainingPlan(expectedUserId, expectedId); 
+    await repository.deleteTrainingPlan(expectedUserId, expectedId); 
 
     // Assert
     
