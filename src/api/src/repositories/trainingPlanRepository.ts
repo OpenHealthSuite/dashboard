@@ -31,7 +31,7 @@ export class TrainingPlanRepository extends BaseDynamoRepository<ITrainingPlan> 
     }
     
     public async createTrainingPlan (userId: string, newItem: ITrainingPlan): Promise<ITrainingPlan> {
-        const newTableItem = { 
+        const newTableItem: ITrainingPlan = { 
             id : uuidv4(),
             userId: userId,
             name: newItem.name,

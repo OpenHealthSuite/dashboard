@@ -1,6 +1,9 @@
-const { accessControlHeaders } = require('../helpers/requiredHeaders');
-const { getTrainingPlan } = require('../repositories/trainingPlanRepository');
-const { getTrainingPlanActivitiesForTrainingPlan, getTrainingPlanActivity, createTrainingPlanActivity, updateTrainingPlanActivity, deleteTrainingPlanActivity } = require('../repositories/trainingPlanActivityRepository');
+import { accessControlHeaders } from '../helpers/requiredHeaders';
+import { TrainingPlanRepository } from '../repositories/trainingPlanRepository';
+import { TrainingPlanActivityRepository } from '../repositories/trainingPlanActivityRepository';
+
+const trainingPlanRepository = new TrainingPlanRepository();
+const trainingPlanActivityRepository = new TrainingPlanActivityRepository();
 
 export const activityCreate = async (event: any) => {
     if (event.httpMethod !== 'POST') {
@@ -10,7 +13,7 @@ export const activityCreate = async (event: any) => {
     const { trainingPlanId } = event.pathParameters;
     const userId = event.requestContext.authorizer.claims.sub
 
-    const existing = await getTrainingPlan(userId, trainingPlanId);
+    const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
         throw new Error(`No item for user ${userId} found under ${trainingPlanId}`);
@@ -18,7 +21,7 @@ export const activityCreate = async (event: any) => {
 
     const body = JSON.parse(event.body)
 
-    let newItem = await createTrainingPlanActivity(trainingPlanId, body)
+    let newItem = await trainingPlanActivityRepository.createTrainingPlanActivity(trainingPlanId, body)
 
     const response = {
         statusCode: 200,
@@ -38,19 +41,19 @@ export const activityDelete = async (event: any) => {
 
     const { trainingPlanId, activityId } = event.pathParameters;
 
-    const existing = await getTrainingPlan(userId, trainingPlanId);
+    const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
         throw new Error(`No item for user ${userId} found under ${activityId}`);
     }
 
-    const existingActivity = await getTrainingPlanActivity(trainingPlanId, activityId)
+    const existingActivity = await trainingPlanActivityRepository.getTrainingPlanActivity(trainingPlanId, activityId)
 
     if (!existingActivity || existingActivity.trainingPlanId !== trainingPlanId) {
         throw new Error(`No item for user ${activityId} found under ${trainingPlanId}`);
     }
 
-    await deleteTrainingPlanActivity(trainingPlanId, activityId);
+    await trainingPlanActivityRepository.deleteTrainingPlanActivity(trainingPlanId, activityId);
 
     const response = {
         statusCode: 200,
@@ -69,13 +72,13 @@ export const activityGetAll = async (event: any) => {
 
     const { trainingPlanId } = event.pathParameters;
 
-    const existing = await getTrainingPlan(userId, trainingPlanId);
+    const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
         throw new Error(`No item for user ${userId} found under ${trainingPlanId}`);
     }
 
-    let items = await getTrainingPlanActivitiesForTrainingPlan(trainingPlanId);
+    let items = await trainingPlanActivityRepository.getTrainingPlanActivitiesForTrainingPlan(trainingPlanId);
 
     const response = {
         statusCode: 200,
@@ -93,13 +96,13 @@ export const activityGet = async (event: any) => {
 
     const { trainingPlanId, activityId } = event.pathParameters;
 
-    const existing = await getTrainingPlan(userId, trainingPlanId);
+    const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
         throw new Error(`No item for user ${userId} found under ${trainingPlanId}`);
     }
 
-    const activity = getTrainingPlanActivity(trainingPlanId, activityId)
+    const activity = await trainingPlanActivityRepository.getTrainingPlanActivity(trainingPlanId, activityId)
 
     return {
         statusCode: 200,
@@ -119,13 +122,13 @@ export const activityUpdate = async (event: any) => {
     const body = JSON.parse(event.body)
     const { name, activityTime, segments, complete } = body;
 
-    const existing = await getTrainingPlan(userId, trainingPlanId);
+    const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId);
 
     if (!existing || existing.userId !== userId) {
         throw new Error(`No item for user ${userId} found under ${trainingPlanId}`);
     }
 
-    const existingActivity = await getTrainingPlanActivity(trainingPlanId, activityId)
+    const existingActivity = await trainingPlanActivityRepository.getTrainingPlanActivity(trainingPlanId, activityId)
 
     if (!existingActivity || existingActivity.trainingPlanId !== trainingPlanId) {
         throw new Error(`No item for user ${activityId} found under ${trainingPlanId}`);
@@ -140,7 +143,7 @@ export const activityUpdate = async (event: any) => {
         complete: complete
     }
 
-    await updateTrainingPlanActivity(itemUpdate)
+    await trainingPlanActivityRepository.updateTrainingPlanActivity(itemUpdate)
 
     const response = {
         statusCode: 200,

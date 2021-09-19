@@ -1,6 +1,8 @@
 import { accessControlHeaders } from '../helpers/requiredHeaders';
 import { TrainingPlanRepository } from '../repositories/trainingPlanRepository';
 
+const repository = new TrainingPlanRepository();
+
 export const planCreate = async (event: any) => {
     if (event.httpMethod !== 'POST') {
         throw new Error(`postMethod only accepts POST method, you tried: ${event.httpMethod} method.`);
@@ -8,8 +10,6 @@ export const planCreate = async (event: any) => {
 
     const userId = event.requestContext.authorizer.claims.sub
     const body = JSON.parse(event.body)
-
-    let repository = new TrainingPlanRepository();
 
     let newItem = await repository.createTrainingPlan(userId, body)
 
@@ -30,8 +30,6 @@ export const planDelete = async (event: any) => {
     const userId = event.requestContext.authorizer.claims.sub
 
     const id = event.pathParameters.trainingPlanId;
-
-    let repository = new TrainingPlanRepository();
 
     const existing = await repository.getTrainingPlan(userId, id);
 
@@ -56,8 +54,6 @@ export const planGetAll = async (event: any) => {
 
     const userId = event.requestContext.authorizer.claims.sub
 
-    let repository = new TrainingPlanRepository();
-
     let items = await repository.getTrainingPlansForUser(userId);
 
     const response = {
@@ -76,8 +72,6 @@ export const planGet = async (event: any) => {
 
     // Get id from pathParameters from APIGateway because of `/{id}` at template.yml
     const id = event.pathParameters.trainingPlanId;
-
-    let repository = new TrainingPlanRepository();
 
     let plan = await repository.getTrainingPlan(userId, id);
 
@@ -101,8 +95,6 @@ export const planUpdate = async (event: any) => {
     const body = JSON.parse(event.body)
     const id = event.pathParameters.trainingPlanId;
     const { name, active } = body;
-
-    let repository = new TrainingPlanRepository();
 
     const existing = await repository.getTrainingPlan(userId, id)
 
