@@ -1,11 +1,11 @@
 import * as test from "tape";
-import * as proxyquire from 'proxyquire';
 import * as sinon from "sinon";
 import * as _ from "lodash";
 
+import * as lambda from "../../../src/handlers/trainingPlanActivityHandlers";
 
-import { TrainingPlanRepository, ITrainingPlan } from "../../../src/repositories/trainingPlanRepository" 
-import { TrainingPlanActivityRepository, ITrainingPlanActivity } from "../../../src/repositories/trainingPlanActivityRepository" 
+import { TrainingPlanRepository, ITrainingPlan } from "../../../src/repositories/trainingPlanRepository"
+import { TrainingPlanActivityRepository, ITrainingPlanActivity } from "../../../src/repositories/trainingPlanActivityRepository"
 
 const expectedUserId = "456EXPECTEDUSERID"
 const expectedName = "NAMEINPUT"
@@ -16,8 +16,8 @@ const expectedActivityTime = new Date(2015, 12, 24)
 const expectedComplete = false
 
 const mockItem: ITrainingPlan = { id: expectedTrainingPlanId, userId: expectedUserId, name: expectedName, active: true };
-const mockActivityItem: ITrainingPlanActivity = { 
-    id: expectedActivityId, 
+const mockActivityItem: ITrainingPlanActivity = {
+    id: expectedActivityId,
     trainingPlanId: expectedTrainingPlanId,
     name: "test",
     activityTime: expectedActivityTime,
@@ -37,19 +37,12 @@ test('trainingPlanActivityHandlers.activityCreate :: Overall Happy Test :: Creat
         t.isEqual(itemId, expectedTrainingPlanId)
         return new Promise((resolve) => resolve(mockItem))
     })
-    
+
     sinon.stub(TrainingPlanActivityRepository.prototype, "createTrainingPlanActivity").callsFake((trainingPlanId: string, inputItem: ITrainingPlanActivity) => {
         t.isEqual(trainingPlanId, expectedTrainingPlanId)
         t.deepLooseEqual(inputItem, inputBody)
         return new Promise((resolve) => resolve(mockActivityItem))
     })
-
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-        },
-        '../repositories/trainingPlanActivityRepository': {
-        }
-    });
 
     const event = {
         httpMethod: 'POST',
@@ -104,14 +97,6 @@ test('trainingPlanActivityHandlers.activityDelete :: Overall Happy Test :: Valid
         return new Promise((resolve) => resolve())
     })
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-        },
-        '../repositories/trainingPlanActivityRepository': {
-            
-        }
-    });
-
     const event = {
         httpMethod: 'DELETE',
         pathParameters: {
@@ -157,13 +142,6 @@ test('trainingPlanActivityHandlers.activityGetAll :: Overall Happy Test :: Valid
         return new Promise((resolve) => resolve(mockActivityItems))
     })
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-        },
-        '../repositories/trainingPlanActivityRepository': {
-        }
-    });
-
     const event = {
         httpMethod: 'GET',
         requestContext: {
@@ -173,7 +151,7 @@ test('trainingPlanActivityHandlers.activityGetAll :: Overall Happy Test :: Valid
                 }
             }
         }
-        ,pathParameters: {
+        , pathParameters: {
             trainingPlanId: expectedTrainingPlanId
         },
     }
@@ -209,13 +187,6 @@ test('trainingPlanActivityHandlers.activityGet :: Overall Happy Test :: Valid Id
         t.isEqual(activityId, expectedActivityId)
         return new Promise((resolve) => resolve(mockActivityItem))
     })
-
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-        },
-        '../repositories/trainingPlanActivityRepository': {
-        }
-    });
 
     const event = {
         httpMethod: 'GET',
@@ -285,14 +256,6 @@ test('trainingPlanActivityHandlers.activityUpdate :: Overall Happy Test :: Valid
         t.deepLooseEqual(itemUpdate, expectedItemUpdate)
         return new Promise((resolve) => resolve())
     })
-
-
-    const lambda = proxyquire('../../../src/handlers/trainingPlanActivityHandlers.ts', {
-        '../repositories/trainingPlanRepository': {
-        },
-        '../repositories/trainingPlanActivityRepository': {
-        }
-    });
 
     const event = {
         httpMethod: 'PUT',

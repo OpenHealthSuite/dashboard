@@ -1,7 +1,35 @@
 import * as test from "tape";
-const proxyquire = require('proxyquire');
-const sinon = require("sinon");
-const _ = require("lodash")
+
+import * as sinon from "sinon";
+import * as _ from "lodash";
+
+import * as AWSMock from 'aws-sdk-mock';
+import * as AWS from 'aws-sdk';
+
+import { DeleteItemInput, DocumentClient, GetItemInput, PutItemInput, ScanInput } from "aws-sdk/clients/dynamodb";
+
+import { BaseDynamoRepository } from "../../../src/repositories/baseDynamoRepository";
+
+class FakeBaseDynamoRepository extends BaseDynamoRepository<{}> {
+    constructor(tableName: string, paritionKey: string, expressionAttributeNames: {}, sortKey?: string) {
+        super(tableName, paritionKey, expressionAttributeNames, sortKey)
+    }
+    public getAllByPartitionKey(partitionKey: string) {
+        return super.getAllByPartitionKey(partitionKey);
+    }
+    public getByPartitionAndSortKeys(paritionKey: string, sortKey: string) {
+        return super.getByPartitionAndSortKeys(paritionKey, sortKey);
+    }
+    public create(newItem: {}) {
+        return super.create(newItem);
+    }
+    public update(itemUpdate: {}) {
+        return super.update(itemUpdate);
+    }
+    public deleteByPartitionAndSortKey(paritionKey: string, sortKey: string) {
+        return super.deleteByPartitionAndSortKey(paritionKey, sortKey);
+    }
+}
 
 test('baseDynamoRepository.create :: Overall Happy Test :: Creates new item', async function (t) {
     const testTableName = "TESTTABLE"
@@ -19,43 +47,34 @@ test('baseDynamoRepository.create :: Overall Happy Test :: Creates new item', as
         "#active": "active"
     }
 
-    var newItem = { 
+    var newItem = {
         id: expectedId,
         userId: expectedUserId,
         name: expectedName,
         active: expectedActive
     }
     var expectedParams = {
-        TableName : testTableName,
+        TableName: testTableName,
         Item: newItem
     }
-    var inputParams;
 
-    const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
-        'aws-sdk/clients/dynamodb': {
-            DocumentClient: sinon.stub().callsFake(() => {
-                return {
-                    put: sinon.stub().callsFake((input: any) => {
-                        inputParams = input;
-                        return { 
-                            promise: sinon.stub().resolves()
-                        }
-                    })
-                }
-            })
-        }
-    }); 
+    AWSMock.setSDKInstance(AWS);
+    AWSMock.mock('DynamoDB.DocumentClient', 'put', (params: PutItemInput, callback: Function) => {
+        t.deepLooseEqual(params, expectedParams);
+        callback(null, {});
+    })
 
-    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
+    let repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    const result = await repository.create(newItem); 
+    const result = await repository.create(newItem);
 
     // Assert
-    
+
     t.deepLooseEqual(result, newItem);
-    t.deepLooseEqual(inputParams, expectedParams);
     t.end();
+    AWSMock.restore('DynamoDB.DocumentClient');
+    sinon.restore();
 })
 
 test('baseDynamoRepository.getAllByPartitionKey :: Overall Happy Test :: Gets and returns items ', async function (t) {
@@ -63,7 +82,7 @@ test('baseDynamoRepository.getAllByPartitionKey :: Overall Happy Test :: Gets an
 
     const expectedUserId = "456EXPECTEDUSERID"
 
-    const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId }]; 
+    const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId }];
 
     const expectedPartitionKey = "userId"
     const expectedSortKey = "id"
@@ -74,38 +93,32 @@ test('baseDynamoRepository.getAllByPartitionKey :: Overall Happy Test :: Gets an
     }
 
     var expectedParams = {
-        TableName : testTableName,
-        ProjectionExpression:"userId, id, #nm, #active",
+        TableName: testTableName,
+        ProjectionExpression: "userId, id, #nm, #active",
         FilterExpression: "userId = :requestedPartitionKey",
         ExpressionAttributeNames: expectedExpressionAttributes,
         ExpressionAttributeValues: {
             ":requestedPartitionKey": expectedUserId
         }
-      }
-      const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
-        'aws-sdk/clients/dynamodb': {
-            DocumentClient: sinon.stub().callsFake(() => {
-                return {
-                    scan: sinon.stub().callsFake((input: any) => {
-                        t.deepLooseEqual(input, expectedParams);
-                        return { 
-                            promise: sinon.stub().resolves({ Items:  mockItems })
-                        }
-                    })
-                }
-            })
-        }
-    }); 
+    }
 
-    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
+    AWSMock.setSDKInstance(AWS);
+    AWSMock.mock('DynamoDB.DocumentClient', 'scan', (params: ScanInput, callback: Function) => {
+        t.deepLooseEqual(params, expectedParams);
+        callback(null, { Items: mockItems });
+    })
+
+    let repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    const result = await repository.getAllByPartitionKey(expectedUserId); 
+    const result = await repository.getAllByPartitionKey(expectedUserId);
 
     // Assert
-    
+
     t.deepLooseEqual(result, mockItems);
     t.end();
+    AWSMock.restore('DynamoDB.DocumentClient');
+    sinon.restore();
 })
 
 test('baseDynamoRepository.getByPartitionAndSortKeys :: Overall Happy Test :: Gets item and returns it ', async function (t) {
@@ -122,39 +135,34 @@ test('baseDynamoRepository.getByPartitionAndSortKeys :: Overall Happy Test :: Ge
         "#active": "active"
     }
 
-    const mockItem = { id: '123TESTEXPECTEDID', userId: "456EXPECTEDUSERID" }; 
+    const mockItem = { id: '123TESTEXPECTEDID', userId: "456EXPECTEDUSERID" };
 
     var expectedParams = {
-        TableName : testTableName,
-        Key: { 
-          id: expectedId,
-          userId: expectedUserId
+        TableName: testTableName,
+        Key: {
+            id: expectedId,
+            userId: expectedUserId
         }
-      }
-      const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
-        'aws-sdk/clients/dynamodb': {
-            DocumentClient: sinon.stub().callsFake(() => {
-                return {
-                    get: sinon.stub().callsFake((input: any) => {
-                        t.deepLooseEqual(input, expectedParams);
-                        return { 
-                            promise: sinon.stub().resolves({ Item: mockItem })
-                        }
-                    })
-                }
-            })
-        }
-    }); 
+    }
 
-    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
+    AWSMock.setSDKInstance(AWS);
+    AWSMock.mock('DynamoDB.DocumentClient', 'get', (params: GetItemInput, callback: Function) => {
+        t.deepLooseEqual(params, expectedParams);
+        callback(null, { Item: mockItem });
+    })
+
+
+    let repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    const result = await repository.getByPartitionAndSortKeys(expectedUserId, expectedId); 
+    const result = await repository.getByPartitionAndSortKeys(expectedUserId, expectedId);
 
     // Assert
-    
+
     t.deepLooseEqual(result, mockItem);
     t.end();
+    AWSMock.restore('DynamoDB.DocumentClient');
+    sinon.restore();
 })
 
 test('BaseDynamoRepository.update :: Overall Happy Test :: updates item ', async function (t) {
@@ -173,40 +181,29 @@ test('BaseDynamoRepository.update :: Overall Happy Test :: updates item ', async
         "#active": "active"
     }
 
-    const input = { id: expectedId, userId: expectedUserId, name: expectedName, active: expectedActive }; 
+    const input = { id: expectedId, userId: expectedUserId, name: expectedName, active: expectedActive };
 
     var expectedUpdateParams = {
         TableName: testTableName,
         Item: input
     };
 
-    var actualUpdateParams;
+    AWSMock.setSDKInstance(AWS);
+    AWSMock.mock('DynamoDB.DocumentClient', 'put', (params: PutItemInput, callback: Function) => {
+        t.deepLooseEqual(params, expectedUpdateParams);
+        callback(null, {});
+    })
 
-    const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
-        'aws-sdk/clients/dynamodb': {
-            DocumentClient: sinon.stub().callsFake(() => {
-                return {
-                    put: sinon.stub().callsFake((input: any) => {
-                        actualUpdateParams = input;
-                        return { 
-                            promise: sinon.stub().resolves()
-                        }
-                    })
-                }
-            })
-        }
-    }); 
-
-
-    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
+    let repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    await repository.update(input); 
+    await repository.update(input);
 
     // Assert
-    
-    t.deepLooseEqual(actualUpdateParams, expectedUpdateParams);
+
     t.end();
+    AWSMock.restore('DynamoDB.DocumentClient');
+    sinon.restore();
 })
 
 test('BaseDynamoRepository.delete :: Overall Happy Test :: deletes item ', async function (t) {
@@ -224,36 +221,28 @@ test('BaseDynamoRepository.delete :: Overall Happy Test :: deletes item ', async
     }
 
     var expectedParams = {
-        TableName : testTableName,
-        Key: { 
-          id: expectedId,
-          userId: expectedUserId
+        TableName: testTableName,
+        Key: {
+            id: expectedId,
+            userId: expectedUserId
         }
-      }
-    var actualParams;
-    const { BaseDynamoRepository } = proxyquire('../../../src/repositories/baseDynamoRepository.ts', {
-        'aws-sdk/clients/dynamodb': {
-            DocumentClient: sinon.stub().callsFake(() => {
-                return {
-                    delete: sinon.stub().callsFake((input: any) => {
-                        actualParams = input;
-                        return { 
-                            promise: sinon.stub().resolves()
-                        }
-                        
-                    })
-                }
-            })
-        }
-    }); 
+    }
 
-    let repository = new BaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
+
+    AWSMock.setSDKInstance(AWS);
+    AWSMock.mock('DynamoDB.DocumentClient', 'delete', (params: DeleteItemInput, callback: Function) => {
+        t.deepLooseEqual(params, expectedParams);
+        callback(null, {});
+    })
+
+    let repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes, expectedSortKey)
 
     // Act
-    await repository.deleteByPartitionAndSortKey(expectedUserId, expectedId); 
+    await repository.deleteByPartitionAndSortKey(expectedUserId, expectedId);
 
     // Assert
-    
-    t.deepLooseEqual(actualParams, expectedParams);
+
     t.end();
+    AWSMock.restore('DynamoDB.DocumentClient');
+    sinon.restore();
 })

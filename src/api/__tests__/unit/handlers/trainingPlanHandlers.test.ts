@@ -1,9 +1,10 @@
 import * as test from "tape";
-import * as proxyquire from 'proxyquire';
 import * as sinon from "sinon";
 import * as _ from "lodash";
 
-import { TrainingPlanRepository, ITrainingPlan } from "../../../src/repositories/trainingPlanRepository" 
+import * as lambda from "../../../src/handlers/trainingPlanHandlers";
+
+import { TrainingPlanRepository, ITrainingPlan } from "../../../src/repositories/trainingPlanRepository"
 
 test('trainingPlanHandlers.planCreate :: Overall Happy Test :: Creates new item for user', async function (t) {
     const expectedId = "123TESTEXPECTEDID"
@@ -22,10 +23,6 @@ test('trainingPlanHandlers.planCreate :: Overall Happy Test :: Creates new item 
         t.deepLooseEqual(inputItem, inputBody)
         return new Promise((resolve) => resolve(mockItem))
     })
-
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': {}
-    });
 
     const event = {
         httpMethod: 'POST',
@@ -75,10 +72,6 @@ test('trainingPlanHandlers.planDelete :: Overall Happy Test :: Valid Id and User
         return new Promise((resolve) => resolve())
     })
 
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': { }
-    });
-
     const event = {
         httpMethod: 'DELETE',
         pathParameters: {
@@ -113,16 +106,12 @@ test('trainingPlanHandlers.planDelete :: Overall Happy Test :: Valid Id and User
 test('trainingPlanHandlers.planGetAll :: Overall Happy Test :: Valid User gets items', async function (t) {
     const expectedUserId = "456EXPECTEDUSERID"
 
-    const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId , name: "", active: false}];
+    const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId, name: "", active: false }];
 
     sinon.stub(TrainingPlanRepository.prototype, "getTrainingPlansForUser").callsFake((userId: string) => {
         t.isEqual(userId, expectedUserId)
         return new Promise((resolve) => resolve(mockItems))
     })
-
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': {}
-    });
 
     const event = {
         httpMethod: 'GET',
@@ -164,10 +153,6 @@ test('trainingPlanHandlers.planGet :: Overall Happy Test :: Valid Id and User ge
         t.isEqual(itemId, expectedId)
         return new Promise((resolve) => resolve(mockItem))
     })
-
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': { }
-    });
 
     const event = {
         httpMethod: 'GET',
@@ -228,10 +213,6 @@ test('trainingPlanHandlers.planUpdate :: Overall Happy Test :: Valid Id and User
         t.deepLooseEqual(inputUpdate, expectedInputUpdate)
         return new Promise((resolve) => resolve())
     })
-
-    const lambda = proxyquire('../../../src/handlers/trainingPlanHandlers.ts', {
-        '../repositories/trainingPlanRepository': { }
-    });
 
     const event = {
         httpMethod: 'PUT',
