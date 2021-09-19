@@ -1,4 +1,4 @@
-import { BaseDynamoRepository } from "./baseDynamoRepository";
+import { BaseDynamoPartitionSortRepository } from "./baseDynamoPartitionSortRepository";
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ITrainingPlanActivitySegment {
@@ -16,18 +16,18 @@ export interface ITrainingPlanActivity {
     complete: boolean
 }
 
-export class TrainingPlanActivityRepository extends BaseDynamoRepository<ITrainingPlanActivity> {
+export class TrainingPlanActivityRepository extends BaseDynamoPartitionSortRepository<ITrainingPlanActivity> {
     constructor() {
         super(
             process.env.TRAINING_PLAN_ACTIVITY_TABLE ?? "TrainingPlanActivity",
-            "trainingPlanId", 
+            "trainingPlanId",
+            "id",
             {
                 "#nm": "name",
                 "#acttime": "activityTime",
                 "#segments": "segments",
                 "#complete": "complete"
-            },
-            "id"
+            }
         )
     }
 

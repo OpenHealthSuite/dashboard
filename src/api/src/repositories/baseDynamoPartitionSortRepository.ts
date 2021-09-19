@@ -4,14 +4,14 @@ interface LooseKeyObject {
     [key: string]: string
 }
 
-export class BaseDynamoRepository<T> {
+export class BaseDynamoPartitionSortRepository<T> {
     private readonly _tableName: string;
     private readonly _expressionAttributeNames = {}
     private readonly _partitionKey: string
     private readonly _sortKey?: string
     private readonly _docClient: dynamodb.DocumentClient;
 
-    constructor(tableName: string, paritionKey: string, expressionAttributeNames: {}, sortKey?: string) {
+    constructor(tableName: string, paritionKey: string, sortKey: string, expressionAttributeNames: {}) {
         this._docClient = new dynamodb.DocumentClient()
         this._tableName = tableName
         this._partitionKey = paritionKey

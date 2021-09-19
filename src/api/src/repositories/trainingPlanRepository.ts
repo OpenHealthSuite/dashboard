@@ -1,4 +1,4 @@
-import { BaseDynamoRepository } from './baseDynamoRepository'
+import { BaseDynamoPartitionSortRepository } from './baseDynamoPartitionSortRepository'
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ITrainingPlan {
@@ -8,17 +8,17 @@ export interface ITrainingPlan {
     active: boolean
 }
 
-export class TrainingPlanRepository extends BaseDynamoRepository<ITrainingPlan> {
+export class TrainingPlanRepository extends BaseDynamoPartitionSortRepository<ITrainingPlan> {
 
     constructor() {
         super(
             process.env.TRAINING_PLAN_TABLE ?? "TrainingPlan",
-            "userId", 
+            "userId",
+            "id",
             {
                 "#nm": "name",
                 "#active": "active"
-            },
-            "id"
+            }
         )
     }
 
