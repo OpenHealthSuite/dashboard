@@ -9,13 +9,24 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Modal from '@material-ui/core/Modal';
+import { ITrainingPlan, TrainingPlan } from '../../models/ITrainingPlan'
 
-export default class TrainingPlanEditor extends React.Component {
-    constructor(props) {
+interface IProps {
+  inputPlan?: ITrainingPlan
+  submitCallback: (activity: ITrainingPlan) => any
+}
+
+interface IState {
+  open: boolean,
+  planEditing: ITrainingPlan
+}
+
+export default class TrainingPlanEditor extends React.Component<IProps, IState> {
+    constructor(props: IProps) {
       super(props);
       this.state = {
         open: false,
-        planEditing: {}
+        planEditing: new TrainingPlan()
       };
       this.handleOpen = this.handleOpen.bind(this);
       this.handleClose = this.handleClose.bind(this);
@@ -25,13 +36,13 @@ export default class TrainingPlanEditor extends React.Component {
       this.handleSubmit = this.handleSubmit.bind(this);
     }
   
-    handleEditName(event) {    
+    handleEditName(event: any) {    
       var plan = {...this.state.planEditing}
       plan.name = event.target.value
       this.setState({planEditing: plan});  
     }
 
-    handleEditActive(event) {    
+    handleEditActive(event: any) {    
       var plan = {...this.state.planEditing}
       plan.active = event.target.checked
       this.setState({planEditing: plan});  
@@ -41,7 +52,7 @@ export default class TrainingPlanEditor extends React.Component {
         this.setState(
             {
                 open: true,
-                planEditing: this.props.inputPlan || { name: "", active: false} 
+                planEditing: this.props.inputPlan || new TrainingPlan()
             }
         )
     }
@@ -55,7 +66,7 @@ export default class TrainingPlanEditor extends React.Component {
     }
 
 
-    async handleSubmit(event) {
+    async handleSubmit(event: any) {
         event.preventDefault();
         this.props.submitCallback(this.state.planEditing);
         this.handleClose()

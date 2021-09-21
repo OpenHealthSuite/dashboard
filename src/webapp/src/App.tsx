@@ -78,7 +78,7 @@ function App() {
   });
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const classes = useStyles();
-  const toggleDrawer = (open) => (event) => {
+  const toggleDrawer = (open: boolean) => (event: any) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
@@ -133,10 +133,14 @@ function App() {
   );
 }
 
+interface IRouteParameters {
+  trainingPlanId: string
+}
+
 function TrainingPlanRouteChild() {
   // We can use the `useParams` hook here to access
   // the dynamic pieces of the URL.
-  const { trainingPlanId } = useParams();
+  const { trainingPlanId } = useParams<IRouteParameters>();
 
   return (
     <TrainingPlanActivityBrowser trainingPlanId={trainingPlanId} />

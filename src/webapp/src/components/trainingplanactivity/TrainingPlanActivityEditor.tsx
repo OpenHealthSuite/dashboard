@@ -9,13 +9,24 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Modal from '@material-ui/core/Modal';
+import { TrainingPlanActivity, ITrainingPlanActivity } from '../../models/ITrainingPlanActivity';
 
-export default class TrainingPlanActivityEditor extends React.Component {
-    constructor(props) {
+interface ITrainingPlanActivityEditorProps {
+  inputActivity?: ITrainingPlanActivity,
+  submitCallback: (activity: ITrainingPlanActivity) => any
+}
+
+interface ITrainingPlanActivityEditorState {
+  activityEditing: ITrainingPlanActivity,
+  open: boolean
+}
+
+export default class TrainingPlanActivityEditor extends React.Component<ITrainingPlanActivityEditorProps, ITrainingPlanActivityEditorState> {
+    constructor(props: ITrainingPlanActivityEditorProps) {
       super(props);
       this.state = {
         open: false,
-        activityEditing: {}
+        activityEditing: new TrainingPlanActivity()
       };
       this.handleOpen = this.handleOpen.bind(this);
       this.handleClose = this.handleClose.bind(this);
@@ -25,13 +36,13 @@ export default class TrainingPlanActivityEditor extends React.Component {
       this.handleSubmit = this.handleSubmit.bind(this);
     }
   
-    handleEditName(event) {    
+    handleEditName(event: any) {    
       var plan = {...this.state.activityEditing}
       plan.name = event.target.value
       this.setState({activityEditing: plan});  
     }
 
-    handleEditComplete(event) {    
+    handleEditComplete(event: any) {    
       var plan = {...this.state.activityEditing}
       plan.complete = event.target.checked
       this.setState({activityEditing: plan});  
@@ -41,7 +52,7 @@ export default class TrainingPlanActivityEditor extends React.Component {
         this.setState(
             {
                 open: true,
-                activityEditing: this.props.inputActivity || { name: "", active: false} 
+                activityEditing: this.props.inputActivity || new TrainingPlanActivity()
             }
         )
     }
@@ -55,7 +66,7 @@ export default class TrainingPlanActivityEditor extends React.Component {
     }
 
 
-    async handleSubmit(event) {
+    async handleSubmit(event: any) {
         event.preventDefault();
         this.props.submitCallback(this.state.activityEditing);
         this.handleClose()
@@ -69,7 +80,7 @@ export default class TrainingPlanActivityEditor extends React.Component {
             color="primary"
             size="large"
             onClick={this.handleOpen}>
-            {this.props.inputPlan ? "Edit Activity" : "Create Activity"}
+            {this.props.inputActivity ? "Edit Activity" : "Create Activity"}
         </Button>
         <Modal
         open={this.state.open}
@@ -81,7 +92,7 @@ export default class TrainingPlanActivityEditor extends React.Component {
             <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                {this.props.inputPlan ? "Edit Activity" : "Create Activity"}
+                {this.props.inputActivity ? "Edit Activity" : "Create Activity"}
               </Typography>
               <TextField id="name" label="Name" value={this.state.activityEditing.name} onChange={this.handleEditName}/>
               <FormGroup row>
