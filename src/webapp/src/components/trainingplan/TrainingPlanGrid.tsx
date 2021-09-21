@@ -9,6 +9,9 @@ import TrainingPlanEditor from './TrainingPlanEditor';
 import { Auth } from 'aws-amplify';
 import { ITrainingPlan } from '../../models/ITrainingPlan';
 
+import {
+  Link
+} from "react-router-dom";
 interface IProps {
 
 }
@@ -93,7 +96,7 @@ export default class TrainingPlanGrid extends React.Component<IProps, IState> {
                 </Typography>
                 </CardContent>
                 <CardActions>                
-                  <Button variant="contained" color="primary" href={"/trainingplans/"+x.id}>
+                  <Button variant="contained" color="primary" component={Link} to={"/trainingplans/"+x.id}>
                     Activities
                   </Button>
                   <TrainingPlanEditor inputPlan={x} submitCallback={this.editPlanCallback}/>
