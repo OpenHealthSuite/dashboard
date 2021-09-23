@@ -14,7 +14,9 @@ import MobileDatePicker from '@mui/lab/MobileDatePicker';
 
 interface ITrainingPlanActivityEditorProps {
   inputActivity?: ITrainingPlanActivity,
-  submitCallback: (activity: ITrainingPlanActivity) => any
+  inputDate?: Date,
+  submitCallback: (activity: ITrainingPlanActivity) => any,
+  open: boolean
 }
 
 interface ITrainingPlanActivityEditorState {
@@ -27,7 +29,7 @@ export default class TrainingPlanActivityEditor extends React.Component<ITrainin
       super(props);
       this.state = {
         open: false,
-        activityEditing: new TrainingPlanActivity()
+        activityEditing: new TrainingPlanActivity(new Date())
       };
       this.handleOpen = this.handleOpen.bind(this);
       this.handleClose = this.handleClose.bind(this);
@@ -56,12 +58,18 @@ export default class TrainingPlanActivityEditor extends React.Component<ITrainin
       this.setState({activityEditing: plan});  
     }
 
+    componentDidUpdate(prevProps: ITrainingPlanActivityEditorProps) {
+      if (this.props.open) {
+        this.handleOpen()
+      }
+    }
+
 
     handleOpen() {
         this.setState(
             {
                 open: true,
-                activityEditing: this.props.inputActivity || new TrainingPlanActivity()
+                activityEditing: this.props.inputActivity || new TrainingPlanActivity(this.props.inputDate || new Date())
             }
         )
     }
@@ -83,14 +91,6 @@ export default class TrainingPlanActivityEditor extends React.Component<ITrainin
   
     render() {
       return (
-          <>
-        <Button type="button" 
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={this.handleOpen}>
-            {this.props.inputActivity ? "Edit Activity" : "Create Activity"}
-        </Button>
         <Modal
         open={this.state.open}
         onClose={this.handleClose}
@@ -133,7 +133,6 @@ export default class TrainingPlanActivityEditor extends React.Component<ITrainin
             </form>
           </Card>
         </Modal>
-        </>
       )
     }
   

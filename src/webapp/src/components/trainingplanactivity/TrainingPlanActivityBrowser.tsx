@@ -1,14 +1,12 @@
 import React from 'react';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import TrainingPlanActivityEditor from './TrainingPlanActivityEditor';
 import { Auth } from 'aws-amplify';
 import { ITrainingPlanActivity } from '../../models/ITrainingPlanActivity'
 import { ITrainingPlan, TrainingPlan } from '../../models/ITrainingPlan'
+
+import './TrainingPlanActivityBrowser.css';
+import { Link } from 'react-router-dom';
 
 interface IProps {
   trainingPlanId: string,
@@ -16,16 +14,25 @@ interface IProps {
 
 interface IState {
   plan: ITrainingPlan,
-  existing: ITrainingPlanActivity[]
+  existing: ITrainingPlanActivity[],
+  viewingMonth: Date
 }
 
 export default class TrainingPlanActivityBrowser extends React.Component<IProps, IState> {
     constructor(props: IProps) {
       super(props);
+      const viewingMonth = new Date();
+      viewingMonth.setDate(1);
       this.state = {
         plan: new TrainingPlan(),
-        existing: []
+        existing: [],
+        viewingMonth: viewingMonth
       };
+
+
+      this.activitiesOnDate = this.activitiesOnDate.bind(this);
+      this.mondaysOfWeekInMonth = this.mondaysOfWeekInMonth.bind(this);
+      this.changeMonth = this.changeMonth.bind(this);
     }
   
     async componentDidMount() {
@@ -95,39 +102,85 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
     }
   
   
-    render() {
-      let existingItems = this.state.existing
-        .map((x, i) => {
-          return (<Grid key={i} item xs={12} sm={6} md={4} lg={3}>
-              <Card elevation={1} style={{backgroundColor: x.complete ? "green" : ""}}>
-              <CardContent>
-                <Typography color="textSecondary" gutterBottom>
-                  {x.name}
-                </Typography>
-                </CardContent>
-                <CardActions>
-                  <TrainingPlanActivityEditor inputActivity={x} submitCallback={this.editActivityCallback}/>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="secondary"
-                    size="large"
-                    onClick={async () => { await this.handleDelete(x.id) }}
-                  >
-                    Delete
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>)
-        })
-      return (
-        <>
-          <TrainingPlanActivityEditor submitCallback={this.createActivityCallback}/>
-          <Grid container spacing={3}>
-            {existingItems}
-          </Grid>
-        </>
-      )
+    mondaysOfWeekInMonth(): Date[] {
+      var dateUnderCheck = new Date(this.state.viewingMonth);
+      var month = this.state.viewingMonth.getMonth();
+      const monday = 1
+      while(dateUnderCheck.getDay() !== monday){
+          dateUnderCheck.setDate(dateUnderCheck.getDate()-1);
+      }
+      var returnValue: Date[] = [];
+      returnValue.push(new Date(dateUnderCheck));
+      dateUnderCheck.setDate(dateUnderCheck.getDate() + 7);
+      while(dateUnderCheck.getMonth() === month){
+          returnValue.push(new Date(dateUnderCheck));
+          dateUnderCheck.setDate(dateUnderCheck.getDate() + 7)
+      }
+      return returnValue;
     }
   
+    changeMonth(monthsToMove: number) {
+      const newViewingMonth = new Date(this.state.viewingMonth);
+      newViewingMonth.setMonth(newViewingMonth.getMonth() + monthsToMove)
+      this.setState({viewingMonth: newViewingMonth})
+    }
+    
+    activitiesOnDate(date: Date): ITrainingPlanActivity[] {
+      return this.state.existing.filter(x => x.activityTime && (new Date(x.activityTime)).toDateString() === date.toDateString())
+    }
+  
+    
+    render() {
+
+      const calendarRows = this.mondaysOfWeekInMonth().map((week) => {
+        const days = [...Array(7).keys()].map((dayOfWeek, i) => {
+          const dayDate = new Date(week);
+          dayDate.setDate(week.getDate() + dayOfWeek);
+          let openEditor = false
+          return (
+            <div className="activity-calendar-cell" key={i+'-calendar-cell'} onClick={() => {openEditor = true}}>
+            <TrainingPlanActivityEditor inputDate={dayDate} submitCallback={this.createActivityCallback} open={openEditor}></TrainingPlanActivityEditor>
+            <label className='activity-calendar-day-label'>{dayDate.getDate()}</label>
+            {this.activitiesOnDate(dayDate).map((activity, ai) => {
+              return (
+                <Button className='calendar-activity' key={ai+'-calendar-cell'} component={Link} to={"/trainingplans/"+activity.trainingPlanId+"/activities/"+activity.id}>
+                  {activity.name}
+                </Button>
+              )
+            })}
+            </div>
+          )
+        })
+        return (
+          <div className="activity-calendar-row">
+            {days}
+          </div>
+        )
+      })
+      return (
+        <>
+          <Button onClick={() => {this.changeMonth(-1)}}>
+            Back
+          </Button>
+          <Button onClick={() => {this.changeMonth(1)}}>
+            Forward
+          </Button>
+          <div className="activity-calendar">
+            <div className="activity-calendar-header">
+              <div className="activity-calendar-header-cell">Mon</div>
+              <div className="activity-calendar-header-cell">Tue</div>
+              <div className="activity-calendar-header-cell">Wed</div>
+              <div className="activity-calendar-header-cell">Thu</div>
+              <div className="activity-calendar-header-cell">Fri</div>
+              <div className="activity-calendar-header-cell">Sat</div>
+              <div className="activity-calendar-header-cell">Sun</div>
+            </div>
+            <div className="activity-calendar-body">
+              {calendarRows}
+            </div>
+          </div>
+        </>
+  
+    )
+  }
 }

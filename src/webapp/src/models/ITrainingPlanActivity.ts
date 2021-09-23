@@ -20,4 +20,7 @@ export class TrainingPlanActivity implements ITrainingPlanActivity {
     activityTime: Date = new Date();
     segments: ITrainingPlanActivitySegment[] = [];
     complete: boolean = false;
+    constructor(activityTime: Date) {
+        this.activityTime = activityTime
+    }
 }
