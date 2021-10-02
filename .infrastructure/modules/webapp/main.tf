@@ -1,23 +1,4 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.27"
-    }
-  }
 
-  required_version = ">= 0.14.9"
-}
-
-provider "aws" {
-  profile = "default"
-  region  = "us-east-1"
-  default_tags {
-    tags = {
-      Project = "PaceMeApp"
-    }
-  }
-}
 
 resource "aws_s3_bucket" "paceme_frontend_bucket" {
   bucket        = "pacemeapp-frontend"
@@ -28,6 +9,10 @@ resource "aws_s3_bucket" "paceme_frontend_bucket" {
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
   comment = "cloudfront origin access identity"
+}
+
+variable "certificate-arn" {
+  type    = string
 }
 
 data "aws_iam_policy_document" "s3_policy" {
@@ -57,10 +42,10 @@ resource "aws_s3_bucket_policy" "policy_for_cloudfront" {
   policy = data.aws_iam_policy_document.s3_policy.json
 }
 
-resource "aws_cloudfront_distribution" "pacme_frontend_distribution" {
+resource "aws_cloudfront_distribution" "paceme_frontend_distribution" {
   enabled = true
 
-  aliases = ["app.paceme.info"]
+  aliases = ["app-dev.paceme.info"]
 
   viewer_certificate {
     acm_certificate_arn = "arn:aws:acm:us-east-1:553904485373:certificate/1c2ffd4d-5d4a-43dd-89b6-ef4e2ad68099"
@@ -113,4 +98,8 @@ resource "aws_cloudfront_distribution" "pacme_frontend_distribution" {
     default_ttl = 43200
     max_ttl = 43200
   }
+}
+
+output "distribution_domain_name" {
+  value = aws_cloudfront_distribution.paceme_frontend_distribution.domain_name
 }
