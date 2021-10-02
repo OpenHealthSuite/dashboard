@@ -24,7 +24,8 @@
 		"hashicorp.terraform"
 	],
 	"mounts": [
-		"source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/node/.aws,type=bind"
+		"source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/node/.aws,type=bind",
+		"source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/node/.ssh,type=bind"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
