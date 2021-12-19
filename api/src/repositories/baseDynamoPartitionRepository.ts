@@ -4,28 +4,37 @@ interface LooseKeyObject {
     [key: string]: string
 }
 
-export abstract class BaseDynamoPartitionSortRepository<T> extends BaseDynamoRepository {
+export abstract class BaseDynamoPartitionRepository<T> extends BaseDynamoRepository {
     private readonly _tableName: string;
     private readonly _expressionAttributeNames = {}
     private readonly _partitionKey: string
-    private readonly _sortKey: string
 
-    constructor (tableName: string, paritionKey: string, sortKey: string, expressionAttributeNames: {}) {
+    constructor (tableName: string, paritionKey: string, expressionAttributeNames: {}) {
       super()
       this._tableName = tableName
       this._partitionKey = paritionKey
-      this._sortKey = sortKey
       this._expressionAttributeNames = expressionAttributeNames
     }
 
-    protected async getAllByPartitionKey (partitionKey: string): Promise<T[]> {
+    protected async getAll (): Promise<T[]> {
       const params = {
         TableName: this._tableName,
-        ProjectionExpression: `${this._partitionKey}, ${this._sortKey}, ${Object.keys(this._expressionAttributeNames).join(', ')}`,
-        FilterExpression: `${this._partitionKey} = :requestedPartitionKey`,
+        ProjectionExpression: `${this._partitionKey}, ${Object.keys(this._expressionAttributeNames).join(', ')}`,
+        ExpressionAttributeNames: this._expressionAttributeNames
+      }
+
+      const data = await this._docClient.scan(params).promise()
+      return data.Items as T[]
+    }
+
+    protected async getFilteredItems (property: string, value: string | number | undefined) {
+      const params = {
+        TableName: this._tableName,
+        ProjectionExpression: `${this._partitionKey}, ${Object.keys(this._expressionAttributeNames).join(', ')}`,
+        FilterExpression: `${property} = :propertyValue`,
         ExpressionAttributeNames: this._expressionAttributeNames,
         ExpressionAttributeValues: {
-          ':requestedPartitionKey': partitionKey
+          ':propertyValue': value
         }
       }
 
@@ -33,10 +42,9 @@ export abstract class BaseDynamoPartitionSortRepository<T> extends BaseDynamoRep
       return data.Items as T[]
     }
 
-    protected async getByPartitionAndSortKeys (paritionKey: string, sortKey: string): Promise<T> {
+    protected async getByPartitionKey (paritionKey: string): Promise<T> {
       const key: LooseKeyObject = {}
       key[this._partitionKey] = paritionKey
-      key[this._sortKey as string] = sortKey
 
       const params = {
         TableName: this._tableName,
@@ -66,10 +74,9 @@ export abstract class BaseDynamoPartitionSortRepository<T> extends BaseDynamoRep
       await this._docClient.put(updateParams).promise()
     }
 
-    protected async deleteByPartitionAndSortKey (paritionKey: string, sortKey: string): Promise<void> {
+    protected async deleteByPartitionKey (paritionKey: string): Promise<void> {
       const key: LooseKeyObject = {}
       key[this._partitionKey] = paritionKey
-      key[this._sortKey as string] = sortKey
       const deleteParams = {
         TableName: this._tableName,
         Key: key

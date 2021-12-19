@@ -1,120 +1,85 @@
-import { accessControlHeaders } from '../helpers/requiredHeaders';
-import { TrainingPlanRepository } from '../repositories/trainingPlanRepository';
+import { Application, Request, Response } from 'express'
+import { TrainingPlanRepository } from '../repositories/trainingPlanRepository'
 
-const repository = new TrainingPlanRepository();
+const repository = new TrainingPlanRepository()
 
-export const planCreate = async (event: any) => {
-    if (event.httpMethod !== 'POST') {
-        throw new Error(`postMethod only accepts POST method, you tried: ${event.httpMethod} method.`);
-    }
-
-    const userId = event.requestContext.authorizer.claims.sub
-    const body = JSON.parse(event.body)
-
-    let newItem = await repository.createTrainingPlan(userId, body)
-
-    const response = {
-        statusCode: 200,
-        headers: accessControlHeaders,
-        body: JSON.stringify(newItem)
-    };
-
-    return response;
+export function addTrainingPlanHandlers (app: Application) {
+  app.post('/trainingplans', planCreate)
+  app.get('/trainingplans', planGetAll)
+  app.get('/trainingplans/:trainingPlanId', planGet)
+  app.put('/trainingplans/:trainingPlanId', planUpdate)
+  app.delete('/trainingplans/:trainingPlanId', planDelete)
 }
 
-export const planDelete = async (event: any) => {
-    if (event.httpMethod !== 'DELETE') {
-        throw new Error(`only accepts DELETE method, you tried: ${event.httpMethod} method.`);
-    }
+const planCreate = async (req: Request, res: Response) => {
+  const userId = res.locals.userId
+  const body = JSON.parse(req.body)
 
-    const userId = event.requestContext.authorizer.claims.sub
+  const newItem = await repository.createTrainingPlan(userId, body)
 
-    const id = event.pathParameters.trainingPlanId;
-
-    const existing = await repository.getTrainingPlan(userId, id);
-
-    if (!existing || existing.userId !== userId) {
-        throw new Error(`No item for user ${userId} found under ${id}`);
-    }
-
-    await repository.deleteTrainingPlan(userId, id);
-
-    const response = {
-        statusCode: 200,
-        headers: accessControlHeaders
-    };
-
-    return response;
+  return res.send(newItem)
 }
 
-export const planGetAll = async (event: any) => {
-    if (event.httpMethod !== 'GET') {
-        throw new Error(`getAllItems only accept GET method, you tried: ${event.httpMethod}`);
-    }
+export const planDelete = async (req: Request, res: Response) => {
+  const userId = res.locals.userId
 
-    const userId = event.requestContext.authorizer.claims.sub
+  const id = req.params.trainingPlanId
 
-    let items = await repository.getTrainingPlansForUser(userId);
+  const existing = await repository.getTrainingPlan(userId, id)
 
-    const response = {
-        statusCode: 200,
-        headers: accessControlHeaders,
-        body: JSON.stringify(items)
-    };
-    return response;
+  if (!existing || existing.userId !== userId) {
+    return res.status(404).send(`No item for user ${userId} found under ${id}`)
+  }
+
+  await repository.deleteTrainingPlan(userId, id)
+  // TODO: need to delete associated activities too.
+
+  res.sendStatus(200)
 }
 
-export const planGet = async (event: any) => {
-    if (event.httpMethod !== 'GET') {
-        throw new Error(`getMethod only accept GET method, you tried: ${event.httpMethod}`);
-    }
-    const userId = event.requestContext.authorizer.claims.sub
+export const planGetAll = async (req: Request, res: Response) => {
+  const userId = res.locals.userId
 
-    // Get id from pathParameters from APIGateway because of `/{id}` at template.yml
-    const id = event.pathParameters.trainingPlanId;
+  const items = await repository.getTrainingPlansForUser(userId)
 
-    let plan = await repository.getTrainingPlan(userId, id);
-
-    if (!plan || plan.userId !== userId) {
-        throw new Error(`No item with ${id} found`);
-    }
-
-    return {
-        statusCode: 200,
-        headers: accessControlHeaders,
-        body: JSON.stringify(plan)
-    };
+  return res.send(items)
 }
 
-export const planUpdate = async (event: any) => {
-    if (event.httpMethod !== 'PUT') {
-        throw new Error(`only accepts PUT method, you tried: ${event.httpMethod} method.`);
-    }
-    const userId = event.requestContext.authorizer.claims.sub
+export const planGet = async (req: Request, res: Response) => {
+  const userId = res.locals.userId
 
-    const body = JSON.parse(event.body)
-    const id = event.pathParameters.trainingPlanId;
-    const { name, active } = body;
+  const id = req.params.trainingPlanId
 
-    const existing = await repository.getTrainingPlan(userId, id)
+  const plan = await repository.getTrainingPlan(userId, id)
 
-    if (!existing || existing.userId !== userId) {
-        throw new Error(`No item with ${id} found`);
-    }
+  if (!plan || plan.userId !== userId) {
+    return res.status(404).send(`No item for user ${userId} found under ${id}`)
+  }
 
-    const itemUpdate = {
-        id: id,
-        userId: userId,
-        name: name,
-        active: active
-    }
+  return res.send(plan)
+}
 
-    await repository.updateTrainingPlan(itemUpdate)
+export const planUpdate = async (req: Request, res: Response) => {
+  const userId = res.locals.userId
 
-    const response = {
-        statusCode: 200,
-        headers: accessControlHeaders,
-        body: JSON.stringify(itemUpdate)
-    };
-    return response;
+  const body = JSON.parse(req.body)
+  const id = req.params.trainingPlanId
+  const { name, active } = body
+
+  const existing = await repository.getTrainingPlan(userId, id)
+
+  if (!existing || existing.userId !== userId) {
+    return res.status(404).send(`No item for user ${userId} found under ${id}`)
+  }
+
+  const itemUpdate = {
+    id: id,
+    userId: userId,
+    name: name,
+    active: active
+  }
+
+  await repository.updateTrainingPlan(itemUpdate)
+
+  return res.send(itemUpdate)
 }
