@@ -3,6 +3,9 @@ import cors from 'cors'
 import { addTrainingPlanActivityHandlers } from './handlers/trainingPlanActivityHandlers'
 import { addTrainingPlanHandlers } from './handlers/trainingPlanHandlers'
 import CognitoExpress from 'cognito-express'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const app = express()
 const configuration = {
@@ -14,7 +17,7 @@ app.use(cors())
 
 const cognitoExpress = new CognitoExpress({
   region: process.env.AWS_REGION ?? 'eu-west-1',
-  cognitoUserPoolId: process.env.PRODUCTAPI,
+  cognitoUserPoolId: process.env.COGNITO_USER_POOL,
   tokenUse: 'access',
   tokenExpiration: 3600000
 })

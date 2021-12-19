@@ -1,4 +1,7 @@
-FROM node:14
+FROM node:16.13.1
+
+# Note: This dockerfile is basically just for bringing it up in a stack.
+# In reality, just serve the damn static files
 
 WORKDIR /app
 
