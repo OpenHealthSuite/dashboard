@@ -1,5 +1,5 @@
 import { Application, Request, Response } from 'express'
-import { TrainingPlanRepository } from '../repositories/trainingPlanRepository'
+import { ITrainingPlan, TrainingPlanRepository } from '../repositories/trainingPlanRepository'
 
 const repository = new TrainingPlanRepository()
 
@@ -13,7 +13,7 @@ export function addTrainingPlanHandlers (app: Application) {
 
 const planCreate = async (req: Request, res: Response) => {
   const userId = res.locals.userId
-  const body = JSON.parse(req.body)
+  const body: ITrainingPlan = req.body
 
   const newItem = await repository.createTrainingPlan(userId, body)
 
@@ -62,7 +62,7 @@ export const planGet = async (req: Request, res: Response) => {
 export const planUpdate = async (req: Request, res: Response) => {
   const userId = res.locals.userId
 
-  const body = JSON.parse(req.body)
+  const body: ITrainingPlan = req.body
   const id = req.params.trainingPlanId
   const { name, active } = body
 

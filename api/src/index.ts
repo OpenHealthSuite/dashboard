@@ -1,11 +1,8 @@
-import express, { Request, Response, NextFunction } from 'express'
+import express, { Request, Response, NextFunction, json } from 'express'
 import cors from 'cors'
 import { addTrainingPlanActivityHandlers } from './handlers/trainingPlanActivityHandlers'
 import { addTrainingPlanHandlers } from './handlers/trainingPlanHandlers'
 import CognitoExpress from 'cognito-express'
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 const app = express()
 const configuration = {
@@ -14,11 +11,12 @@ const configuration = {
 }
 
 app.use(cors())
+app.use(json())
 
 const cognitoExpress = new CognitoExpress({
-  region: process.env.AWS_REGION ?? 'eu-west-1',
-  cognitoUserPoolId: process.env.COGNITO_USER_POOL,
-  tokenUse: 'access',
+  region: process.env.AWS_REGION ?? 'eu-west-2',
+  cognitoUserPoolId: process.env.COGNITO_USER_POOL_ID,
+  tokenUse: 'id',
   tokenExpiration: 3600000
 })
 
@@ -42,12 +40,12 @@ function authenticationMiddleware (req: Request, res: Response, next: NextFuncti
     const accessTokenFromClient = req.headers.authorization
     if (!accessTokenFromClient) return res.status(401).send('Access Token missing from header')
 
-    cognitoExpress.validate(accessTokenFromClient, function (err: any, response: any) {
+    cognitoExpress.validate(accessTokenFromClient.replace('Bearer ', ''), function (err: any, response: any) {
       if (err) {
         return res.status(401).send(err)
       }
       res.locals.userId = response.sub
-      next()
+      return next()
     })
   }
 }

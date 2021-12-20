@@ -1,6 +1,6 @@
 import { Application, Request, Response } from 'express'
 import { TrainingPlanRepository } from '../repositories/trainingPlanRepository'
-import { TrainingPlanActivityRepository } from '../repositories/trainingPlanActivityRepository'
+import { ITrainingPlanActivity, TrainingPlanActivityRepository } from '../repositories/trainingPlanActivityRepository'
 
 const trainingPlanRepository = new TrainingPlanRepository()
 const trainingPlanActivityRepository = new TrainingPlanActivityRepository()
@@ -23,7 +23,7 @@ export const activityCreate = async (req: Request, res: Response) => {
     return res.status(404).send(`No item for user ${userId} found under ${trainingPlanId}`)
   }
 
-  const body = JSON.parse(req.body)
+  const body: ITrainingPlanActivity = req.body
 
   const newItem = await trainingPlanActivityRepository.createTrainingPlanActivity(trainingPlanId, body)
 
@@ -93,7 +93,7 @@ export const activityUpdate = async (req: Request, res: Response) => {
 
   const { trainingPlanId, activityId } = req.params
 
-  const body = JSON.parse(req.body)
+  const body: ITrainingPlanActivity = req.body
   const { name, activityTime, segments, complete } = body
 
   const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId)
