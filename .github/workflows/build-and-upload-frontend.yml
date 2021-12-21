@@ -1,7 +1,7 @@
-# name: Build and upload frontend
-# on:
-#     push:
-#         branches: [ main ]
+name: Build and upload frontend
+on:
+    push:
+        branches: [ main ]
 # jobs:
 #     build-site:
 #         environment: Production

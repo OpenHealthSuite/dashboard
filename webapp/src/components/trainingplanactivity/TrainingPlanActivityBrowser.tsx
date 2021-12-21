@@ -15,7 +15,9 @@ interface IProps {
 interface IState {
   plan: ITrainingPlan,
   existing: ITrainingPlanActivity[],
-  viewingMonth: Date
+  viewingMonth: Date,
+  openEditor: boolean,
+  inputDate: Date
 }
 
 export default class TrainingPlanActivityBrowser extends React.Component<IProps, IState> {
@@ -26,13 +28,16 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
       this.state = {
         plan: new TrainingPlan(),
         existing: [],
-        viewingMonth: viewingMonth
+        viewingMonth: viewingMonth,
+        openEditor: false,
+        inputDate: viewingMonth
       };
 
 
       this.activitiesOnDate = this.activitiesOnDate.bind(this);
       this.mondaysOfWeekInMonth = this.mondaysOfWeekInMonth.bind(this);
       this.changeMonth = this.changeMonth.bind(this);
+      this.openEditor = this.openEditor.bind(this);
     }
   
     async componentDidMount() {
@@ -128,18 +133,23 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
     activitiesOnDate(date: Date): ITrainingPlanActivity[] {
       return this.state.existing.filter(x => x.activityTime && (new Date(x.activityTime)).toDateString() === date.toDateString())
     }
+
+    openEditor(date: Date) {
+      this.setState({
+        inputDate: date,
+        openEditor: true 
+      })
+    }
   
     
     render() {
 
-      const calendarRows = this.mondaysOfWeekInMonth().map((week) => {
+      const calendarRows = this.mondaysOfWeekInMonth().map((week, wi) => {
         const days = [...Array(7).keys()].map((dayOfWeek, i) => {
           const dayDate = new Date(week);
           dayDate.setDate(week.getDate() + dayOfWeek);
-          let openEditor = false
           return (
-            <div className="activity-calendar-cell" key={i+'-calendar-cell'} onClick={() => {openEditor = true}}>
-            <TrainingPlanActivityEditor inputDate={dayDate} submitCallback={this.createActivityCallback} open={openEditor}></TrainingPlanActivityEditor>
+            <div className="activity-calendar-cell" key={i+'-calendar-cell'} onClick={() => {this.openEditor(dayDate)}}>
             <label className='activity-calendar-day-label'>{dayDate.getDate()}</label>
             {this.activitiesOnDate(dayDate).map((activity, ai) => {
               return (
@@ -152,7 +162,7 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
           )
         })
         return (
-          <div className="activity-calendar-row">
+          <div className="activity-calendar-row" key={`${wi}-calendar-row`}>
             {days}
           </div>
         )
@@ -165,6 +175,7 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
           <Button onClick={() => {this.changeMonth(1)}}>
             Forward
           </Button>
+          <TrainingPlanActivityEditor inputDate={this.state.inputDate} submitCallback={this.createActivityCallback} open={this.state.openEditor}></TrainingPlanActivityEditor>
           <div className="activity-calendar">
             <div className="activity-calendar-header">
               <div className="activity-calendar-header-cell">Mon</div>

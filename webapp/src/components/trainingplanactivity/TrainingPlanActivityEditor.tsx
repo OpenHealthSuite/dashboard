@@ -59,7 +59,7 @@ export default class TrainingPlanActivityEditor extends React.Component<ITrainin
     }
 
     componentDidUpdate(prevProps: ITrainingPlanActivityEditorProps) {
-      if (this.props.open) {
+      if (!prevProps.open && this.props.open) {
         this.handleOpen()
       }
     }
