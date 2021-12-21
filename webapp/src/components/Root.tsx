@@ -8,6 +8,7 @@ import React from 'react';
 import Drawer from '@mui/material/Drawer';
 import TrainingPlanGrid from './trainingplan/TrainingPlanGrid'
 import TrainingPlanActivityBrowser from './trainingplanactivity/TrainingPlanActivityBrowser'
+import TrainingPlanActivityViewer from './trainingplanactivity/TrainingPlanActivityViewer'
 
 import { makeStyles } from '@mui/styles';
 import List from '@mui/material/List';
@@ -20,7 +21,8 @@ import {
 } from "react-router-dom";
 
 interface IRouteParameters {
-    trainingPlanId: string
+    trainingPlanId: string,
+    trainingPlanActivityId: string
 }
 
 function TrainingPlanRouteChild() {
@@ -30,6 +32,16 @@ function TrainingPlanRouteChild() {
 
     return (
         <TrainingPlanActivityBrowser trainingPlanId={trainingPlanId} />
+    );
+}
+
+function TrainingPlanActivityRouteChild() {
+    // We can use the `useParams` hook here to access
+    // the dynamic pieces of the URL.
+    const { trainingPlanId, trainingPlanActivityId} = useParams<IRouteParameters>();
+
+    return (
+        <TrainingPlanActivityViewer trainingPlanId={trainingPlanId} trainingPlanActivityId={trainingPlanActivityId} />
     );
 }
 
@@ -85,6 +97,7 @@ export function Root() {
                 </Toolbar>
             </AppBar>
             <Switch>
+                <Route path="/trainingplans/:trainingPlanId/activities/:trainingPlanActivityId" children={<TrainingPlanActivityRouteChild />} />
                 <Route path="/trainingplans/:trainingPlanId" children={<TrainingPlanRouteChild />} />
                 <Route path="/trainingplans">
                     <TrainingPlanGrid />
