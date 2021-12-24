@@ -2,6 +2,7 @@ import { RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as dyn from 'aws-cdk-lib/aws-dynamodb'
 import * as cdk from 'aws-cdk-lib';
+import * as cognito from 'aws-cdk-lib/aws-cognito'
 
 export class PaceMeScaffoldStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -44,5 +45,49 @@ export class PaceMeScaffoldStack extends Stack {
     )
 
     // TODO: Cognito setup
+    const userPool = new cognito.UserPool(this, 'PaceMeUserpool', {
+      removalPolicy: RemovalPolicy.DESTROY,
+      selfSignUpEnabled: true,
+      userVerification: {
+        emailSubject: 'Verify your email for PaceMe!',
+        emailBody: 'Thanks for signing up to PaceMe! Your verification code is {####}',
+        emailStyle: cognito.VerificationEmailStyle.CODE,
+      },
+      signInAliases: {
+        username: false,
+        email: true
+      },
+      autoVerify: { email: true },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY
+    });
+
+    const localClient = userPool.addClient('paceme-webapp-local-client', {
+      userPoolClientName: 'paceme-webapp-local',
+      generateSecret: false,
+      authFlows: {
+        userPassword: true
+      }
+    });
+
+    new cdk.CfnOutput(
+      this, 
+      `Cognito-PoolId`, 
+      {
+        value: userPool.userPoolId,
+        description:`Cognito UserPool Id`,
+        exportName: `cognitoUserPoolId`
+      }
+    )
+
+    new cdk.CfnOutput(
+      this, 
+      `Cognito-LocalWebappClientId`, 
+      {
+        value: localClient.userPoolClientId,
+        description:`Cognito Local Client Webapp Id`,
+        exportName: `cognitoLocalWebappClient`
+      }
+    )
+
   }
 }
