@@ -21,7 +21,10 @@ export default class TrainingPlanActivityViewer extends React.Component<ITrainin
         activityLoaded: false,
         activityViewing: new TrainingPlanActivity(new Date())
       };
-      this.getActivity();
+    }
+
+    componentDidMount() {
+      this.getActivity()
     }
 
     async getActivity() {
@@ -38,7 +41,17 @@ export default class TrainingPlanActivityViewer extends React.Component<ITrainin
     render() {
       let content = <div>Loading...</div>
       if (this.state.activityLoaded) {
-        content = <ul>{Object.keys(this.state.activityViewing).map((k, i) => <li key={`propkey${i}`}>{k}: {this.state.activityViewing[k as keyof ITrainingPlanActivity].toString()}</li>)}</ul>
+        content = <div>
+          <h2>{this.state.activityViewing.name}</h2>
+          <dl>
+            <dt>Activity Date</dt>
+            <dd>{this.state.activityViewing.activityTime}</dd>
+            <dt>Activity Complete</dt>
+            <dd>{this.state.activityViewing.complete ? "Yes" : "No"}</dd>
+          </dl>
+          <h4>Segments</h4>
+          Segments go here
+        </div>
       }
       return (
        <>
