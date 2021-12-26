@@ -1,8 +1,8 @@
 import React from 'react';
-import { Auth } from 'aws-amplify';
 import { TrainingPlanActivity, ITrainingPlanActivity } from '../../models/ITrainingPlanActivity';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
+import { getActivity } from '../../services/TrainingPlanActivityService';
 
 interface ITrainingPlanActivityViewerProps {
   trainingPlanId: string,
@@ -21,19 +21,18 @@ export default class TrainingPlanActivityViewer extends React.Component<ITrainin
         activityLoaded: false,
         activityViewing: new TrainingPlanActivity(new Date())
       };
+      this.getStateActivity = this.getStateActivity.bind(this)
     }
 
     componentDidMount() {
-      this.getActivity()
+      this.getStateActivity()
     }
 
-    async getActivity() {
-      let session = await Auth.currentSession()
-      let result = await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId+"/activities/"+this.props.trainingPlanActivityId, { 
-          headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
-      })
-      let body = await result.json()
-      this.setState({activityViewing: body, activityLoaded: true});
+    async getStateActivity() {
+      this.setState({
+        activityViewing: await getActivity(this.props.trainingPlanId, this.props.trainingPlanActivityId),
+        activityLoaded: true
+      });
     }
 
 

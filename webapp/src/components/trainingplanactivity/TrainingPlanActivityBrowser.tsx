@@ -1,9 +1,17 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import TrainingPlanActivityEditor from './TrainingPlanActivityEditor';
-import { Auth } from 'aws-amplify';
 import { ITrainingPlanActivity } from '../../models/ITrainingPlanActivity'
 import { ITrainingPlan, TrainingPlan } from '../../models/ITrainingPlan'
+
+import {
+  getPlan 
+} from '../../services/TrainingPlanService';
+
+import {
+  getActivities,
+  createNewActivity
+} from '../../services/TrainingPlanActivityService';
 
 import './TrainingPlanActivityBrowser.css';
 import { Link } from 'react-router-dom';
@@ -56,60 +64,17 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
     closeModalCallback = () => {
       this.setState({ openEditor: false })
     }
-
-    editActivityCallback = async (editedPlan: ITrainingPlanActivity) => {
-      await this.editActivity(editedPlan)
-      await this.getUsersTrainingPlanActivites()
-    }
-  
-    async handleDelete(trainingPlanActivityId: string) {
-      await this.deleteTrainingPlanActivity(trainingPlanActivityId)
-      await this.getUsersTrainingPlanActivites()
-    }
   
     async createNewActivity(newActivity: ITrainingPlanActivity) {
-      let session = await Auth.currentSession()
-      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId+"/activities", { 
-        method: "POST",
-        headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
-        body: JSON.stringify(newActivity)
-      })
-    }
-
-
-    async editActivity(editedActivity: ITrainingPlanActivity) {
-      let session = await Auth.currentSession()
-      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId+"/activities/"+editedActivity.id, { 
-        method: "PUT",
-        headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
-        body: JSON.stringify(editedActivity)
-      })
+      await createNewActivity(this.props.trainingPlanId, newActivity)
     }
 
     async getUsersTrainingPlan(){
-        let session = await Auth.currentSession()
-        let result = await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId, { 
-            headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
-        })
-        let body = await result.json()
-        this.setState({plan: body});
+        this.setState({plan: await getPlan(this.props.trainingPlanId)});
     }
   
     async getUsersTrainingPlanActivites(){
-        let session = await Auth.currentSession()
-        let result = await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId+"/activities", { 
-            headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
-        })
-        let body = await result.json()
-        this.setState({existing: body});
-    }
-  
-    async deleteTrainingPlanActivity(activityId: string) {
-      let session = await Auth.currentSession()
-      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+this.props.trainingPlanId+"/activities/"+activityId, { 
-          method: "DELETE",
-          headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
-        });
+        this.setState({existing: await getActivities(this.props.trainingPlanId)});
     }
   
   
@@ -188,13 +153,7 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
             open={this.state.openEditor}></TrainingPlanActivityEditor>
           <div className="activity-calendar">
             <div className="activity-calendar-header">
-              <div className="activity-calendar-header-cell">Mon</div>
-              <div className="activity-calendar-header-cell">Tue</div>
-              <div className="activity-calendar-header-cell">Wed</div>
-              <div className="activity-calendar-header-cell">Thu</div>
-              <div className="activity-calendar-header-cell">Fri</div>
-              <div className="activity-calendar-header-cell">Sat</div>
-              <div className="activity-calendar-header-cell">Sun</div>
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(head => <div className="activity-calendar-header-cell">{head}</div>)}
             </div>
             <div className="activity-calendar-body">
               {calendarRows}

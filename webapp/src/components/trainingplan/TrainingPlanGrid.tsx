@@ -6,8 +6,14 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import TrainingPlanEditor from './TrainingPlanEditor';
-import { Auth } from 'aws-amplify';
 import { ITrainingPlan } from '../../models/ITrainingPlan';
+
+import { 
+  createNewPlan,
+  deletePlan,
+  editPlan,
+  getUserPlans 
+} from '../../services/TrainingPlanService';
 
 import {
   Link
@@ -33,57 +39,23 @@ export default class TrainingPlanGrid extends React.Component<IProps, IState> {
     }
 
     createPlanCallback = async (newPlan: ITrainingPlan) => {
-      await this.createNewPlan(newPlan)
+      await createNewPlan(newPlan)
       await this.getUsersTrainingPlans()
     }
-
 
     editPlanCallback = async (editedPlan: ITrainingPlan) => {
-      await this.editPlan(editedPlan)
+      await editPlan(editedPlan)
       await this.getUsersTrainingPlans()
     }
   
-    async handleDelete(traingPlanId: string) {
-      await this.deleteTrainingPlan(traingPlanId)
+    async handleDelete(trainingPlanId: string) {
+      await deletePlan(trainingPlanId)
       await this.getUsersTrainingPlans()
-    }
-  
-    async createNewPlan(newplan: ITrainingPlan) {
-      let session = await Auth.currentSession()
-      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans", { 
-        method: "POST",
-        headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
-        body: JSON.stringify(newplan)
-      })
-    }
-
-
-    async editPlan(editedPlan: ITrainingPlan) {
-      let session = await Auth.currentSession()
-      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+editedPlan.id, { 
-        method: "PUT",
-        headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`, "Content-Type": "application/json"},
-        body: JSON.stringify(editedPlan)
-      })
     }
   
     async getUsersTrainingPlans(){
-        let session = await Auth.currentSession()
-        let result = await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans", { 
-            headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
-        })
-        let body = await result.json()
-        this.setState({existing: body});
+        this.setState({existing: await getUserPlans()});
     }
-  
-    async deleteTrainingPlan(trainingPlanId: string) {
-      let session = await Auth.currentSession()
-      await fetch(process.env.REACT_APP_API_ROOT+"/trainingplans/"+trainingPlanId, { 
-          method: "DELETE",
-          headers: {Authorization: `Bearer ${session.getIdToken().getJwtToken()}`}
-        });
-    }
-  
   
     render() {
       let existingItems = this.state.existing

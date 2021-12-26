@@ -73,16 +73,27 @@ export function Root() {
 
         setDrawerOpen(open);
     };
+
+    const sidebarItems = 
+    [
+        { linkDest: '/', name: 'Dashboard' },
+        { linkDest: '/trainingplans', name: 'TrainingPlans' }
+    ].map(item => 
+        <ListItem 
+            button 
+            component={Link} 
+            onClick={toggleDrawer(false)} 
+            to={item.linkDest} 
+            key={item.name.toLowerCase().replace(' ', '')}>
+                {item.name}
+        </ListItem>
+    )
+    
     return (
         <>
             <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
                 <List>
-                    <ListItem button component={Link} to="/" key="dashboard">
-                        Dashboard
-                    </ListItem>
-                    <ListItem button component={Link} to="/trainingplans" key="trainingplans">
-                        Training Plans
-                    </ListItem>
+                    {sidebarItems}
                 </List>
             </Drawer>
             <AppBar position="static">
