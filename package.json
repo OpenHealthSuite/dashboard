@@ -15,8 +15,8 @@
     "planner",
     "javascript"
   ],
-  "author": "Lee Martin",
-  "license": "GPLV3.0",
+  "author": "Lee Martin <hello@leejohnmartin.co.uk>",
+  "license": "GPL-3.0-only",
   "bugs": {
     "url": "https://github.com/LeeMartin77/PaceMe.js/issues"
   },
