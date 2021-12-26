@@ -1,0 +1,27 @@
+{
+  "name": "pacemejs",
+  "version": "0.0.1",
+  "description": "A Run Planning application",
+  "scripts": {
+    "stack:install": "(cd .infrastructure && npm i) && (cd api && npm i) && (cd webapp && npm i)",
+    "start" : "concurrently '(cd api && npm start)' '(cd webapp && npm start)'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeeMartin77/PaceMe.js.git"
+  },
+  "keywords": [
+    "running",
+    "planner",
+    "javascript"
+  ],
+  "author": "Lee Martin",
+  "license": "GPLV3.0",
+  "bugs": {
+    "url": "https://github.com/LeeMartin77/PaceMe.js/issues"
+  },
+  "homepage": "https://github.com/LeeMartin77/PaceMe.js#readme",
+  "devDependencies": {
+    "concurrently": "^6.5.1"
+  }
+}
