@@ -16,19 +16,18 @@ interface ITrainingPlanActivityEditorProps {
   inputActivity?: ITrainingPlanActivity,
   inputDate?: Date,
   submitCallback: (activity: ITrainingPlanActivity) => any,
+  closeModalCallback: () => void,
   open: boolean
 }
 
 interface ITrainingPlanActivityEditorState {
-  activityEditing: ITrainingPlanActivity,
-  open: boolean
+  activityEditing: ITrainingPlanActivity
 }
 
 export default class TrainingPlanActivityEditor extends React.Component<ITrainingPlanActivityEditorProps, ITrainingPlanActivityEditorState> {
     constructor(props: ITrainingPlanActivityEditorProps) {
       super(props);
       this.state = {
-        open: false,
         activityEditing: new TrainingPlanActivity(new Date())
       };
       this.handleOpen = this.handleOpen.bind(this);
@@ -68,18 +67,13 @@ export default class TrainingPlanActivityEditor extends React.Component<ITrainin
     handleOpen() {
         this.setState(
             {
-                open: true,
                 activityEditing: this.props.inputActivity || new TrainingPlanActivity(this.props.inputDate || new Date())
             }
         )
     }
 
     handleClose() {
-        this.setState(
-            {
-                open: false
-            }
-        )
+      this.props.closeModalCallback()
     }
 
 
@@ -92,7 +86,7 @@ export default class TrainingPlanActivityEditor extends React.Component<ITrainin
     render() {
       return (
         <Modal
-        open={this.state.open}
+        open={this.props.open}
         onClose={this.handleClose}
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"

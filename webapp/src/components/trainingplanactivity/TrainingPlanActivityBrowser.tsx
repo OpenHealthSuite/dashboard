@@ -38,6 +38,8 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
       this.mondaysOfWeekInMonth = this.mondaysOfWeekInMonth.bind(this);
       this.changeMonth = this.changeMonth.bind(this);
       this.openEditor = this.openEditor.bind(this);
+      this.createActivityCallback = this.createActivityCallback.bind(this);
+      this.closeModalCallback = this.closeModalCallback.bind(this);
     }
   
     async componentDidMount() {
@@ -48,8 +50,12 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
     createActivityCallback = async (newPlan: ITrainingPlanActivity) => {
       await this.createNewActivity(newPlan)
       await this.getUsersTrainingPlanActivites()
+      this.setState({ openEditor: false })
     }
 
+    closeModalCallback = () => {
+      this.setState({ openEditor: false })
+    }
 
     editActivityCallback = async (editedPlan: ITrainingPlanActivity) => {
       await this.editActivity(editedPlan)
@@ -175,7 +181,11 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
           <Button onClick={() => {this.changeMonth(1)}}>
             Forward
           </Button>
-          <TrainingPlanActivityEditor inputDate={this.state.inputDate} submitCallback={this.createActivityCallback} open={this.state.openEditor}></TrainingPlanActivityEditor>
+          <TrainingPlanActivityEditor 
+            inputDate={this.state.inputDate} 
+            submitCallback={this.createActivityCallback} 
+            closeModalCallback={this.closeModalCallback} 
+            open={this.state.openEditor}></TrainingPlanActivityEditor>
           <div className="activity-calendar">
             <div className="activity-calendar-header">
               <div className="activity-calendar-header-cell">Mon</div>
