@@ -8,12 +8,16 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "cdk:deploy:out": "cdk deploy --outputs-file ./cdk.out/outputs.json",
+    "script:outfiletoenv": "ts-node ./scripts/write-dev-env-files.ts",
+    "cdk:deploy:devout": "npm run cdk:deploy:out && npm run script:outfiletoenv"
   },
   "devDependencies": {
     "@types/jest": "^26.0.24",
     "@types/node": "10.17.27",
     "aws-cdk": "2.3.0",
+    "envfile": "^6.17.0",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",

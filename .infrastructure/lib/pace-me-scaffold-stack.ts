@@ -44,8 +44,8 @@ export class PaceMeScaffoldStack extends Stack {
       )
     )
 
-    // TODO: Cognito setup
     const userPool = new cognito.UserPool(this, 'PaceMeUserpool', {
+      userPoolName: id,
       removalPolicy: RemovalPolicy.DESTROY,
       selfSignUpEnabled: true,
       userVerification: {
