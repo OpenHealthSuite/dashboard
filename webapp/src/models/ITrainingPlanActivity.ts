@@ -1,7 +1,14 @@
+export interface ITrainingPlanActivitySegmentIntervals {
+    order: number,
+    note: string,
+    durationSeconds: number
+}
+
 export interface ITrainingPlanActivitySegment {
     order: number,
     details: string,
-    durationSeconds: number
+    repetitions: number,
+    intervals: ITrainingPlanActivitySegmentIntervals[]
 }
 
 export interface ITrainingPlanActivity {
