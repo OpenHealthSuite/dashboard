@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrainingPlanActivity, ITrainingPlanActivity, ITrainingPlanActivitySegment } from '../../models/ITrainingPlanActivity';
+import { TrainingPlanActivity, ITrainingPlanActivity, ITrainingPlanActivitySegment, ITrainingPlanActivitySegmentIntervals } from '../../models/ITrainingPlanActivity';
 import Button from '@mui/material/Button';
 import * as H from 'history'
 import Modal from '@mui/material/Modal';
@@ -8,6 +8,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
+import FormGroup from '@mui/material/FormGroup';
 import { Link, withRouter } from 'react-router-dom';
 import { getActivity, deleteActivity, editActivity } from '../../services/TrainingPlanActivityService';
 
@@ -34,7 +35,8 @@ interface IActivityEditorProps {
 
 
 interface IActivityEditorState {
-  segment: ITrainingPlanActivitySegment
+  segment: ITrainingPlanActivitySegment,
+  newInterval: ITrainingPlanActivitySegmentIntervals
 }
 
 class ActivitySegmentEditor extends React.Component<IActivityEditorProps, IActivityEditorState> {
@@ -47,10 +49,23 @@ class ActivitySegmentEditor extends React.Component<IActivityEditorProps, IActiv
         details: '',
         repetitions: 1,
         intervals: []
+      },
+      newInterval: {
+        note: '',
+        durationSeconds: 0,
+        order: 0
       }
     }
     this.updateDetails = this.updateDetails.bind(this)
-    this.updateRepetitions = this.updateRepetitions.bind(this)    
+    this.updateRepetitions = this.updateRepetitions.bind(this)
+
+    this.updateNewDurationSeconds = this.updateNewDurationSeconds.bind(this)    
+
+    this.updateNewIntervalNote = this.updateNewIntervalNote.bind(this)   
+    
+    this.deleteIntervalIndex = this.deleteIntervalIndex.bind(this)
+    this.addInterval = this.addInterval.bind(this)
+
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleClose = this.handleClose.bind(this)
   }
@@ -79,6 +94,47 @@ class ActivitySegmentEditor extends React.Component<IActivityEditorProps, IActiv
     segment.repetitions = event.target.value
     this.setState({segment: segment});  
   }
+
+  updateNewDurationSeconds(event: any) {
+    const interval = {...this.state.newInterval}
+    interval.durationSeconds = event.target.value
+    this.setState({newInterval: interval});  
+  }
+
+  updateNewIntervalNote(event: any) {
+    const interval = {...this.state.newInterval}
+    interval.note = event.target.value
+    this.setState({newInterval: interval});  
+  }
+
+  deleteIntervalIndex(index: number) {
+    const segment = this.state.segment
+    segment.intervals.splice(index, 1)
+    segment.intervals = segment.intervals.map((x, i) => { x.order = i; return x })
+    this.setState({ segment: segment })
+  }
+
+  addInterval() {
+    const interval = this.state.newInterval
+    const segment = this.state.segment
+    interval.order = Math.max(...segment.intervals.map(x => x.order)) + 1
+    segment.intervals.push(interval)
+    this.setState({
+      segment: segment,
+      newInterval: {
+        note: '',
+        durationSeconds: 0,
+        order: 0
+      }
+    })
+  }
+
+  get newIntervalInvalid(): boolean {
+    return !this.state.newInterval.note || 
+      !this.state.newInterval.note.trim() || 
+      !this.state.newInterval.durationSeconds || 
+      this.state.newInterval.durationSeconds < 1
+  }
   
   async handleSubmit(event: any) {
     event.preventDefault();
@@ -105,6 +161,18 @@ class ActivitySegmentEditor extends React.Component<IActivityEditorProps, IActiv
             </Typography>
             <TextField id="details" label="Details" value={this.state.segment.details} onChange={this.updateDetails}/>
             <TextField InputProps={{ inputProps: { min: 1, max: 1000 } }} id="repetitions" type="number" label="Repetitions" value={this.state.segment.repetitions} onChange={this.updateRepetitions}/>
+            <h4>Intervals</h4>
+            <ul>
+            {this.state.segment.intervals.map((val, i) => <li key={`interval-${i}`}>
+              {val.durationSeconds} seconds, {val.note}
+              <Button type="button" onClick={() => { this.deleteIntervalIndex(i) }}></Button>
+            </li>)}
+            </ul>
+            <FormGroup key={`intervalform`}>
+              <TextField type="number" InputProps={{ inputProps: { min: 1 } }} id="durationSeconds" label="Duration (seconds)" value={this.state.newInterval.durationSeconds} onChange={this.updateNewDurationSeconds}/>
+              <TextField id="note" label="Note" value={this.state.newInterval.note} onChange={this.updateNewIntervalNote}/>
+            </FormGroup>
+            <Button type="button" disabled={this.newIntervalInvalid} onClick={() => this.addInterval()}>Add Interval</Button>
           </CardContent>
           <CardActions>
             <Button
