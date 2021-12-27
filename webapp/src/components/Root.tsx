@@ -9,6 +9,7 @@ import Drawer from '@mui/material/Drawer';
 import TrainingPlanGrid from './trainingplan/TrainingPlanGrid'
 import TrainingPlanActivityBrowser from './trainingplanactivity/TrainingPlanActivityBrowser'
 import TrainingPlanActivityViewer from './trainingplanactivity/TrainingPlanActivityViewer'
+import ActivityDashboard from './dashboard/ActivityDashboard'
 
 import { makeStyles } from '@mui/styles';
 import List from '@mui/material/List';
@@ -114,7 +115,7 @@ export function Root() {
                     <TrainingPlanGrid />
                 </Route>
                 <Route path="/">
-                    <div>dashboard</div>
+                    <ActivityDashboard />
                 </Route>
             </Switch>
         </>
