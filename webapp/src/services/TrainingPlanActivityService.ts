@@ -9,12 +9,19 @@ import {
 const trainingPlanRoot = '/trainingplans'
 const activitySlug = 'activities'
 
+function parseDate(activity: ITrainingPlanActivity) : ITrainingPlanActivity {
+    if (typeof activity.activityTime === 'string') {
+        activity.activityTime = new Date(activity.activityTime)
+    }
+    return activity
+}
+
 export async function getActivity(planId: string, activityId: string): Promise<ITrainingPlanActivity> {
-    return await pacemeGetRequest<ITrainingPlanActivity>([trainingPlanRoot, planId, activitySlug, activityId].join('/'))
+    return parseDate(await pacemeGetRequest<ITrainingPlanActivity>([trainingPlanRoot, planId, activitySlug, activityId].join('/')))
 }
 
 export async function getActivities(planId: string): Promise<ITrainingPlanActivity[]> {
-    return await pacemeGetRequest<ITrainingPlanActivity[]>([trainingPlanRoot, planId, activitySlug].join('/'))
+    return (await pacemeGetRequest<ITrainingPlanActivity[]>([trainingPlanRoot, planId, activitySlug].join('/'))).map(parseDate)
 }
 
 export async function createNewActivity(planId: string, newActivity: ITrainingPlanActivity): Promise<string> {

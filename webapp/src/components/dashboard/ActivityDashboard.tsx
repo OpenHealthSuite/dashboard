@@ -12,10 +12,6 @@ interface IDashboardState {
 
 function dayIsTodayOrLater(date: Date): boolean {
     // TODO: Probably go find a library to do this
-    // TODO: This string stuff is annoying
-    if (typeof date === 'string') {
-        date = new Date(date)
-    }
     const dateDate = date.toISOString().split('T')[0].split('-').map(x => parseInt(x))
     const todayDate = (new Date()).toISOString().split('T')[0].split('-').map(x => parseInt(x))
     return dateDate[0] >= todayDate[0] && dateDate[1] >= todayDate[1] && dateDate[2] >= todayDate[2]
@@ -23,14 +19,6 @@ function dayIsTodayOrLater(date: Date): boolean {
 
 function dateDaysMatch(dateOne: Date, dateTwo: Date): boolean {
     // TODO: Probably go find a library to do this
-    // TODO: This string stuff is annoying
-    if (typeof dateOne === 'string') {
-        dateOne = new Date(dateOne)
-    }
-    // TODO: This string stuff is annoying
-    if (typeof dateTwo === 'string') {
-        dateTwo = new Date(dateTwo)
-    }
     const dateOneDate = dateOne.toISOString().split('T')[0]
     const dateTwoDate = dateTwo.toISOString().split('T')[0]
     return dateOneDate === dateTwoDate;
@@ -77,7 +65,7 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
         let content = <div>Loading...</div>
         if (!this.state.loading && this.state.pendingActivities.length > 0) {
             content = <ul>
-                {this.state.pendingActivities.map((x, i) => <li key={`pendact-${i}`}>{new Date(x.activityTime).toISOString().split('T')[0]}: {x.name}</li>)}
+                {this.state.pendingActivities.map((x, i) => <li key={`pendact-${i}`}>{x.activityTime.toISOString().split('T')[0]}: {x.name}</li>)}
             </ul>
         } else if (!this.state.loading) {
             content = <div>No Activities Scheduled</div>

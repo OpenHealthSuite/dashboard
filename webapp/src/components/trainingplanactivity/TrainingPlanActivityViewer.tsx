@@ -257,7 +257,7 @@ class TrainingPlanActivityViewer extends React.Component<ITrainingPlanActivityVi
         <h2>{this.state.activityViewing.name}</h2>
         <dl>
           <dt>Activity Date</dt>
-          <dd>{this.state.activityViewing.activityTime}</dd>
+          <dd>{this.state.activityViewing.activityTime.toISOString()}</dd>
           <dt>Activity Complete</dt>
           <dd>{this.state.activityViewing.complete ? "Yes" : "No"}</dd>
         </dl>
