@@ -1,8 +1,10 @@
-import { RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as dyn from 'aws-cdk-lib/aws-dynamodb'
 import * as cdk from 'aws-cdk-lib';
 import * as cognito from 'aws-cdk-lib/aws-cognito'
+import * as ecr from 'aws-cdk-lib/aws-ecr'
+import { TagStatus } from 'aws-cdk-lib/aws-ecr';
 
 export class PaceMeScaffoldStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -89,5 +91,21 @@ export class PaceMeScaffoldStack extends Stack {
       }
     )
 
+    const ecrRepo = new ecr.Repository(this, 
+    id + 'ApiRepository', 
+    { 
+      repositoryName: (id + 'ApiRepo').toLowerCase() 
+    })
+    ecrRepo.addLifecycleRule({ tagStatus: TagStatus.UNTAGGED, maxImageAge: Duration.days(1) })
+
+    new cdk.CfnOutput(
+      this, 
+      `ECR-ApiRepository`, 
+      {
+        value: ecrRepo.repositoryUri,
+        description:`ECR Repository for PaceMe API`,
+        exportName: `ecrRepositoryUri`
+      }
+    )
   }
 }

@@ -10,7 +10,8 @@
         "start": "node -r dotenv/config dist/index.js",
         "lint": "npx eslint . --ext .ts",
         "lint:fix": "npx eslint . --fix --ext .ts",
-        "db-migrate": "node node_modules/db-migrate/bin/db-migrate"
+        "db-migrate": "node node_modules/db-migrate/bin/db-migrate",
+        "docker:buildandpush": "scripts/build-and-push-to-repo.sh"
     },
     "author": "Lee Martin <hello@leejohnmartin.co.uk>",
     "license": "GPL-3.0-only",
