@@ -4,6 +4,7 @@ import * as dyn from 'aws-cdk-lib/aws-dynamodb'
 import * as cdk from 'aws-cdk-lib';
 import * as cognito from 'aws-cdk-lib/aws-cognito'
 import * as ecr from 'aws-cdk-lib/aws-ecr'
+import * as iam from 'aws-cdk-lib/aws-iam'
 import { TagStatus } from 'aws-cdk-lib/aws-ecr';
 
 export class PaceMeScaffoldStack extends Stack {
@@ -94,7 +95,8 @@ export class PaceMeScaffoldStack extends Stack {
     const ecrRepo = new ecr.Repository(this, 
     id + 'ApiRepository', 
     { 
-      repositoryName: (id + 'Api').toLowerCase() 
+      repositoryName: (id + 'Api').toLowerCase(),
+      removalPolicy: RemovalPolicy.DESTROY
     })
     ecrRepo.addLifecycleRule({ tagStatus: TagStatus.UNTAGGED, maxImageAge: Duration.days(1) })
 
@@ -107,5 +109,16 @@ export class PaceMeScaffoldStack extends Stack {
         exportName: `ecrRepositoryUri`
       }
     )
+
+    const awsApiUser = new iam.User(this, 'ApiUser', { })
+
+    createdTables.map(x => x.table.grantFullAccess(awsApiUser))
+
+    const accessKey = new iam.CfnAccessKey(this, 'PaceMeApiAWSAccessKey', {
+      userName: awsApiUser.userName
+    });
+
+    new cdk.CfnOutput(this, 'ApiAwsAccessKey', { value: accessKey.ref });
+    new cdk.CfnOutput(this, 'ApiAwsSecretKey', { value: accessKey.attrSecretAccessKey });
   }
 }
