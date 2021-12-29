@@ -11,7 +11,12 @@
         "lint": "npx eslint . --ext .ts",
         "lint:fix": "npx eslint . --fix --ext .ts",
         "db-migrate": "node node_modules/db-migrate/bin/db-migrate",
-        "docker:buildandpush": "scripts/build-and-push-to-repo.sh"
+        "docker:buildandpush": "scripts/build-and-push-to-repo.sh",
+        "k8s:createnamespace": "scripts/kubernetes-create-namespace.sh",
+        "k8s:addimagesecret": "scripts/kubernetes-ecr-access.sh",
+        "k8s:apply": "kubectl apply -f manifest.yml",
+        "k8s:delete": "kubectl delete -f manifest.yml",
+        "k8s:status": "kubectl get all --namespace=paceme-api"
     },
     "author": "Lee Martin <hello@leejohnmartin.co.uk>",
     "license": "GPL-3.0-only",

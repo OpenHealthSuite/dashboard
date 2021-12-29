@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: paceme-api-service
+  namespace: paceme-api
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+  selector:
+    app: paceme-api-app
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: paceme-api
+  namespace: paceme-api
+  labels:
+    app: paceme-api-app
+spec:
+  containers:
+    - name: paceme-api
+      image: <aws-account-id>.dkr.ecr.<aws-region>.amazonaws.com/<image-name>:<tag>
+      imagePullPolicy: Always
+      ports:
+        - name: web
+          containerPort: 8080
+      env:
+        - name: AWS_REGION
+          value: eu-west-2
+        - name: AWS_ACCESS_KEY_ID
+          value: ACCESSKEYID
+        - name: AWS_SECRET_ACCESS_KEY
+          value: SECRETKEY
+        - name: COGNITO_USER_POOL_ID
+          value: USERPOOLID
+        - name: TRAINING_PLAN_TABLE
+          value: TrainingPlan
+        - name: TRAINING_PLAN_ACTIVITY_TABLE
+          value: TrainingPlanActivity
+  imagePullSecrets:
+      - name: awsregcred

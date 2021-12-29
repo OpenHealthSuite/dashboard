@@ -94,7 +94,7 @@ export class PaceMeScaffoldStack extends Stack {
     const ecrRepo = new ecr.Repository(this, 
     id + 'ApiRepository', 
     { 
-      repositoryName: (id + 'ApiRepo').toLowerCase() 
+      repositoryName: (id + 'Api').toLowerCase() 
     })
     ecrRepo.addLifecycleRule({ tagStatus: TagStatus.UNTAGGED, maxImageAge: Duration.days(1) })
 
