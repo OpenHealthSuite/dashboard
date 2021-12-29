@@ -4,6 +4,8 @@ import * as dyn from 'aws-cdk-lib/aws-dynamodb'
 import * as cdk from 'aws-cdk-lib';
 import * as cognito from 'aws-cdk-lib/aws-cognito'
 import * as ecr from 'aws-cdk-lib/aws-ecr'
+import * as s3 from 'aws-cdk-lib/aws-s3'
+import * as route53 from 'aws-cdk-lib/aws-route53'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { TagStatus } from 'aws-cdk-lib/aws-ecr';
 
@@ -120,5 +122,29 @@ export class PaceMeScaffoldStack extends Stack {
 
     new cdk.CfnOutput(this, 'ApiAwsAccessKey', { value: accessKey.ref });
     new cdk.CfnOutput(this, 'ApiAwsSecretKey', { value: accessKey.attrSecretAccessKey });
+
+    const frontendS3Bucket = new s3.Bucket(this, 'PaceMeWebApp', {
+      bucketName: 'app-dev.paceme.info',
+      websiteIndexDocument: 'index.html',
+      websiteErrorDocument: 'index.html',
+      removalPolicy: RemovalPolicy.DESTROY,
+      publicReadAccess: true
+    })
+
+    new cdk.CfnOutput(this, 'frontendBucketName', { value: frontendS3Bucket.bucketName });
+    new cdk.CfnOutput(this, 'frontendBucketAddress', { value: frontendS3Bucket.bucketWebsiteDomainName });
+
+    const zone = route53.HostedZone.fromLookup(this, 'PaceMeZone', {
+      domainName: 'paceme.info'
+    });
+
+    // TODO: Have a look at cloudfront dist to sit in the middle for certs
+
+    const cName = new route53.CnameRecord(this, 'Frontend53', {
+      zone: zone,
+      recordName: 'app-dev',
+      domainName: frontendS3Bucket.bucketWebsiteDomainName,
+    });
+
   }
 }
