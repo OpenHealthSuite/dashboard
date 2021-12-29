@@ -1,13 +1,26 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
+import { LoadingIndicator } from '../shared/LoadingIndicator'
 import { ITrainingPlanActivity } from '../../models/ITrainingPlanActivity'
 import { getUserPlans } from '../../services/TrainingPlanService'
-import { getActivities } from '../../services/TrainingPlanActivityService'
+import { getActivities, editActivity } from '../../services/TrainingPlanActivityService'
 import { ITrainingPlan } from '../../models/ITrainingPlan';
+
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import { Link } from 'react-router-dom';
 
 interface IDashboardState {
     loading: boolean,
     activePlans: ITrainingPlan[],
     pendingActivities: ITrainingPlanActivity[]
+}
+
+function dayIsToday(date: Date): boolean {
+    // TODO: Probably go find a library to do this
+    return dateDaysMatch(date, new Date())
 }
 
 function dayIsTodayOrLater(date: Date): boolean {
@@ -24,6 +37,20 @@ function dateDaysMatch(dateOne: Date, dateTwo: Date): boolean {
     return dateOneDate === dateTwoDate;
 }
 
+interface IDashboardTileProps {
+    children: ReactNode
+}
+
+function DashboardTile(props: IDashboardTileProps) {
+    return (<Card>
+        <CardContent>
+            <Typography>
+                {props.children}
+            </Typography>
+        </CardContent>
+    </Card>)
+}
+
 export default class ActivityDashboard extends React.Component<{}, IDashboardState> {
     constructor(props: {}) {
         super(props)
@@ -32,6 +59,8 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
             activePlans: [],
             pendingActivities: []
         }
+        this.updateDash = this.updateDash.bind(this)
+        this.markActivityComplete = this.markActivityComplete.bind(this)
     }
     
     componentDidMount(): void {
@@ -61,17 +90,35 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
         return comingActivites.filter(x => dateDaysMatch(nextActivityDate, x.activityTime));
     }
 
+    async markActivityComplete(activity: ITrainingPlanActivity) {
+        activity.complete = true;
+        this.setState({ loading: true })
+        await editActivity(activity)
+        await this.updateDash()
+    }
+
     render(): React.ReactNode {
-        let content = <div>Loading...</div>
-        if (!this.state.loading && this.state.pendingActivities.length > 0) {
-            content = <ul>
-                {this.state.pendingActivities.map((x, i) => <li key={`pendact-${i}`}>{x.activityTime.toISOString().split('T')[0]}: {x.name}</li>)}
-            </ul>
-        } else if (!this.state.loading) {
-            content = <div>No Activities Scheduled</div>
+
+        let content = <div>No Activities Scheduled</div>
+        if (this.state.pendingActivities.length > 0) {
+            content = <Grid container spacing={2}>
+                {this.state.pendingActivities.map((x, i) => 
+                <Grid item key={`pendact-${i}`} xs={3}>
+                    <DashboardTile>
+                        <h2>{x.activityTime.toISOString().split('T')[0]}</h2>
+                        <h3>{x.name}</h3>
+                        <div>
+                            <Button component={Link} to={"/trainingplans/"+x.trainingPlanId+"/activities/"+x.id}>View</Button>
+                            <Button disabled={!dayIsToday(x.activityTime)} onClick={async () => { await this.markActivityComplete(x) }}>Mark Complete</Button>
+                        </div>
+                    </DashboardTile>
+                </Grid>)}
+            </Grid>
         }
         return (
-            <>{content}</>
+            <LoadingIndicator loading={this.state.loading}>
+                {content}
+            </LoadingIndicator>
         )
     }
 }
