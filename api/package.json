@@ -13,6 +13,7 @@
         "db-migrate": "node node_modules/db-migrate/bin/db-migrate",
         "docker:buildandpush": "scripts/build-and-push-to-repo.sh",
         "k8s:createnamespace": "scripts/kubernetes-create-namespace.sh",
+        "k8s:deleteimagesecret": "kubectl delete secret awsregcred --namespace=paceme-api",
         "k8s:addimagesecret": "scripts/kubernetes-ecr-access.sh",
         "k8s:apply": "kubectl apply -f manifest.yml",
         "k8s:delete": "kubectl delete -f manifest.yml",

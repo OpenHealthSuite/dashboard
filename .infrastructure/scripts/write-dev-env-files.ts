@@ -24,8 +24,8 @@ fs.writeFileSync('../api/.env', envfile.stringify(parsedApiEnvVariables))
 
 const apiManifestYaml = '../api/manifest.example.yml'
 let parsedApiManifestYaml: any[] = yaml.loadAll(fs.readFileSync(apiManifestYaml, 'utf8'))
-parsedApiManifestYaml[1].spec.containers[0].image = cdkValues.ECRApiRepository + ':latest'
-parsedApiManifestYaml[1].spec.containers[0].env = parsedApiManifestYaml[1].spec.containers[0].env.map((envval: { name: string, value: string }) => {
+parsedApiManifestYaml.find(x => x.kind === 'Pod' && x.metadata.name === 'paceme-api').spec.containers[0].image = cdkValues.ECRApiRepository + ':latest'
+parsedApiManifestYaml.find(x => x.kind === 'Pod' && x.metadata.name === 'paceme-api').spec.containers[0].env = parsedApiManifestYaml.find(x => x.kind === 'Pod' && x.metadata.name === 'paceme-api').spec.containers[0].env.map((envval: { name: string, value: string }) => {
     switch (envval.name) {
         case "COGNITO_USER_POOL_ID":
             envval.value = cdkValues.CognitoPoolId
@@ -45,6 +45,12 @@ parsedApiManifestYaml[1].spec.containers[0].env = parsedApiManifestYaml[1].spec.
     }
     return envval
 })
+
+// parsedApiManifestYaml.find(x => x.kind === 'Issuer' && x.metadata.name === 'letsencrypt-prod').spec
+//     .acme.solvers[0].dns01.route53.accessKeyID = cdkValues.ApiAwsAccessKey
+
+// parsedApiManifestYaml.find(x => x.kind === 'Secret' && x.metadata.name === 'prod-route53-credentials-secret')
+//     .data['secret-access-key'] = cdkValues.ApiAwsUserSecret
 fs.writeFileSync('../api/manifest.yml', parsedApiManifestYaml.map(x => yaml.dump(x)).join('\n---\n'))
 
 const webappEnvVariables = '../webapp/.env.example'
