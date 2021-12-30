@@ -116,31 +116,32 @@ export class PaceMeScaffoldStack extends Stack {
     const awsApiUser = new iam.User(this, 'ApiUser', { })
 
     createdTables.map(x => x.table.grantFullAccess(awsApiUser))
-    const route53Perms = [
-        {
-          "Effect": "Allow",
-          "Action": "route53:GetChange",
-          "Resource": "arn:aws:route53:::change/*"
-        },
-        {
-          "Effect": "Allow",
-          "Action": [
-            "route53:ChangeResourceRecordSets",
-            "route53:ListResourceRecordSets"
-          ],
-          "Resource": "arn:aws:route53:::hostedzone/*"
-        },
-        {
-          "Effect": "Allow",
-          "Action": "route53:ListHostedZonesByName",
-          "Resource": "*"
-        }
-      ]
-    const policyStatement = route53Perms.map(PolicyStatement.fromJson)
-    const policy = new iam.ManagedPolicy(this, 'Route53Policy', { })
-    policy.addStatements(...policyStatement)
 
-    awsApiUser.addManagedPolicy(policy)
+    // const route53Perms = [
+    //     {
+    //       "Effect": "Allow",
+    //       "Action": "route53:GetChange",
+    //       "Resource": "arn:aws:route53:::change/*"
+    //     },
+    //     {
+    //       "Effect": "Allow",
+    //       "Action": [
+    //         "route53:ChangeResourceRecordSets",
+    //         "route53:ListResourceRecordSets"
+    //       ],
+    //       "Resource": "arn:aws:route53:::hostedzone/*"
+    //     },
+    //     {
+    //       "Effect": "Allow",
+    //       "Action": "route53:ListHostedZonesByName",
+    //       "Resource": "*"
+    //     }
+    //   ]
+    // const policyStatement = route53Perms.map(PolicyStatement.fromJson)
+    // const policy = new iam.ManagedPolicy(this, 'Route53Policy', { })
+    // policy.addStatements(...policyStatement)
+
+    // awsApiUser.addManagedPolicy(policy)
 
     const accessKey = new iam.CfnAccessKey(this, 'PaceMeApiAWSAccessKey', {
       userName: awsApiUser.userName

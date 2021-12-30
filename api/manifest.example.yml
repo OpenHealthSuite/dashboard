@@ -45,18 +45,6 @@ spec:
           value: TrainingPlanActivity
   imagePullSecrets:
       - name: awsregcred
-# ---
-# apiVersion: cert-manager.io/v1
-# kind: Certificate
-# metadata:
-#   name: paceme-api-dev-cert
-#   namespace: paceme-api
-# spec:
-#   secretName: paceme-api-dev-certificate
-#   issuerRef:
-#     name: letsencrypt-prod
-#   dnsNames:
-#   - api-dev.paceme.info
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -75,18 +63,22 @@ spec:
                 name:  paceme-api
                 port:
                   number: 8081
-# spec:
-#   entryPoints: # We listen to requests coming from ports 80 and 443
-#     - web
-#     - websecure
-#   routes:
-#     - match: Host(`api-dev.paceme.info`)
-#       kind: Rule
-#       services:
-#         - name: paceme-api # Requests will be forwarded to this service
-#           port: 8081
   # tls:
-  #   secretName: paceme-api-dev-certificate
+  #   - hosts:
+  #     - api-dev.paceme.info
+  #     secretName: paceme-api-dev-certificate
+# ---
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: paceme-api-dev-cert
+#   namespace: paceme-api
+# spec:
+#   secretName: paceme-api-dev-certificate
+#   issuerRef:
+#     name: letsencrypt-prod
+#   dnsNames:
+#   - api-dev.paceme.info
 # ---
 # apiVersion: cert-manager.io/v1
 # kind: Issuer
@@ -100,9 +92,14 @@ spec:
 #     privateKeySecretRef:
 #       name: account-key-prod
 #     solvers:
-#       - selector:
-#           dnsZones:
-#             - "paceme.info"
+#     - http01:
+#        ingress:
+#          #class: nginx
+#          name: paceme-api-ingress
+      # - selector:
+      #     dnsZones:
+      #       - "paceme.info"
+      
 #         dns01:
 #           route53:
 #             region: eu-west-2
