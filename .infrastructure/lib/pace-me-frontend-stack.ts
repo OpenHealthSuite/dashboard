@@ -6,17 +6,18 @@ import * as route53 from 'aws-cdk-lib/aws-route53'
 import * as acm from 'aws-cdk-lib/aws-certificatemanager'
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront'
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
+import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 
 export class PaceMeFrontendStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const frontendS3Bucket = new s3.Bucket(this, 'PaceMeWebApp', {
-      websiteIndexDocument: 'index.html',
-      websiteErrorDocument: 'index.html',
       removalPolicy: RemovalPolicy.DESTROY,
-      publicReadAccess: false
     })
+
+    const frontendS3BucketOriginAccess = new OriginAccessIdentity(this, 'FrontendOriginAccess', {});
+    frontendS3Bucket.grantRead(frontendS3BucketOriginAccess);
 
     new cdk.CfnOutput(this, 'frontendBucketName', { value: frontendS3Bucket.bucketName });
     new cdk.CfnOutput(this, 'frontendBucketAddress', { value: frontendS3Bucket.bucketWebsiteDomainName });
@@ -32,7 +33,19 @@ export class PaceMeFrontendStack extends Stack {
     });
 
     const cfDist = new cloudfront.Distribution(this, 'PaceMeAppDistribution', {
-      defaultBehavior: { origin: new origins.S3Origin(frontendS3Bucket) },
+      defaultBehavior: { 
+          origin: new origins.S3Origin(frontendS3Bucket, {
+              originAccessIdentity: frontendS3BucketOriginAccess
+            })
+        },
+      defaultRootObject: 'index.html',
+      errorResponses: [
+        {
+            httpStatus: 404,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html'
+        }
+      ],
       certificate: certificate,
       domainNames: ['app-dev.paceme.info']
     });
@@ -42,6 +55,5 @@ export class PaceMeFrontendStack extends Stack {
       recordName: 'app-dev',
       domainName: cfDist.distributionDomainName,
     });
-
   }
 }
