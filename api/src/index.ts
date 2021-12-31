@@ -13,7 +13,7 @@ const configuration = {
 app.use(cors())
 app.use(json())
 
-// define a route handler for the default home page
+// Public route for letsencrypt resolution
 app.get('/', (req, res) => {
   res.send('Hello world from PaceMe!')
 })
@@ -24,9 +24,6 @@ const cognitoExpress = new CognitoExpress({
   tokenUse: 'id',
   tokenExpiration: 3600000
 })
-
-// TODO: Will want to pull this out of the handlers somehow
-const PRIVATE_PATH_ROOTS = ['/trainingplans']
 
 app.use(authenticationMiddleware)
 
@@ -44,7 +41,7 @@ function authenticationMiddleware (req: Request, res: Response, next: NextFuncti
   res.header('Access-Control-Allow-Credentials', 'true')
   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
 
-  if (req.method !== 'OPTIONS' && PRIVATE_PATH_ROOTS.some(ppr => req.path.startsWith(ppr))) {
+  if (req.method !== 'OPTIONS') {
     const accessTokenFromClient = req.headers.authorization
     if (!accessTokenFromClient) return res.status(401).send('Access Token missing from header')
 

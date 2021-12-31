@@ -78,7 +78,6 @@ spec:
         paths:
           - path: /
             pathType: Prefix
-
             backend:
               service:
                 name:  paceme-api
@@ -87,7 +86,7 @@ spec:
   tls:
     - hosts:
       - api-dev.paceme.info
-      secretName: paceme-api-dev-certificate
+      secretName: paceme-api-le-certificate
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
@@ -96,12 +95,11 @@ metadata:
   namespace: paceme-api
 spec:
   acme:
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    server: https://acme-v02.api.letsencrypt.org/directory
     email: hello@leejohnmartin.co.uk
     privateKeySecretRef:
       name: account-key-prod
     solvers: 
       - http01:
           ingress:
-          # TODO: This I think is what needs investigating...
-            class: nginx
+            name: paceme-api-ingress
