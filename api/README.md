@@ -20,4 +20,4 @@ There was a crash loop issue with the helm version used in the guide though. Ins
 
 https://github.com/jetstack/cert-manager/issues/2817#issuecomment-971126977
 
-`k apply -f https://github.com/jetstack/cert-manager/releases/download/v1.4.0/cert-manager.yaml`
+`kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml`

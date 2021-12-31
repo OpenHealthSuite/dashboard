@@ -4,7 +4,7 @@
   "description": "A Run Planning application",
   "scripts": {
     "stack:install": "(cd .infrastructure && npm i) && (cd api && npm i) && (cd webapp && npm i)",
-    "start" : "concurrently '(cd api && npm start)' '(cd webapp && npm start)'"
+    "start" : "concurrently '(cd api && npm run start:watch)' '(cd webapp && npm start)'"
   },
   "repository": {
     "type": "git",

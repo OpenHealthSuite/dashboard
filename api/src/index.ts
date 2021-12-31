@@ -13,12 +13,20 @@ const configuration = {
 app.use(cors())
 app.use(json())
 
+// define a route handler for the default home page
+app.get('/', (req, res) => {
+  res.send('Hello world from PaceMe!')
+})
+
 const cognitoExpress = new CognitoExpress({
   region: process.env.AWS_REGION ?? 'eu-west-2',
   cognitoUserPoolId: process.env.COGNITO_USER_POOL_ID,
   tokenUse: 'id',
   tokenExpiration: 3600000
 })
+
+// TODO: Will want to pull this out of the handlers somehow
+const PRIVATE_PATH_ROOTS = ['/trainingplans']
 
 app.use(authenticationMiddleware)
 
@@ -36,7 +44,7 @@ function authenticationMiddleware (req: Request, res: Response, next: NextFuncti
   res.header('Access-Control-Allow-Credentials', 'true')
   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
 
-  if (req.method !== 'OPTIONS') {
+  if (req.method !== 'OPTIONS' && PRIVATE_PATH_ROOTS.some(ppr => req.path.startsWith(ppr))) {
     const accessTokenFromClient = req.headers.authorization
     if (!accessTokenFromClient) return res.status(401).send('Access Token missing from header')
 
@@ -53,11 +61,6 @@ function authenticationMiddleware (req: Request, res: Response, next: NextFuncti
 if (process.env.RUNNING_IN_CONTAINER) {
   configuration.host = '0.0.0.0' // Mapping to container host
 }
-
-// define a route handler for the default home page
-app.get('/', (req, res) => {
-  res.send('Hello world from PaceMe!')
-})
 
 // Add our Handlers
 addTrainingPlanHandlers(app)

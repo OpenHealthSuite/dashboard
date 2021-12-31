@@ -15,40 +15,60 @@ spec:
     app: paceme-api
   type: ClusterIP
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: paceme-api
-  namespace: paceme-api
   labels:
     app: paceme-api
+  namespace: paceme-api
+  name: paceme-api
 spec:
-  containers:
-    - name: paceme-api
-      image: <aws-account-id>.dkr.ecr.<aws-region>.amazonaws.com/<image-name>:<tag>
-      imagePullPolicy: Always
-      ports:
-        - name: web
-          containerPort: 8080
-      env:
-        - name: AWS_REGION
-          value: eu-west-2
-        - name: AWS_ACCESS_KEY_ID
-          value: ACCESSKEYID
-        - name: AWS_SECRET_ACCESS_KEY
-          value: SECRETKEY
-        - name: COGNITO_USER_POOL_ID
-          value: USERPOOLID
-        - name: TRAINING_PLAN_TABLE
-          value: TrainingPlan
-        - name: TRAINING_PLAN_ACTIVITY_TABLE
-          value: TrainingPlanActivity
-  imagePullSecrets:
-      - name: awsregcred
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: paceme-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: paceme-api
+      namespace: paceme-api
+      name: paceme-api
+    spec:
+      containers:
+        - name: paceme-api
+          image: <aws-account-id>.dkr.ecr.<aws-region>.amazonaws.com/<image-name>:<tag>
+          imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 8080
+          env:
+            - name: AWS_REGION
+              value: eu-west-2
+            - name: AWS_ACCESS_KEY_ID
+              value: ACCESSKEYID
+            - name: AWS_SECRET_ACCESS_KEY
+              value: SECRETKEY
+            - name: COGNITO_USER_POOL_ID
+              value: USERPOOLID
+            - name: TRAINING_PLAN_TABLE
+              value: TrainingPlan
+            - name: TRAINING_PLAN_ACTIVITY_TABLE
+              value: TrainingPlanActivity
+      imagePullSecrets:
+          - name: awsregcred
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
   name: paceme-api-ingress
   namespace: paceme-api
 spec:
@@ -58,61 +78,30 @@ spec:
         paths:
           - path: /
             pathType: Prefix
+
             backend:
               service:
                 name:  paceme-api
                 port:
                   number: 8081
-  # tls:
-  #   - hosts:
-  #     - api-dev.paceme.info
-  #     secretName: paceme-api-dev-certificate
-# ---
-# apiVersion: cert-manager.io/v1
-# kind: Certificate
-# metadata:
-#   name: paceme-api-dev-cert
-#   namespace: paceme-api
-# spec:
-#   secretName: paceme-api-dev-certificate
-#   issuerRef:
-#     name: letsencrypt-prod
-#   dnsNames:
-#   - api-dev.paceme.info
-# ---
-# apiVersion: cert-manager.io/v1
-# kind: Issuer
-# metadata:
-#   name: letsencrypt-prod
-#   namespace: paceme-api
-# spec:
-#   acme:
-#     server: https://acme-v02.api.letsencrypt.org/directory
-#     email: hello@leejohnmartin.co.uk
-#     privateKeySecretRef:
-#       name: account-key-prod
-#     solvers:
-#     - http01:
-#        ingress:
-#          #class: nginx
-#          name: paceme-api-ingress
-      # - selector:
-      #     dnsZones:
-      #       - "paceme.info"
-      
-#         dns01:
-#           route53:
-#             region: eu-west-2
-#             accessKeyID: SECRETID
-#             secretAccessKeySecretRef: 
-#               name: prod-route53-credentials-secret
-#               key: secret-access-key
-# ---
-# apiVersion: v1
-# kind: Secret
-# metadata:
-#   name: prod-route53-credentials-secret
-#   namespace: paceme-api
-# type: Opaque
-# data:
-#   secret-access-key: SECRETKEY
+  tls:
+    - hosts:
+      - api-dev.paceme.info
+      secretName: paceme-api-dev-certificate
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt-prod
+  namespace: paceme-api
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: hello@leejohnmartin.co.uk
+    privateKeySecretRef:
+      name: account-key-prod
+    solvers: 
+      - http01:
+          ingress:
+          # TODO: This I think is what needs investigating...
+            class: nginx

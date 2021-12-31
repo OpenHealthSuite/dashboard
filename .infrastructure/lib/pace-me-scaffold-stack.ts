@@ -6,6 +6,7 @@ import * as cognito from 'aws-cdk-lib/aws-cognito'
 import * as ecr from 'aws-cdk-lib/aws-ecr'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { TagStatus } from 'aws-cdk-lib/aws-ecr';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export class PaceMeScaffoldStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -114,31 +115,31 @@ export class PaceMeScaffoldStack extends Stack {
 
     createdTables.map(x => x.table.grantFullAccess(awsApiUser))
 
-    // const route53Perms = [
-    //     {
-    //       "Effect": "Allow",
-    //       "Action": "route53:GetChange",
-    //       "Resource": "arn:aws:route53:::change/*"
-    //     },
-    //     {
-    //       "Effect": "Allow",
-    //       "Action": [
-    //         "route53:ChangeResourceRecordSets",
-    //         "route53:ListResourceRecordSets"
-    //       ],
-    //       "Resource": "arn:aws:route53:::hostedzone/*"
-    //     },
-    //     {
-    //       "Effect": "Allow",
-    //       "Action": "route53:ListHostedZonesByName",
-    //       "Resource": "*"
-    //     }
-    //   ]
-    // const policyStatement = route53Perms.map(PolicyStatement.fromJson)
-    // const policy = new iam.ManagedPolicy(this, 'Route53Policy', { })
-    // policy.addStatements(...policyStatement)
+    const route53Perms = [
+        {
+          "Effect": "Allow",
+          "Action": "route53:GetChange",
+          "Resource": "arn:aws:route53:::change/*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "route53:ChangeResourceRecordSets",
+            "route53:ListResourceRecordSets"
+          ],
+          "Resource": "arn:aws:route53:::hostedzone/*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": "route53:ListHostedZonesByName",
+          "Resource": "*"
+        }
+      ]
+    const policyStatement = route53Perms.map(PolicyStatement.fromJson)
+    const policy = new iam.ManagedPolicy(this, 'Route53Policy', { })
+    policy.addStatements(...policyStatement)
 
-    // awsApiUser.addManagedPolicy(policy)
+    awsApiUser.addManagedPolicy(policy)
 
     const accessKey = new iam.CfnAccessKey(this, 'PaceMeApiAWSAccessKey', {
       userName: awsApiUser.userName
