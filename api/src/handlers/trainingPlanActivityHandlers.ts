@@ -1,21 +1,21 @@
 import { Application, Request, Response } from 'express'
 import { TrainingPlanRepository } from '../repositories/trainingPlanRepository'
 import { ITrainingPlanActivity, TrainingPlanActivityRepository } from '../repositories/trainingPlanActivityRepository'
+import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
 
 const trainingPlanRepository = new TrainingPlanRepository()
 const trainingPlanActivityRepository = new TrainingPlanActivityRepository()
 
 export function addTrainingPlanActivityHandlers (app: Application) {
-  app.post('/trainingplans/:trainingPlanId/activities', activityCreate)
-  app.get('/trainingplans/:trainingPlanId/activities', activityGetAll)
-  app.get('/trainingplans/:trainingPlanId/activities/:activityId', activityGet)
-  app.put('/trainingplans/:trainingPlanId/activities/:activityId', activityUpdate)
-  app.delete('/trainingplans/:trainingPlanId/activities/:activityId', activityDelete)
+  app.post('/users/:userId/trainingplans/:trainingPlanId/activities', (req, res) => userRestrictedHandler(req, res, activityCreate))
+  app.get('/users/:userId/trainingplans/:trainingPlanId/activities', (req, res) => userRestrictedHandler(req, res, activityGetAll))
+  app.get('/users/:userId/trainingplans/:trainingPlanId/activities/:activityId', (req, res) => userRestrictedHandler(req, res, activityGet))
+  app.put('/users/:userId/trainingplans/:trainingPlanId/activities/:activityId', (req, res) => userRestrictedHandler(req, res, activityUpdate))
+  app.delete('/users/:userId/trainingplans/:trainingPlanId/activities/:activityId', (req, res) => userRestrictedHandler(req, res, activityDelete))
 }
 
-export const activityCreate = async (req: Request, res: Response) => {
+const activityCreate = async (userId: string, req: Request, res: Response) => {
   const { trainingPlanId } = req.params
-  const userId = res.locals.userId
 
   const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId)
 
@@ -30,9 +30,7 @@ export const activityCreate = async (req: Request, res: Response) => {
   return res.send(newItem)
 }
 
-export const activityDelete = async (req: Request, res: Response) => {
-  const userId = res.locals.userId
-
+const activityDelete = async (userId: string, req: Request, res: Response) => {
   const { trainingPlanId, activityId } = req.params
 
   const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId)
@@ -52,9 +50,7 @@ export const activityDelete = async (req: Request, res: Response) => {
   return res.sendStatus(200)
 }
 
-export const activityGetAll = async (req: Request, res: Response) => {
-  const userId = res.locals.userId
-
+const activityGetAll = async (userId: string, req: Request, res: Response) => {
   const { trainingPlanId } = req.params
 
   const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId)
@@ -68,9 +64,7 @@ export const activityGetAll = async (req: Request, res: Response) => {
   return res.send(items)
 }
 
-export const activityGet = async (req: Request, res: Response) => {
-  const userId = res.locals.userId
-
+const activityGet = async (userId: string, req: Request, res: Response) => {
   const { trainingPlanId, activityId } = req.params
 
   const existing = await trainingPlanRepository.getTrainingPlan(userId, trainingPlanId)
@@ -88,9 +82,7 @@ export const activityGet = async (req: Request, res: Response) => {
   return res.send(activity)
 }
 
-export const activityUpdate = async (req: Request, res: Response) => {
-  const userId = res.locals.userId
-
+const activityUpdate = async (userId: string, req: Request, res: Response) => {
   const { trainingPlanId, activityId } = req.params
 
   const body: ITrainingPlanActivity = req.body

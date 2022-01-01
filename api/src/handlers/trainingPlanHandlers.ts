@@ -1,18 +1,18 @@
 import { Application, Request, Response } from 'express'
 import { ITrainingPlan, TrainingPlanRepository } from '../repositories/trainingPlanRepository'
+import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
 
 const repository = new TrainingPlanRepository()
 
 export function addTrainingPlanHandlers (app: Application) {
-  app.post('/trainingplans', planCreate)
-  app.get('/trainingplans', planGetAll)
-  app.get('/trainingplans/:trainingPlanId', planGet)
-  app.put('/trainingplans/:trainingPlanId', planUpdate)
-  app.delete('/trainingplans/:trainingPlanId', planDelete)
+  app.post('/users/:userId/trainingplans', (req, res) => userRestrictedHandler(req, res, planCreate))
+  app.get('/users/:userId/trainingplans', (req, res) => userRestrictedHandler(req, res, planGetAll))
+  app.get('/users/:userId/trainingplans/:trainingPlanId', (req, res) => userRestrictedHandler(req, res, planGet))
+  app.put('/users/:userId/trainingplans/:trainingPlanId', (req, res) => userRestrictedHandler(req, res, planUpdate))
+  app.delete('/users/:userId/trainingplans/:trainingPlanId', (req, res) => userRestrictedHandler(req, res, planDelete))
 }
 
-const planCreate = async (req: Request, res: Response) => {
-  const userId = res.locals.userId
+const planCreate = async (userId: string, req: Request, res: Response) => {
   const body: ITrainingPlan = req.body
 
   const newItem = await repository.createTrainingPlan(userId, body)
@@ -20,9 +20,7 @@ const planCreate = async (req: Request, res: Response) => {
   return res.send(newItem)
 }
 
-export const planDelete = async (req: Request, res: Response) => {
-  const userId = res.locals.userId
-
+const planDelete = async (userId: string, req: Request, res: Response) => {
   const id = req.params.trainingPlanId
 
   const existing = await repository.getTrainingPlan(userId, id)
@@ -37,17 +35,13 @@ export const planDelete = async (req: Request, res: Response) => {
   res.sendStatus(200)
 }
 
-export const planGetAll = async (req: Request, res: Response) => {
-  const userId = res.locals.userId
-
+const planGetAll = async (userId: string, req: Request, res: Response) => {
   const items = await repository.getTrainingPlansForUser(userId)
 
   return res.send(items)
 }
 
-export const planGet = async (req: Request, res: Response) => {
-  const userId = res.locals.userId
-
+const planGet = async (userId: string, req: Request, res: Response) => {
   const id = req.params.trainingPlanId
 
   const plan = await repository.getTrainingPlan(userId, id)
@@ -59,9 +53,7 @@ export const planGet = async (req: Request, res: Response) => {
   return res.send(plan)
 }
 
-export const planUpdate = async (req: Request, res: Response) => {
-  const userId = res.locals.userId
-
+const planUpdate = async (userId: string, req: Request, res: Response) => {
   const body: ITrainingPlan = req.body
   const id = req.params.trainingPlanId
   const { name, active } = body
