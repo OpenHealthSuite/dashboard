@@ -6,12 +6,12 @@ export interface IUserSetting {
     details: any
 }
 
-export class TrainingPlanRepository extends BaseDynamoPartitionSortRepository<IUserSetting> {
+export class UserSettingRepository extends BaseDynamoPartitionSortRepository<IUserSetting> {
   constructor () {
     super(
       process.env.USER_SETTING_TABLE ?? 'UserSetting',
       'userId',
-      'settingId',
+      'serviceId',
       {
         '#details': 'details'
       }

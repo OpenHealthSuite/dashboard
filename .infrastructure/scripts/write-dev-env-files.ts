@@ -9,6 +9,7 @@ const scaffoldCdkValues = JSON.parse(fs.readFileSync('./cdk.out/outputs.json', '
 const apiEnvVariables = '../api/.env.example'
 let parsedApiEnvVariables = envfile.parse(fs.readFileSync(apiEnvVariables, 'utf8'));
 parsedApiEnvVariables.COGNITO_USER_POOL_ID = scaffoldCdkValues.CognitoPoolId
+parsedApiEnvVariables.USER_SERVICE_TOKEN_TABLE = scaffoldCdkValues.DynamoUserServiceToken
 parsedApiEnvVariables.USER_SETTING_TABLE = scaffoldCdkValues.DynamoUserSetting
 parsedApiEnvVariables.TRAINING_PLAN_TABLE = scaffoldCdkValues.DynamoTrainingPlan
 parsedApiEnvVariables.TRAINING_PLAN_ACTIVITY_TABLE = scaffoldCdkValues.DynamoTrainingPlanActivity
@@ -23,6 +24,9 @@ parsedApiManifestYaml.find(x => x.kind === 'Deployment' && x.metadata.name === '
     switch (envval.name) {
         case "COGNITO_USER_POOL_ID":
             envval.value = scaffoldCdkValues.CognitoPoolId
+            break;
+        case "USER_SERVICE_TOKEN_TABLE":
+            envval.value = scaffoldCdkValues.DynamoUserServiceToken
             break;
         case "USER_SETTING_TABLE":
             envval.value = scaffoldCdkValues.DynamoUserSetting
@@ -42,12 +46,6 @@ parsedApiManifestYaml.find(x => x.kind === 'Deployment' && x.metadata.name === '
     }
     return envval
 })
-
-// parsedApiManifestYaml.find(x => x.kind === 'Issuer' && x.metadata.name === 'letsencrypt-prod').spec
-//     .acme.solvers[0].dns01.route53.accessKeyID = scaffoldCdkValues.ApiAwsAccessKey
-
-// parsedApiManifestYaml.find(x => x.kind === 'Secret' && x.metadata.name === 'prod-route53-credentials-secret')
-//     .data['secret-access-key'] = scaffoldCdkValues.ApiAwsUserSecret
 fs.writeFileSync('../api/manifest.yml', parsedApiManifestYaml.map(x => yaml.dump(x)).join('\n---\n'))
 
 const webappEnvVariables = '../webapp/.env.example'

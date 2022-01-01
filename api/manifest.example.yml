@@ -57,6 +57,10 @@ spec:
               value: SECRETKEY
             - name: COGNITO_USER_POOL_ID
               value: USERPOOLID
+            - name: USER_SERVICE_TOKEN_TABLE
+              value: UserServiceToken
+            - name: USER_SETTING_TABLE
+              value: UserSetting
             - name: TRAINING_PLAN_TABLE
               value: TrainingPlan
             - name: TRAINING_PLAN_ACTIVITY_TABLE
