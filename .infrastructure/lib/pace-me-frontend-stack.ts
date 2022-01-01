@@ -28,7 +28,7 @@ export class PaceMeFrontendStack extends Stack {
     });
 
     const certificate = new acm.Certificate(this, 'PaceMeAppCertificate', {
-      domainName: 'app-dev.paceme.info',
+      domainName: 'app.paceme.info',
       validation: acm.CertificateValidation.fromDns(zone),
     });
 
@@ -47,12 +47,12 @@ export class PaceMeFrontendStack extends Stack {
         }
       ],
       certificate: certificate,
-      domainNames: ['app-dev.paceme.info']
+      domainNames: ['app.paceme.info']
     });
 
     const cName = new route53.CnameRecord(this, 'Frontend53', {
       zone: zone,
-      recordName: 'app-dev',
+      recordName: 'app',
       domainName: cfDist.distributionDomainName,
     });
   }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export REPOSITORY=$(cat ../.infrastructure/cdk.out/outputs.json | jq -r '.["PaceMeScaffoldStack-Development"].ECRApiRepository')
+export REPOSITORY=$(cat ../.infrastructure/cdk.out/outputs.json | jq -r '.["PaceMeScaffoldStack"].ECRApiRepository')
 export REPOSITORY_ROOT="$( cut -d '/' -f 1 <<< "$REPOSITORY" )"
 
 kubectl create secret docker-registry awsregcred \

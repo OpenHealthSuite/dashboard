@@ -3,15 +3,8 @@ import * as envfile from 'envfile'
 import * as yaml from 'js-yaml'
 
 
-const scaffoldCdkValues = JSON.parse(fs.readFileSync('./cdk.out/outputs.json', 'utf8'))['PaceMeScaffoldStack-Development'];
+const scaffoldCdkValues = JSON.parse(fs.readFileSync('./cdk.out/outputs.json', 'utf8'))['PaceMeScaffoldStack'];
 
-// This is to grab the old secret if it's not been re-rolled
-if (fs.existsSync('../api/.env')){
-    const oldvars = envfile.parse(fs.readFileSync('../api/.env', 'utf8'))
-    if (oldvars.AWS_SECRET_ACCESS_KEY && scaffoldCdkValues.ApiAwsAccessKey === oldvars.AWS_ACCESS_KEY_ID) {
-        scaffoldCdkValues.ApiAwsUserSecret = oldvars.AWS_SECRET_ACCESS_KEY
-    }
-}
 
 const apiEnvVariables = '../api/.env.example'
 let parsedApiEnvVariables = envfile.parse(fs.readFileSync(apiEnvVariables, 'utf8'));
@@ -40,7 +33,7 @@ parsedApiManifestYaml.find(x => x.kind === 'Deployment' && x.metadata.name === '
             envval.value = scaffoldCdkValues.ApiAwsAccessKey
             break;
         case "AWS_SECRET_ACCESS_KEY":
-            envval.value = scaffoldCdkValues.ApiAwsUserSecret
+            envval.value = scaffoldCdkValues.ApiAwsSecretKey
             break;
     }
     return envval

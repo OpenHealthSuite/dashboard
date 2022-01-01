@@ -9,8 +9,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "cdk:deploy:devscaffold": "cdk deploy PaceMeScaffoldStack-Development",
-    "cdk:deploy:devfrontend": "cdk deploy PaceMeFrontendStack-Development",
+    "cdk:deploy:devscaffold": "cdk deploy PaceMeScaffoldStack",
+    "cdk:deploy:devfrontend": "cdk deploy PaceMeFrontendStack",
     "cdk:deploy:out": "cdk deploy --all --outputs-file ./cdk.out/outputs.json",
     "script:outfiletoenv": "ts-node ./scripts/write-dev-env-files.ts",
     "cdk:deploy:devout": "npm run cdk:deploy:out && npm run script:outfiletoenv"

@@ -73,7 +73,7 @@ metadata:
   namespace: paceme-api
 spec:
   rules:
-    - host: api-dev.paceme.info
+    - host: api.paceme.info
       http:
         paths:
           - path: /
@@ -85,7 +85,7 @@ spec:
                   number: 8081
   tls:
     - hosts:
-      - api-dev.paceme.info
+      - api.paceme.info
       secretName: paceme-api-le-certificate
 ---
 apiVersion: cert-manager.io/v1
