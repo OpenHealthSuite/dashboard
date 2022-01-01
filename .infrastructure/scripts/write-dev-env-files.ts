@@ -9,6 +9,7 @@ const scaffoldCdkValues = JSON.parse(fs.readFileSync('./cdk.out/outputs.json', '
 const apiEnvVariables = '../api/.env.example'
 let parsedApiEnvVariables = envfile.parse(fs.readFileSync(apiEnvVariables, 'utf8'));
 parsedApiEnvVariables.COGNITO_USER_POOL_ID = scaffoldCdkValues.CognitoPoolId
+parsedApiEnvVariables.USER_SETTING_TABLE = scaffoldCdkValues.DynamoUserSetting
 parsedApiEnvVariables.TRAINING_PLAN_TABLE = scaffoldCdkValues.DynamoTrainingPlan
 parsedApiEnvVariables.TRAINING_PLAN_ACTIVITY_TABLE = scaffoldCdkValues.DynamoTrainingPlanActivity
 parsedApiEnvVariables.AWS_ACCESS_KEY_ID = scaffoldCdkValues.ApiAwsAccessKey
@@ -22,6 +23,9 @@ parsedApiManifestYaml.find(x => x.kind === 'Deployment' && x.metadata.name === '
     switch (envval.name) {
         case "COGNITO_USER_POOL_ID":
             envval.value = scaffoldCdkValues.CognitoPoolId
+            break;
+        case "USER_SETTING_TABLE":
+            envval.value = scaffoldCdkValues.DynamoUserSetting
             break;
         case "TRAINING_PLAN_TABLE":
             envval.value = scaffoldCdkValues.DynamoTrainingPlan

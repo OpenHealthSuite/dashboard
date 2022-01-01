@@ -14,6 +14,11 @@ export class PaceMeScaffoldStack extends Stack {
 
     const dynamoTables : { name: string, partKey: string, sortKey: string }[] = [ 
       {
+        name: 'UserSetting',
+        partKey: 'userId',
+        sortKey: 'settingId'
+      }, 
+      {
         name: 'TrainingPlan',
         partKey: 'userId',
         sortKey: 'id'
