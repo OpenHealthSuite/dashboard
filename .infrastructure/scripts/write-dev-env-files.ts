@@ -4,6 +4,7 @@ import * as yaml from 'js-yaml'
 
 
 const scaffoldCdkValues = JSON.parse(fs.readFileSync('./cdk.out/outputs.json', 'utf8'))['PaceMeScaffoldStack'];
+const secretsValues = JSON.parse(fs.readFileSync('./secrets.json', 'utf8'));
 
 
 const apiEnvVariables = '../api/.env.example'
@@ -15,6 +16,8 @@ parsedApiEnvVariables.TRAINING_PLAN_TABLE = scaffoldCdkValues.DynamoTrainingPlan
 parsedApiEnvVariables.TRAINING_PLAN_ACTIVITY_TABLE = scaffoldCdkValues.DynamoTrainingPlanActivity
 parsedApiEnvVariables.AWS_ACCESS_KEY_ID = scaffoldCdkValues.ApiAwsAccessKey
 parsedApiEnvVariables.AWS_SECRET_ACCESS_KEY = scaffoldCdkValues.ApiAwsSecretKey
+parsedApiEnvVariables.FITBIT_CLIENT_ID = secretsValues.fitbit.clientId
+parsedApiEnvVariables.FITBIT_CLIENT_SECRET = secretsValues.fitbit.clientSecret
 fs.writeFileSync('../api/.env', envfile.stringify(parsedApiEnvVariables))
 
 const apiManifestYaml = '../api/manifest.example.yml'
@@ -24,6 +27,9 @@ parsedApiManifestYaml.find(x => x.kind === 'Deployment' && x.metadata.name === '
     switch (envval.name) {
         case "COGNITO_USER_POOL_ID":
             envval.value = scaffoldCdkValues.CognitoPoolId
+            break;
+        case "SERVICE_CACHE_TABLE":
+            envval.value = scaffoldCdkValues.DynamoServiceCache
             break;
         case "USER_SERVICE_TOKEN_TABLE":
             envval.value = scaffoldCdkValues.DynamoUserServiceToken
@@ -42,6 +48,12 @@ parsedApiManifestYaml.find(x => x.kind === 'Deployment' && x.metadata.name === '
             break;
         case "AWS_SECRET_ACCESS_KEY":
             envval.value = scaffoldCdkValues.ApiAwsSecretKey
+            break;
+        case "FITBIT_CLIENT_ID":
+            envval.value = secretsValues.fitbit.clientId
+            break;
+        case "FITBIT_CLIENT_SECRET":
+            envval.value = secretsValues.fitbit.clientSecret
             break;
     }
     return envval

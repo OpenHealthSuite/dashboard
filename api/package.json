@@ -49,6 +49,7 @@
     },
     "dependencies": {
         "aws-sdk": "^2.1033.0",
+        "axios": "^0.24.0",
         "cognito-express": "^2.0.19",
         "cors": "^2.8.5",
         "dotenv": "^10.0.0",
