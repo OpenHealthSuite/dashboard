@@ -4,6 +4,7 @@ import { ITrainingPlanActivity } from '../../models/ITrainingPlanActivity'
 import { getUserPlans } from '../../services/TrainingPlanService'
 import { getActivities, editActivity } from '../../services/TrainingPlanActivityService'
 import { ITrainingPlan } from '../../models/ITrainingPlan';
+import { getTodaysSteps } from '../../services/ActivityService'
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -15,7 +16,8 @@ import { Link } from 'react-router-dom';
 interface IDashboardState {
     loading: boolean,
     activePlans: ITrainingPlan[],
-    pendingActivities: ITrainingPlanActivity[]
+    pendingActivities: ITrainingPlanActivity[],
+    stepCount: number
 }
 
 function dayIsToday(date: Date): boolean {
@@ -57,7 +59,8 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
         this.state = {
             loading: true,
             activePlans: [],
-            pendingActivities: []
+            pendingActivities: [],
+            stepCount: 0
         }
         this.updateDash = this.updateDash.bind(this)
         this.markActivityComplete = this.markActivityComplete.bind(this)
@@ -70,10 +73,12 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
     async updateDash() {
         const plans = (await getUserPlans()).filter(x => x.active)
         const pendingActivities = await this.getNextActivities(plans)
+        const stepCount = await getTodaysSteps()
         this.setState({
             loading: false,
             activePlans: plans,
-            pendingActivities: pendingActivities
+            pendingActivities: pendingActivities,
+            stepCount: stepCount.count
         })
     }
 
@@ -99,9 +104,7 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
 
     render(): React.ReactNode {
 
-        let content = <div>No Activities Scheduled</div>
-        if (this.state.pendingActivities.length > 0) {
-            content = <Grid container spacing={2}>
+        let content = <Grid container spacing={2}>
                 {this.state.pendingActivities.map((x, i) => 
                 <Grid item key={`pendact-${i}`} xs={3}>
                     <DashboardTile>
@@ -113,8 +116,16 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
                         </div>
                     </DashboardTile>
                 </Grid>)}
+                <Grid item xs={3}>
+                    <DashboardTile>
+                        <h2>Steps</h2>
+                        <div>
+                            <h4>{this.state.stepCount}</h4>
+                        </div>
+                    </DashboardTile>
+                </Grid>
             </Grid>
-        }
+        
         return (
             <LoadingIndicator loading={this.state.loading}>
                 {content}

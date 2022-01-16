@@ -4,7 +4,8 @@ import { addTrainingPlanActivityHandlers } from './handlers/trainingPlanActivity
 import { addTrainingPlanHandlers } from './handlers/trainingPlanHandlers'
 import CognitoExpress from 'cognito-express'
 import { addProviderRoutes } from './providers/ProvidersHandler'
-import { addFitbitHandlers } from './providers/FitbitHandlers'
+import { addFitbitHandlers } from './providers/FitbitAuthHandlers'
+import { addStepHandlers } from './handlers/stepsHandlers'
 
 const app = express()
 const configuration = {
@@ -66,6 +67,7 @@ addTrainingPlanHandlers(app)
 addTrainingPlanActivityHandlers(app)
 addProviderRoutes(app)
 addFitbitHandlers(app)
+addStepHandlers(app)
 
 // start the Express server
 app.listen(configuration.port, configuration.host, () => {
