@@ -82,34 +82,28 @@ async function GetChallenge(key: string) {
 function CallbackRouteChild() {
     const { serviceId } = useParams<ICallbackParameters>();  
     const searchParams = new URLSearchParams(useLocation().search);
-
-    const [processing, setProcessing] = useState(true)
-
-    const redeemCodeSync = async (key: string, code: string) => {
-        await redeemCode(key, code)
-        setProcessing(false)
-    }
-
     const navigate = useHistory();
-
-    useEffect(() => {
-        if (!processing) {
-            navigate.push('/settings')
+    
+    // TODO: This is all kinds of awful
+    const redeemCodeSync = async (navigate: any, serviceIdFn: string, searchParams: URLSearchParams) => {
+        switch (serviceIdFn) {
+            case "fitbitauth":
+                //handle fitbit
+                // TODO: Get code from query parameters
+                // post code to api.address/users/:userId/providers/fitbit/redeem in body { code: "code" }
+                // await happy response
+                await redeemCode('fitbit', searchParams.get('code') ?? '')
+                break;
+            default:
+                //error message
         }
-    }, [processing, navigate])
 
-    switch (serviceId) {
-        case "fitbitauth":
-            //handle fitbit
-            // TODO: Get code from query parameters
-            // post code to api.address/users/:userId/providers/fitbit/redeem in body { code: "code" }
-            // await happy response
-            redeemCodeSync('fitbit', searchParams.get('code') ?? '')
-            break;
-        default:
-            //error message
+        navigate.push('/settings')
     }
-    return <>Processing...</>
+
+
+
+    return <button onClick={() => redeemCodeSync(navigate, serviceId, searchParams)}>Redeem Code</button>
 }
 
 const useStyles = makeStyles((theme: any) => ({
