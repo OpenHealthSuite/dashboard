@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { AmplifySignOut } from '@aws-amplify/ui-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Drawer from '@mui/material/Drawer';
 import TrainingPlanGrid from './trainingplan/TrainingPlanGrid'
 import TrainingPlanActivityBrowser from './trainingplanactivity/TrainingPlanActivityBrowser'
@@ -18,12 +18,19 @@ import {
     Switch,
     Route,
     Link,
-    useParams
+    useParams,
+    useLocation,
+    useHistory
 } from "react-router-dom";
+import { getProviderStatuses, startChallenge, redeemCode, IProviderStatus } from '../services/ProvidersService'
 
 interface IRouteParameters {
     trainingPlanId: string,
     trainingPlanActivityId: string
+}
+
+interface ICallbackParameters {
+    serviceId: string
 }
 
 function TrainingPlanRouteChild() {
@@ -37,13 +44,72 @@ function TrainingPlanRouteChild() {
 }
 
 function TrainingPlanActivityRouteChild() {
-    // We can use the `useParams` hook here to access
-    // the dynamic pieces of the URL.
     const { trainingPlanId, trainingPlanActivityId} = useParams<IRouteParameters>();
 
     return (
         <TrainingPlanActivityViewer trainingPlanId={trainingPlanId} trainingPlanActivityId={trainingPlanActivityId} />
     );
+}
+
+function SettingsChild() {
+    const [statuses, setStatuses] = useState<IProviderStatus[]>([]);
+    const [loading, setLoading] = useState(true)
+
+    const getStatuses = async () => {
+        setLoading(false)
+        setStatuses(await getProviderStatuses())
+    }
+
+    useEffect(() => {
+        if (loading) {
+            getStatuses()
+        }
+    }, [loading])
+
+    return <ul>
+        {statuses.map(s => <li key={s.key}>{s.name} - {s.authenticated ? 'Authed':'Unauthed'}: <button onClick={() => GetChallenge(s.key)}>Authenticate</button></li>)}
+        </ul>
+}
+
+async function GetChallenge(key: string) {
+    // Send post to api.address/users/:userId/providers/:key/start to get URL w/ challenge
+    // Send user to retreived URL
+    const { authUrl } = await startChallenge(key)
+
+    window.location.href = authUrl
+}
+
+function CallbackRouteChild() {
+    const { serviceId } = useParams<ICallbackParameters>();  
+    const searchParams = new URLSearchParams(useLocation().search);
+
+    const [processing, setProcessing] = useState(true)
+
+    const redeemCodeSync = async (key: string, code: string) => {
+        await redeemCode(key, code)
+        setProcessing(false)
+    }
+
+    const navigate = useHistory();
+
+    useEffect(() => {
+        if (!processing) {
+            navigate.push('/settings')
+        }
+    }, [processing, navigate])
+
+    switch (serviceId) {
+        case "fitbitauth":
+            //handle fitbit
+            // TODO: Get code from query parameters
+            // post code to api.address/users/:userId/providers/fitbit/redeem in body { code: "code" }
+            // await happy response
+            redeemCodeSync('fitbit', searchParams.get('code') ?? '')
+            break;
+        default:
+            //error message
+    }
+    return <>Processing...</>
 }
 
 const useStyles = makeStyles((theme: any) => ({
@@ -78,7 +144,8 @@ export function Root() {
     const sidebarItems = 
     [
         { linkDest: '/', name: 'Dashboard' },
-        { linkDest: '/trainingplans', name: 'TrainingPlans' }
+        { linkDest: '/trainingplans', name: 'TrainingPlans' },
+        { linkDest: '/settings', name: 'Settings' }
     ].map(item => 
         <ListItem 
             button 
@@ -111,12 +178,10 @@ export function Root() {
             <Switch>
                 <Route path="/trainingplans/:trainingPlanId/activities/:trainingPlanActivityId" children={<TrainingPlanActivityRouteChild />} />
                 <Route path="/trainingplans/:trainingPlanId" children={<TrainingPlanRouteChild />} />
-                <Route path="/trainingplans">
-                    <TrainingPlanGrid />
-                </Route>
-                <Route path="/">
-                    <ActivityDashboard />
-                </Route>
+                <Route path="/trainingplans" children={<TrainingPlanGrid />}/>
+                <Route path="/callback/:serviceId" children={<CallbackRouteChild />}/>
+                <Route path="/settings" children={<SettingsChild />} />
+                <Route path="/" children={<ActivityDashboard />} />
             </Switch>
         </>
     )

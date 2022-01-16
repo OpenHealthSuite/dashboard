@@ -41,8 +41,8 @@ const FITBIT_TOKEN_REPO = new UserServiceTokenRepository<IFitbitTokenDetails>(SE
 const SERVICE_CACHE = new ServiceCacheRepository()
 
 export function addFitbitHandlers (app: Application) {
-  app.post('/providers/fitbit/start', (req, res) => userRestrictedHandler(req, res, startAuthenticationFlow))
-  app.post('/providers/fitbit/redeem', (req, res) => userRestrictedHandler(req, res, redeemCode))
+  app.post('/users/:userId/providers/fitbit/start', (req, res) => userRestrictedHandler(req, res, startAuthenticationFlow))
+  app.post('/users/:userId/providers/fitbit/redeem', (req, res) => userRestrictedHandler(req, res, redeemCode))
 }
 
 const CODE_VERIFIERS: {[key:string]: string} = {}
@@ -76,6 +76,7 @@ async function redeemCode (userId: string, req: Request, res: Response): Promise
   const responseData: IFitbitTokenResponse = response.data
   const token: IFitbitTokenDetails = { ...responseData, date: new Date() }
   await FITBIT_TOKEN_REPO.updateUserToken(userId, token)
+  res.sendStatus(200)
 }
 
 export async function makeFitbitRequest<T> (userId: string, url: string): Promise<T> {
@@ -85,6 +86,7 @@ export async function makeFitbitRequest<T> (userId: string, url: string): Promis
     return JSON.parse(cachedValue.serialisedResponse) as T
   }
   const token = await getFitbitToken(userId)
+  if (!token) { throw new Error('No Fitbit Token') }
   const fitbitResponse = await axios.get(requestUrl, {
     headers: {
       authorization: `Bearer ${token.access_token}`
@@ -94,8 +96,11 @@ export async function makeFitbitRequest<T> (userId: string, url: string): Promis
   return fitbitResponse.data as T
 }
 
-async function getFitbitToken (userId: string): Promise<IFitbitTokenDetails> {
+export async function getFitbitToken (userId: string): Promise<IFitbitTokenDetails | null> {
   const storedToken = await FITBIT_TOKEN_REPO.getUserToken(userId)
+  if (!storedToken) {
+    return null
+  }
   if ((new Date()).getTime() > (storedToken.date.getTime() + (storedToken.expires_in * 1000))) {
     return await refreshedToken(userId, storedToken)
   }

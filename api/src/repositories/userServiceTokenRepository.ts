@@ -20,8 +20,9 @@ export class UserServiceTokenRepository<T> extends BaseDynamoPartitionSortReposi
     this.SERVICE_ID = serviceId
   }
 
-  async getUserToken (userId: string): Promise<T> {
-    return await (await this.getByPartitionAndSortKeys(userId, this.SERVICE_ID)).token
+  async getUserToken (userId: string): Promise<T | undefined> {
+    const result = await (await this.getByPartitionAndSortKeys(userId, this.SERVICE_ID))
+    return result ? result.token : undefined
   }
 
   async updateUserToken (userId: string, token: T) {

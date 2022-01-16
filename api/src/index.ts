@@ -3,6 +3,8 @@ import cors from 'cors'
 import { addTrainingPlanActivityHandlers } from './handlers/trainingPlanActivityHandlers'
 import { addTrainingPlanHandlers } from './handlers/trainingPlanHandlers'
 import CognitoExpress from 'cognito-express'
+import { addProviderRoutes } from './providers/ProvidersHandler'
+import { addFitbitHandlers } from './providers/FitbitHandlers'
 
 const app = express()
 const configuration = {
@@ -62,6 +64,8 @@ if (process.env.RUNNING_IN_CONTAINER) {
 // Add our Handlers
 addTrainingPlanHandlers(app)
 addTrainingPlanActivityHandlers(app)
+addProviderRoutes(app)
+addFitbitHandlers(app)
 
 // start the Express server
 app.listen(configuration.port, configuration.host, () => {
