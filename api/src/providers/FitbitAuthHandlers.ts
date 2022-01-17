@@ -61,7 +61,6 @@ function startAuthenticationFlow (userId: string, req: Request, res: Response) {
 
 async function redeemCode (userId: string, req: Request, res: Response) {
   const { code } = req.body
-  console.log(code)
   const codeVerifier = CODE_VERIFIERS[userId]
   const tokenParameters = {
     client_id: FITBIT_SETTINGS.clientId,
@@ -73,7 +72,6 @@ async function redeemCode (userId: string, req: Request, res: Response) {
     authorization: `Basic ${Buffer.from(`${FITBIT_SETTINGS.clientId}:${FITBIT_SETTINGS.clientSecret}`).toString('base64')}`,
     'Content-Type': 'application/x-www-form-urlencoded'
   }
-  console.log(tokenParameters)
   // This is a bit trashy...
   const queryiedTokenUrl = FITBIT_SETTINGS.tokenUrl + '?' +
     `client_id=${tokenParameters.client_id}&` +
@@ -81,10 +79,9 @@ async function redeemCode (userId: string, req: Request, res: Response) {
     `code_verifier=${tokenParameters.code_verifier}&` +
     `grant_type=${tokenParameters.grant_type}`
   const response = await axios.post(queryiedTokenUrl, '', { headers })
-  console.log(response)
   if (response.status !== 200) { return res.send({ status: 'err' }).status(400) }
   const responseData: IFitbitTokenResponse = JSON.parse(response.data)
-  const token: IFitbitTokenDetails = { ...responseData, date_retrieved: JSON.stringify(new Date()) }
+  const token: IFitbitTokenDetails = { ...responseData, date_retrieved: (new Date()).toISOString() }
   await FITBIT_TOKEN_REPO.updateUserToken(userId, token)
   res.send({ status: 'ok' })
 }
@@ -111,7 +108,7 @@ export async function getFitbitToken (userId: string): Promise<IFitbitTokenDetai
   if (!storedToken) {
     return null
   }
-  if ((new Date()).getTime() > (new Date(storedToken.date_retrieved).getTime() + (storedToken.expires_in * 1000))) {
+  if ((new Date()).getTime() > (Date.parse(storedToken.date_retrieved) + (storedToken.expires_in * 950))) {
     return await refreshedToken(userId, storedToken)
   }
   return storedToken
@@ -135,9 +132,10 @@ async function refreshedToken (userId: string, storedToken: IFitbitTokenDetails)
     }
   })
   // TODO: need some proper erroring here...
+  console.log(response)
   if (response.status !== 200) { return storedToken }
   const responseData: IFitbitTokenResponse = JSON.parse(response.data)
-  const token: IFitbitTokenDetails = { ...responseData, date_retrieved: JSON.stringify(new Date()) }
+  const token: IFitbitTokenDetails = { ...responseData, date_retrieved: (new Date()).toISOString() }
   await FITBIT_TOKEN_REPO.updateUserToken(userId, token)
   return token
 }

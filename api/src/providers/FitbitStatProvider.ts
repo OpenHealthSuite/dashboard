@@ -21,5 +21,6 @@ async function getDaySummary (userId: string, date: Date): Promise<IFitbitDaySum
 }
 
 export async function dailyStepsProvider (userId: string, date: Date): Promise<IStepCount> {
-  return { count: (await getDaySummary(userId, date)).summary.steps }
+  const daySummary = await getDaySummary(userId, date)
+  return { count: daySummary && daySummary.summary ? daySummary.summary.steps : 0 }
 }
