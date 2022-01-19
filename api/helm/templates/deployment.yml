@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.metadata.labels.app }}
+  namespace: {{ .Values.metadata.namespace }}
+  name: paceme-api
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: paceme-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.metadata.labels.app }}
+      namespace: {{ .Values.metadata.namespace }}
+      name: paceme-api
+    spec:
+      containers:
+        - name: paceme-api
+          image: {{ required "ECRApiRepository is required" .Values.ECRApiRepository }}:{{ .Values.image.tag }}
+          imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 8080
+          env:
+            - name: AWS_REGION
+              value: eu-west-2
+            - name: AWS_ACCESS_KEY_ID
+              value: {{ required "ApiAwsAccessKey is required" .Values.ApiAwsAccessKey }}
+            - name: AWS_SECRET_ACCESS_KEY
+              value: {{ required "ApiAwsSecretKey is required" .Values.ApiAwsSecretKey }}
+            - name: COGNITO_USER_POOL_ID
+              value: {{ required "CognitoPoolId is required" .Values.CognitoPoolId }}
+            - name: FITBIT_CLIENT_ID
+              value: {{ required "fitbit.clientId is required" .Values.fitbit.clientId }}
+            - name: FITBIT_CLIENT_SECRET
+              value: {{ required "fitbit.clientSecret is required" .Values.fitbit.clientSecret }}
+            - name: SERVICE_CACHE_TABLE
+              value: {{ required "Dynamo.ServiceCache is required" .Values.Dynamo.ServiceCache }}
+            - name: USER_SERVICE_TOKEN_TABLE
+              value: {{ required "Dynamo.ServiceToken is required" .Values.Dynamo.ServiceToken }}
+            - name: USER_SETTING_TABLE
+              value: {{ required "Dynamo.UserSetting is required" .Values.Dynamo.UserSetting }}
+            - name: TRAINING_PLAN_TABLE
+              value: {{ required "Dynamo.TrainingPlan is required" .Values.Dynamo.TrainingPlan }}
+            - name: TRAINING_PLAN_ACTIVITY_TABLE
+              value: {{ required "Dynamo.TrainingPlanActivity is required" .Values.Dynamo.TrainingPlanActivity }}
+      imagePullSecrets:
+          - name: awsregcred

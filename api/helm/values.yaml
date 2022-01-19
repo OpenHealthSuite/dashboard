@@ -1,0 +1,7 @@
+image:
+  tag: latest
+
+metadata: 
+  labels:
+    app: paceme-api
+  namespace: paceme-api

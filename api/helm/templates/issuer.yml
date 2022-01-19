@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt-prod
+  namespace: {{ .Values.metadata.namespace }}
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: hello@leejohnmartin.co.uk
+    privateKeySecretRef:
+      name: account-key-prod
+    solvers: 
+      - http01:
+          ingress:
+            name: paceme-api-ingress

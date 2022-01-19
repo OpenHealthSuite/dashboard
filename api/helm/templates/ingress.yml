@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+  name: paceme-api-ingress
+  namespace: {{ .Values.metadata.namespace }}
+spec:
+  rules:
+    - host: api.paceme.info
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name:  paceme-api
+                port:
+                  number: 8081
+  tls:
+    - hosts:
+      - api.paceme.info
+      secretName: paceme-api-le-certificate
