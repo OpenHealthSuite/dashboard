@@ -35,15 +35,30 @@ spec:
             - name: AWS_REGION
               value: eu-west-2
             - name: AWS_ACCESS_KEY_ID
-              value: {{ required "ApiAwsAccessKey is required" .Values.ApiAwsAccessKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: paceme-api-secrets
+                  key: aws-access-key-id
             - name: AWS_SECRET_ACCESS_KEY
-              value: {{ required "ApiAwsSecretKey is required" .Values.ApiAwsSecretKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: paceme-api-secrets
+                  key: aws-secret-access-key
             - name: COGNITO_USER_POOL_ID
-              value: {{ required "CognitoPoolId is required" .Values.CognitoPoolId }}
+              valueFrom:
+                secretKeyRef:
+                  name: paceme-api-secrets
+                  key: cognito-user-pool-id
             - name: FITBIT_CLIENT_ID
-              value: {{ required "fitbit.clientId is required" .Values.fitbit.clientId }}
+              valueFrom:
+                secretKeyRef:
+                  name: paceme-api-secrets
+                  key: fitbit-client-id
             - name: FITBIT_CLIENT_SECRET
-              value: {{ required "fitbit.clientSecret is required" .Values.fitbit.clientSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: paceme-api-secrets
+                  key: fitbit-client-secret
             - name: SERVICE_CACHE_TABLE
               value: {{ required "Dynamo.ServiceCache is required" .Values.Dynamo.ServiceCache }}
             - name: USER_SERVICE_TOKEN_TABLE
