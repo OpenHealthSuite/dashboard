@@ -13,6 +13,7 @@
     "cdk:deploy:devfrontend": "cdk deploy PaceMeFrontendStack",
     "cdk:deploy:out": "cdk deploy --all --outputs-file ./cdk.out/outputs.json",
     "script:outfiletoenv": "ts-node ./scripts/write-dev-env-files.ts",
+    "script:outfiletocredstash": "./scripts/write-secrets-to-credstash.sh",
     "cdk:deploy:devout": "npm run cdk:deploy:out && npm run script:outfiletoenv"
   },
   "devDependencies": {
