@@ -1,6 +1,9 @@
 image:
   tag: latest
 
+ingress:
+  enabled: true
+
 metadata: 
   labels:
     app: paceme-api

@@ -1,0 +1,13 @@
+helm upgrade paceme-api ./helm \
+  --install \
+  --set "Aws.AccessKey=$(credstash get paceme/ApiAwsAccessKey)" \
+  --set "Aws.SecretKey=$(credstash get paceme/ApiAwsSecretKey)" \
+  --set "CognitoPoolId=$(credstash get paceme/CognitoPoolId)" \
+  --set "fitbit.clientId=$(credstash get paceme/fitbit-client-id)" \
+  --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
+  --set "ECRApiRepository=$(credstash get paceme/ECRApiRepository)" \
+  --set "Dynamo.ServiceCache=$(credstash get paceme/DynamoServiceCache)" \
+  --set "Dynamo.TrainingPlan=$(credstash get paceme/DynamoTrainingPlan)" \
+  --set "Dynamo.TrainingPlanActivity=$(credstash get paceme/DynamoTrainingPlanActivity)" \
+  --set "Dynamo.UserServiceToken=$(credstash get paceme/DynamoUserServiceToken)" \
+  --set "Dynamo.UserSetting=$(credstash get paceme/DynamoUserSetting)" 

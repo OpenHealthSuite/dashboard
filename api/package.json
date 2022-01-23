@@ -15,8 +15,8 @@
         "k8s:createnamespace": "scripts/kubernetes-create-namespace.sh",
         "k8s:deleteimagesecret": "kubectl delete secret awsregcred --namespace=paceme-api",
         "k8s:addimagesecret": "scripts/kubernetes-ecr-access.sh",
-        "k8s:apply": "kubectl apply -f manifest.yml",
-        "k8s:delete": "kubectl delete -f manifest.yml",
+        "k8s:apply": "./scripts/deploy.sh",
+        "k8s:delete": "helm uninstall paceme-api",
         "k8s:status": "kubectl get all --namespace=paceme-api"
     },
     "author": "Lee Martin <hello@leejohnmartin.co.uk>",

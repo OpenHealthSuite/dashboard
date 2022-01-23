@@ -62,7 +62,7 @@ spec:
             - name: SERVICE_CACHE_TABLE
               value: {{ required "Dynamo.ServiceCache is required" .Values.Dynamo.ServiceCache }}
             - name: USER_SERVICE_TOKEN_TABLE
-              value: {{ required "Dynamo.ServiceToken is required" .Values.Dynamo.ServiceToken }}
+              value: {{ required "Dynamo.UserServiceToken is required" .Values.Dynamo.UserServiceToken }}
             - name: USER_SETTING_TABLE
               value: {{ required "Dynamo.UserSetting is required" .Values.Dynamo.UserSetting }}
             - name: TRAINING_PLAN_TABLE
