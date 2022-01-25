@@ -25,10 +25,6 @@ export class PaceMeFrontendStack extends Stack {
     const frontendS3BucketOriginAccess = new OriginAccessIdentity(this, 'FrontendOriginAccess', {});
     frontendS3Bucket.grantRead(frontendS3BucketOriginAccess);
 
-    new cdk.CfnOutput(this, 'frontendBucketName', { value: frontendS3Bucket.bucketName });
-    new cdk.CfnOutput(this, 'frontendBucketAddress', { value: frontendS3Bucket.bucketWebsiteDomainName });
-    new cdk.CfnOutput(this, 'frontendBucketRegion', { value: props?.env?.region || 'us-east-1' });
-
     const zone = route53.HostedZone.fromLookup(this, 'PaceMeZone', {
       domainName: 'paceme.info'
     });
@@ -61,5 +57,7 @@ export class PaceMeFrontendStack extends Stack {
       recordName: 'app',
       domainName: cfDist.distributionDomainName,
     });
+
+    new cdk.CfnOutput(this, 'frontendCloudfrontDistributionId', { value: cfDist.distributionId });
   }
 }
