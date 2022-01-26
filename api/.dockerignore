@@ -2,3 +2,6 @@ dist
 node_modules
 .vscode
 .infrastructure
+helm
+scripts
+test

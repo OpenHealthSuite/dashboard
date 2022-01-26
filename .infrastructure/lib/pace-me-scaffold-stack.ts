@@ -4,8 +4,11 @@ import * as dyn from 'aws-cdk-lib/aws-dynamodb'
 import * as cdk from 'aws-cdk-lib';
 import * as cognito from 'aws-cdk-lib/aws-cognito'
 import * as ecr from 'aws-cdk-lib/aws-ecr'
+import * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { TagStatus } from 'aws-cdk-lib/aws-ecr';
+import * as ecrdeploy from 'cdk-ecr-deployment';
+import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 
 export class PaceMeScaffoldStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -125,9 +128,23 @@ export class PaceMeScaffoldStack extends Stack {
       }
     )
 
+    const image = new DockerImageAsset(this, 'CDKDockerImage', { 
+      directory: '../api',
+      buildArgs: {
+      // TODO: This couples us to the raspberry pi 32 bit...
+      platform: 'linux/arm/v7'
+      }})
+
+    new ecrdeploy.ECRDeployment(this, 'DeployDockerImage', {
+      src: new ecrdeploy.DockerImageName(image.imageUri),
+      dest: new ecrdeploy.DockerImageName(ecrRepo.repositoryUri + ':latest')
+    } )
+
     const awsApiUser = new iam.User(this, 'ApiUser', { })
 
     createdTables.map(x => x.table.grantFullAccess(awsApiUser))
+
+    ecrRepo.grantPull(awsApiUser)
 
     const accessKey = new iam.CfnAccessKey(this, 'PaceMeApiAWSAccessKey', {
       userName: awsApiUser.userName
