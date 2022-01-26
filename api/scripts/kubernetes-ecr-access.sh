@@ -2,7 +2,7 @@
 
 export REPOSITORY=$(cat ../.infrastructure/cdk.out/outputs.json | jq -r '.["PaceMeScaffoldStack"].ECRApiRepository')
 export REPOSITORY_ROOT="$( cut -d '/' -f 1 <<< "$REPOSITORY" )"
-
+kubectl delete secret awsregcred --namespace=paceme-api || true
 kubectl create secret docker-registry awsregcred \
   --docker-server=$REPOSITORY_ROOT\
   --docker-username=AWS \
