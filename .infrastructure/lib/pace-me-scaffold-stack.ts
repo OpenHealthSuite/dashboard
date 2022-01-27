@@ -127,18 +127,19 @@ export class PaceMeScaffoldStack extends Stack {
         exportName: `ecrRepositoryUri`
       }
     )
+    
+    // I want this, but it seems like building to a platform isn't working?
+    // const image = new DockerImageAsset(this, 'CDKDockerImage', { 
+    //   directory: '../api',
+    //   buildArgs: {
+    //   // TODO: This couples us to the raspberry pi 32 bit...
+    //     platform: 'linux/arm64/v8'
+    //   }})
 
-    const image = new DockerImageAsset(this, 'CDKDockerImage', { 
-      directory: '../api',
-      buildArgs: {
-      // TODO: This couples us to the raspberry pi 32 bit...
-      platform: 'linux/arm/v7'
-      }})
-
-    new ecrdeploy.ECRDeployment(this, 'DeployDockerImage', {
-      src: new ecrdeploy.DockerImageName(image.imageUri),
-      dest: new ecrdeploy.DockerImageName(ecrRepo.repositoryUri + ':latest')
-    } )
+    // new ecrdeploy.ECRDeployment(this, 'DeployDockerImage', {
+    //   src: new ecrdeploy.DockerImageName(image.imageUri),
+    //   dest: new ecrdeploy.DockerImageName(ecrRepo.repositoryUri + ':latest')
+    // } )
 
     const awsApiUser = new iam.User(this, 'ApiUser', { })
 
