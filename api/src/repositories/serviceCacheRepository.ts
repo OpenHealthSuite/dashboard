@@ -1,30 +1,22 @@
-import { BaseDynamoPartitionSortRepository } from './baseDynamoPartitionSortRepository'
+import IORedis from 'ioredis'
 
 export interface ICachedResponse {
-    userId: string,
-    url: string,
     serialisedResponse: string,
     date: Date
 }
 
-export class ServiceCacheRepository extends BaseDynamoPartitionSortRepository<ICachedResponse> {
+export class ServiceCacheRepository {
+  private _redis: IORedis.Redis;
   constructor () {
-    super(
-      process.env.SERVICE_CACHE_TABLE ?? 'ServiceCache',
-      'userId',
-      'url',
-      {
-        '#response': 'response',
-        '#date': 'date'
-      }
-    )
+    this._redis = new IORedis(parseInt(process.env.REDIS_PORT ?? '6379'), process.env.REDIS_HOST ?? 'localhost')
   }
 
   async GetResponse (userId: string, url: string): Promise<ICachedResponse> {
-    return await this.getByPartitionAndSortKeys(userId, url)
+    const cachedValue = await this._redis.get(`${userId}:${url}`)
+    return cachedValue ? JSON.parse(cachedValue) : undefined
   }
 
   async SaveResponse (userId: string, url: string, serialisedResponse: string) {
-    return await this.update({ userId, url, serialisedResponse, date: new Date() })
+    return await this._redis.set(`${userId}:${url}`, JSON.stringify({ serialisedResponse, date: new Date() }))
   }
 }

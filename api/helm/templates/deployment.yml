@@ -27,7 +27,7 @@ spec:
       containers:
         - name: paceme-api
           image: {{ required "ECRApiRepository is required" .Values.ECRApiRepository }}:{{ .Values.image.tag }}
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - name: web
               containerPort: 8080
@@ -59,6 +59,10 @@ spec:
                 secretKeyRef:
                   name: paceme-api-secrets
                   key: fitbit-client-secret
+            - name: REDIS_PORT
+              value: '6379'
+            - name: REDIS_HOST
+              value: redis-service
             - name: SERVICE_CACHE_TABLE
               value: {{ required "Dynamo.ServiceCache is required" .Values.Dynamo.ServiceCache }}
             - name: USER_SERVICE_TOKEN_TABLE
