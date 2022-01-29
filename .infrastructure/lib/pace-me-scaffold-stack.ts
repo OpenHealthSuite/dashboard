@@ -4,22 +4,17 @@ import * as dyn from 'aws-cdk-lib/aws-dynamodb'
 import * as cdk from 'aws-cdk-lib';
 import * as cognito from 'aws-cdk-lib/aws-cognito'
 import * as ecr from 'aws-cdk-lib/aws-ecr'
-import * as ecs from 'aws-cdk-lib/aws-ecs'
+// import * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { TagStatus } from 'aws-cdk-lib/aws-ecr';
-import * as ecrdeploy from 'cdk-ecr-deployment';
-import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
+// import * as ecrdeploy from 'cdk-ecr-deployment';
+// import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 
 export class PaceMeScaffoldStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const dynamoTables : { name: string, partKey: string, sortKey: string }[] = [ 
-      {
-        name: 'ServiceCache',
-        partKey: 'userId',
-        sortKey: 'url'
-      },
       {
         name: 'UserSetting',
         partKey: 'userId',

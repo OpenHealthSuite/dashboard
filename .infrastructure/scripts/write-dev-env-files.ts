@@ -14,7 +14,6 @@ const apiVars = async () => {
     parsedApiEnvVariables.USER_SETTING_TABLE = scaffoldCdkValues.DynamoUserSetting
     parsedApiEnvVariables.TRAINING_PLAN_TABLE = scaffoldCdkValues.DynamoTrainingPlan
     parsedApiEnvVariables.TRAINING_PLAN_ACTIVITY_TABLE = scaffoldCdkValues.DynamoTrainingPlanActivity
-    parsedApiEnvVariables.SERVICE_CACHE_TABLE = scaffoldCdkValues.DynamoServiceCache
     parsedApiEnvVariables.AWS_ACCESS_KEY_ID = scaffoldCdkValues.ApiAwsAccessKey
     parsedApiEnvVariables.AWS_SECRET_ACCESS_KEY = scaffoldCdkValues.ApiAwsSecretKey
     parsedApiEnvVariables.FITBIT_CLIENT_ID = await credstash.getSecret({ name: 'paceme/fitbit-client-id' })
