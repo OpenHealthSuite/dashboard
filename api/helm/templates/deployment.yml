@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - name: paceme-api
-          image: {{ required "ECRApiRepository is required" .Values.ECRApiRepository }}:{{ .Values.image.tag }}
+          image: {{ required "ECRApiRepository is required" .Values.ECRApiRepository }}:{{  required "Image tag is required" .Values.image.tag }}
           imagePullPolicy: IfNotPresent
           ports:
             - name: web
@@ -62,9 +62,7 @@ spec:
             - name: REDIS_PORT
               value: '6379'
             - name: REDIS_HOST
-              value: redis-service
-            - name: SERVICE_CACHE_TABLE
-              value: {{ required "Dynamo.ServiceCache is required" .Values.Dynamo.ServiceCache }}
+              value: redis-service.paceme-api.svc.cluster.local
             - name: USER_SERVICE_TOKEN_TABLE
               value: {{ required "Dynamo.UserServiceToken is required" .Values.Dynamo.UserServiceToken }}
             - name: USER_SETTING_TABLE

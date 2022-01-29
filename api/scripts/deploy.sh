@@ -6,7 +6,7 @@ helm upgrade paceme-api ./helm \
   --set "fitbit.clientId=$(credstash get paceme/fitbit-client-id)" \
   --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
   --set "ECRApiRepository=$(credstash get paceme/ECRApiRepository)" \
-  --set "Dynamo.ServiceCache=$(credstash get paceme/DynamoServiceCache)" \
+  --set "image.tag=$(cat package.json | jq -r '.version')" \
   --set "Dynamo.TrainingPlan=$(credstash get paceme/DynamoTrainingPlan)" \
   --set "Dynamo.TrainingPlanActivity=$(credstash get paceme/DynamoTrainingPlanActivity)" \
   --set "Dynamo.UserServiceToken=$(credstash get paceme/DynamoUserServiceToken)" \
