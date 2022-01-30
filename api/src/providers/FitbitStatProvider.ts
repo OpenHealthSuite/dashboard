@@ -9,9 +9,25 @@ interface IDatedSteps {
   date: Date
 }
 
-interface IFitbitDateSteps {
+interface IFitbitDateValue {
   value: number,
-  dateTime: Date
+  dateTime: string
+}
+
+interface IDatedCaloriesBurned {
+  caloriesOut: number,
+  date: Date
+}
+
+interface IDatedCaloriesConsumed {
+  caloriesIn: number,
+  date: Date
+}
+
+interface IDatedCaloriesInOut {
+  caloriesIn: number,
+  caloriesOut: number,
+  date: Date
 }
 
 interface ICalories {
@@ -73,8 +89,18 @@ async function getSleepSummary (userId: string, date: Date): Promise<IFitbitSlee
 }
 
 // https://dev.fitbit.com/build/reference/web-api/activity-timeseries/get-activity-timeseries-by-date-range/
-async function getStepsInDateRange (userId: string, dateStart: Date, dateEnd: Date): Promise<{'activities-steps': IFitbitDateSteps[]}> {
-  return await makeFitbitRequest<{'activities-steps': IFitbitDateSteps[]}>(userId, `/1/user/-/activities/steps/date/${getFitbitDate(dateStart)}/${getFitbitDate(dateEnd)}.json`)
+async function getStepsInDateRange (userId: string, dateStart: Date, dateEnd: Date): Promise<{'activities-steps': IFitbitDateValue[]}> {
+  return await makeFitbitRequest<{'activities-steps': IFitbitDateValue[]}>(userId, `/1/user/-/activities/steps/date/${getFitbitDate(dateStart)}/${getFitbitDate(dateEnd)}.json`)
+}
+
+// https://dev.fitbit.com/build/reference/web-api/activity-timeseries/get-activity-timeseries-by-date-range/
+async function getCaloriesBurnedInDateRange (userId: string, dateStart: Date, dateEnd: Date): Promise<{'activities-calories': IFitbitDateValue[]}> {
+  return await makeFitbitRequest<{'activities-calories': IFitbitDateValue[]}>(userId, `/1/user/-/activities/calories/date/${getFitbitDate(dateStart)}/${getFitbitDate(dateEnd)}.json`)
+}
+
+// https://dev.fitbit.com/build/reference/web-api/nutrition-timeseries/get-nutrition-timeseries-by-date-range/
+async function getCaloriesConsumedInDateRange (userId: string, dateStart: Date, dateEnd: Date): Promise<{'foods-log-caloriesIn': IFitbitDateValue[]}> {
+  return await makeFitbitRequest<{'foods-log-caloriesIn': IFitbitDateValue[]}>(userId, `/1/user/-/foods/log/caloriesIn/date/${getFitbitDate(dateStart)}/${getFitbitDate(dateEnd)}.json`)
 }
 
 export async function dailyStepsProvider (userId: string, date: Date): Promise<IStepCount> {
@@ -104,4 +130,27 @@ export async function dailySleepProvider (userId: string, date: Date): Promise<I
 export async function dateRangeStepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSteps[]> {
   const rawSteps = await getStepsInDateRange(userId, dateStart, dateEnd)
   return rawSteps['activities-steps'].map(rs => { return { steps: rs.value, date: new Date(rs.dateTime) } })
+}
+
+export async function dateRangeCaloriesBurnedProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesBurned[]> {
+  const rawCaloriesBurned = await getCaloriesBurnedInDateRange(userId, dateStart, dateEnd)
+  return rawCaloriesBurned['activities-calories'].map(rs => { return { caloriesOut: rs.value, date: new Date(rs.dateTime) } })
+}
+
+export async function dateRangeCaloriesConsumedrovider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesConsumed[]> {
+  const rawCaloriesConsumed = await getCaloriesConsumedInDateRange(userId, dateStart, dateEnd)
+  return rawCaloriesConsumed['foods-log-caloriesIn'].map(rs => { return { caloriesIn: rs.value, date: new Date(rs.dateTime) } })
+}
+
+export async function dateRangeCaloriesInOutProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesInOut[]> {
+  // This is a convenience provider
+  const rawCaloriesBurned = await getCaloriesBurnedInDateRange(userId, dateStart, dateEnd)
+  const rawCaloriesConsumed = await getCaloriesConsumedInDateRange(userId, dateStart, dateEnd)
+  return rawCaloriesBurned['activities-calories'].map(x => {
+    return {
+      date: new Date(x.dateTime),
+      caloriesIn: rawCaloriesConsumed['foods-log-caloriesIn'].find(y => y.dateTime === x.dateTime)?.value ?? 0,
+      caloriesOut: x.value
+    }
+  })
 }
