@@ -21,6 +21,11 @@ export interface ISleep {
   awake: number
 }
 
+export interface IDatedSteps {
+  steps: number,
+  date: Date
+}
+
 export async function getTodaysSteps(): Promise<IStepCount> {
   return await pacemeGetRequest<IStepCount>([activitiesRoot, (new Date()).toISOString().split('T')[0], 'steps'].join('/'))
 }
@@ -31,4 +36,8 @@ export async function getTodaysCalories(): Promise<ICalories> {
 
 export async function getTodaySleep(): Promise<ISleep> {
   return await pacemeGetRequest<ISleep>([sleepRoot, (new Date()).toISOString().split('T')[0]].join('/'))
+}
+
+export async function getDateRangeSteps(dateStart: Date, dateEnd: Date): Promise<IDatedSteps[]> {
+  return await pacemeGetRequest<IDatedSteps[]>([activitiesRoot, dateStart.toISOString().split('T')[0], dateEnd.toISOString().split('T')[0], 'steps'].join('/'))
 }
