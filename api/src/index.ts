@@ -7,6 +7,7 @@ import { addProviderRoutes } from './providers/ProvidersHandler'
 import { addFitbitHandlers } from './providers/FitbitAuthHandlers'
 import { addStepHandlers } from './handlers/stepsHandlers'
 import { addCaloriesHandlers } from './handlers/caloriesHandlers'
+import { addSleepHandlers } from './handlers/sleepHandlers'
 
 const app = express()
 const configuration = {
@@ -68,6 +69,7 @@ addTrainingPlanHandlers(app)
 addTrainingPlanActivityHandlers(app)
 addProviderRoutes(app)
 addFitbitHandlers(app)
+addSleepHandlers(app)
 addStepHandlers(app)
 addCaloriesHandlers(app)
 

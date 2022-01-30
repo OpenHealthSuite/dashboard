@@ -4,7 +4,7 @@ import { ITrainingPlanActivity } from '../../models/ITrainingPlanActivity'
 import { getUserPlans } from '../../services/TrainingPlanService'
 import { getActivities, editActivity } from '../../services/TrainingPlanActivityService'
 import { ITrainingPlan } from '../../models/ITrainingPlan';
-import { getTodaysSteps, getTodaysCalories } from '../../services/ActivityService'
+import { getTodaysSteps, getTodaysCalories, ISleep, getTodaySleep } from '../../services/StatsService'
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -19,7 +19,8 @@ interface IDashboardState {
     pendingActivities: ITrainingPlanActivity[],
     stepCount: number,
     caloriesIn: number,
-    caloriesOut: number
+    caloriesOut: number,
+    sleep: ISleep
 }
 
 function dayIsToday(date: Date): boolean {
@@ -64,7 +65,8 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
             pendingActivities: [],
             stepCount: 0,
             caloriesIn: 0,
-            caloriesOut: 0
+            caloriesOut: 0,
+            sleep: { rem: 0, asleep: 0, awake: 0 }
         }
         this.updateDash = this.updateDash.bind(this)
         this.markActivityComplete = this.markActivityComplete.bind(this)
@@ -79,13 +81,15 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
         const pendingActivities = await this.getNextActivities(plans)
         const stepCount = await getTodaysSteps()
         const calories = await getTodaysCalories()
+        const sleep = await getTodaySleep()
         this.setState({
             loading: false,
             activePlans: plans,
             pendingActivities: pendingActivities,
             stepCount: stepCount.count,
             caloriesIn: calories.in,
-            caloriesOut: calories.out
+            caloriesOut: calories.out,
+            sleep: sleep
         })
     }
 
@@ -112,7 +116,34 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
     render(): React.ReactNode {
 
         let content = <Grid container spacing={2}>
-                <Grid item xs={3}>
+                <Grid item xs={4}>
+                    <DashboardTile>
+                        <h1>Calories</h1>
+                        <div>
+                            <h2>{this.state.caloriesIn}</h2>
+                            <h2>{this.state.caloriesOut}</h2>
+                        </div>
+                    </DashboardTile>
+                </Grid>
+                <Grid item xs={4}>
+                    <DashboardTile>
+                        <h1>Steps</h1>
+                        <div>
+                            <h2>{this.state.stepCount}</h2>
+                        </div>
+                    </DashboardTile>
+                </Grid>
+                <Grid item xs={4}>
+                    <DashboardTile>
+                        <h1>Sleep</h1>
+                        <div>
+                            <h2>Asleep: {this.state.sleep.asleep}</h2>
+                            <h2>REM: {this.state.sleep.rem}</h2>
+                            <h4>Awake: {this.state.sleep.awake}</h4>
+                        </div>
+                    </DashboardTile>
+                </Grid>
+                <Grid item xs={4}>
                     <DashboardTile>
                     <h1>Activities</h1>
                     {this.state.pendingActivities.map((x, i) => 
@@ -125,23 +156,6 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
                             </div>
                         </div>
                     )}
-                    </DashboardTile>
-                </Grid>
-                <Grid item xs={3}>
-                    <DashboardTile>
-                        <h1>Steps</h1>
-                        <div>
-                            <h2>{this.state.stepCount}</h2>
-                        </div>
-                    </DashboardTile>
-                </Grid>
-                <Grid item xs={3}>
-                    <DashboardTile>
-                        <h1>Calories</h1>
-                        <div>
-                            <h2>{this.state.caloriesIn}</h2>
-                            <h2>{this.state.caloriesOut}</h2>
-                        </div>
                     </DashboardTile>
                 </Grid>
             </Grid>

@@ -9,6 +9,12 @@ interface ICalories {
   out: number
 }
 
+interface ISleep {
+  asleep: number,
+  rem: number,
+  awake: number
+}
+
 interface IFitbitDaySummary {
   summary: {
     steps: number,
@@ -19,6 +25,20 @@ interface IFitbitDaySummary {
 interface IFitbitFoodSummary {
   summary: {
     calories: number
+  }
+}
+
+interface IFitbitSleepSummary {
+  summary: {
+    stages: {
+      deep: number,
+      light: number,
+      rem: number,
+      wake: number
+    }
+    totalMinutesAsleep: number,
+    totalSleepRecords: number,
+    totalTimeInBed: number
   }
 }
 
@@ -37,6 +57,11 @@ async function getFoodSummary (userId: string, date: Date): Promise<IFitbitFoodS
   return await makeFitbitRequest<IFitbitFoodSummary>(userId, `/1/user/-/foods/log/date/${getFitbitDate(date)}.json`)
 }
 
+// https://dev.fitbit.com/build/reference/web-api/nutrition/get-food-log/
+async function getSleepSummary (userId: string, date: Date): Promise<IFitbitSleepSummary> {
+  return await makeFitbitRequest<IFitbitSleepSummary>(userId, `/1.2/user/-/sleep/date/${getFitbitDate(date)}.json`)
+}
+
 export async function dailyStepsProvider (userId: string, date: Date): Promise<IStepCount> {
   const daySummary = await getDaySummary(userId, date)
   return { count: daySummary && daySummary.summary ? daySummary.summary.steps : 0 }
@@ -48,5 +73,15 @@ export async function dailyCaloriesProvider (userId: string, date: Date): Promis
   return {
     in: foodSummary && foodSummary.summary ? foodSummary.summary.calories : 0,
     out: daySummary && daySummary.summary ? daySummary.summary.caloriesOut : 0
+  }
+}
+
+export async function dailySleepProvider (userId: string, date: Date): Promise<ISleep> {
+  const rawData = await getSleepSummary(userId, date)
+  const stages = rawData.summary.stages
+  return {
+    asleep: stages.light + stages.deep + stages.rem,
+    rem: stages.rem,
+    awake: stages.wake
   }
 }
