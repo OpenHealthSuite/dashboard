@@ -4,7 +4,7 @@ import { ITrainingPlanActivity } from '../../models/ITrainingPlanActivity'
 import { getUserPlans } from '../../services/TrainingPlanService'
 import { getActivities, editActivity } from '../../services/TrainingPlanActivityService'
 import { ITrainingPlan } from '../../models/ITrainingPlan';
-import { getTodaysSteps, getTodaysCalories, ISleep, getTodaySleep, IDatedSteps, getDateRangeSteps } from '../../services/StatsService'
+import { getTodaysSteps, getTodaysCalories, ISleep, getTodaySleep, IDatedSteps, getDateRangeSteps, IDatedCaloriesInOut, getDateRangeCalories } from '../../services/StatsService'
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -21,7 +21,8 @@ interface IDashboardState {
     caloriesIn: number,
     caloriesOut: number,
     sleep: ISleep,
-    lastWeekSteps: IDatedSteps[]
+    lastWeekSteps: IDatedSteps[],
+    lastWeekCalories: IDatedCaloriesInOut[]
 }
 
 function dayIsToday(date: Date): boolean {
@@ -68,7 +69,8 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
             caloriesIn: 0,
             caloriesOut: 0,
             sleep: { rem: 0, asleep: 0, awake: 0 },
-            lastWeekSteps: []
+            lastWeekSteps: [],
+            lastWeekCalories: []
         }
         this.updateDash = this.updateDash.bind(this)
         this.markActivityComplete = this.markActivityComplete.bind(this)
@@ -89,6 +91,7 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
         const lastWeekDate = new Date()
         lastWeekDate.setDate(lastWeekDate.getDate() - 8)
         const lastWeekSteps = await getDateRangeSteps(lastWeekDate, yesterDate)
+        const lastWeekCalories = await getDateRangeCalories(lastWeekDate, yesterDate)
         this.setState({
             loading: false,
             activePlans: plans,
@@ -97,7 +100,8 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
             caloriesIn: calories.in,
             caloriesOut: calories.out,
             sleep: sleep,
-            lastWeekSteps: lastWeekSteps
+            lastWeekSteps: lastWeekSteps,
+            lastWeekCalories: lastWeekCalories
         })
     }
 
@@ -174,6 +178,20 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
                                 {this.state.lastWeekSteps.map((x, i) => 
                                     <li key={`steps-${i}`}>
                                         {new Date(x.date).toISOString().split('T')[0]}: {x.steps}
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+                    </DashboardTile>
+                </Grid>
+                <Grid item xs={4}>
+                    <DashboardTile>
+                        <h1>Last Week Calories</h1>
+                        <div>
+                            <ul>
+                                {this.state.lastWeekCalories.map((x, i) => 
+                                    <li key={`calories-${i}`}>
+                                        {new Date(x.date).toISOString().split('T')[0]}: {x.caloriesIn} - {x.caloriesOut} 
                                     </li>
                                 )}
                             </ul>
