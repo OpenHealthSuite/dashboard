@@ -31,8 +31,8 @@ interface IDatedCaloriesInOut {
 }
 
 interface ICalories {
-  in: number,
-  out: number
+  caloriesIn: number,
+  caloriesOut: number
 }
 
 interface ISleep {
@@ -112,8 +112,8 @@ export async function dailyCaloriesProvider (userId: string, date: Date): Promis
   const daySummary = await getDaySummary(userId, date)
   const foodSummary = await getFoodSummary(userId, date)
   return {
-    in: foodSummary && foodSummary.summary ? foodSummary.summary.calories : 0,
-    out: daySummary && daySummary.summary ? daySummary.summary.caloriesOut : 0
+    caloriesIn: foodSummary && foodSummary.summary ? foodSummary.summary.calories : 0,
+    caloriesOut: daySummary && daySummary.summary ? daySummary.summary.caloriesOut : 0
   }
 }
 

@@ -97,8 +97,8 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
             activePlans: plans,
             pendingActivities: pendingActivities,
             stepCount: stepCount.count,
-            caloriesIn: calories.in,
-            caloriesOut: calories.out,
+            caloriesIn: calories.caloriesIn,
+            caloriesOut: calories.caloriesOut,
             sleep: sleep,
             lastWeekSteps: lastWeekSteps,
             lastWeekCalories: lastWeekCalories

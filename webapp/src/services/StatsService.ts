@@ -11,8 +11,8 @@ interface IStepCount {
 }
 
 interface ICalories {
-  in: number,
-  out: number
+  caloriesIn: number,
+  caloriesOut: number
 }
 
 export interface ISleep {
