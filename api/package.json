@@ -6,7 +6,7 @@
     "scripts": {
         "test": "jest",
         "watch:ts": "npx tsc -w",
-        "start:watch": "nodemon -r dotenv/config dist/index.js",
+        "start:watch": "concurrently 'npm run watch:ts' 'nodemon -r dotenv/config dist/index.js'",
         "start": "node -r dotenv/config dist/index.js",
         "lint": "npx eslint . --ext .ts",
         "lint:fix": "npx eslint . --fix --ext .ts",
@@ -33,6 +33,7 @@
         "@typescript-eslint/eslint-plugin": "^5.4.0",
         "@typescript-eslint/parser": "^5.4.0",
         "aws-sdk-mock": "^5.4.0",
+        "concurrently": "^7.0.0",
         "eslint": "^7.32.0",
         "eslint-config-standard": "^16.0.3",
         "eslint-plugin-import": "^2.25.3",
