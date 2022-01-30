@@ -71,5 +71,7 @@ spec:
               value: {{ required "Dynamo.TrainingPlan is required" .Values.Dynamo.TrainingPlan }}
             - name: TRAINING_PLAN_ACTIVITY_TABLE
               value: {{ required "Dynamo.TrainingPlanActivity is required" .Values.Dynamo.TrainingPlanActivity }}
+            - name: NODE_ENV
+              value: {{ required "nodeEnv is required" .Values.nodeEnv }}
       imagePullSecrets:
           - name: awsregcred

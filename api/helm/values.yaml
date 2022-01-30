@@ -10,3 +10,4 @@ metadata:
   namespace: paceme-api
 
 autosecretjob: false
+nodeEnv: production
