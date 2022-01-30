@@ -4,6 +4,16 @@ interface IStepCount {
   count: number
 }
 
+interface IDatedSteps {
+  steps: number,
+  date: Date
+}
+
+interface IFitbitDateSteps {
+  value: number,
+  dateTime: Date
+}
+
 interface ICalories {
   in: number,
   out: number
@@ -57,9 +67,14 @@ async function getFoodSummary (userId: string, date: Date): Promise<IFitbitFoodS
   return await makeFitbitRequest<IFitbitFoodSummary>(userId, `/1/user/-/foods/log/date/${getFitbitDate(date)}.json`)
 }
 
-// https://dev.fitbit.com/build/reference/web-api/nutrition/get-food-log/
+// https://dev.fitbit.com/build/reference/web-api/sleep/get-sleep-log-by-date/
 async function getSleepSummary (userId: string, date: Date): Promise<IFitbitSleepSummary> {
   return await makeFitbitRequest<IFitbitSleepSummary>(userId, `/1.2/user/-/sleep/date/${getFitbitDate(date)}.json`)
+}
+
+// https://dev.fitbit.com/build/reference/web-api/activity-timeseries/get-activity-timeseries-by-date-range/
+async function getStepsInDateRange (userId: string, dateStart: Date, dateEnd: Date): Promise<{'activities-steps': IFitbitDateSteps[]}> {
+  return await makeFitbitRequest<{'activities-steps': IFitbitDateSteps[]}>(userId, `/1/user/-/activities/steps/date/${getFitbitDate(dateStart)}/${getFitbitDate(dateEnd)}.json`)
 }
 
 export async function dailyStepsProvider (userId: string, date: Date): Promise<IStepCount> {
@@ -84,4 +99,9 @@ export async function dailySleepProvider (userId: string, date: Date): Promise<I
     rem: stages.rem,
     awake: stages.wake
   }
+}
+
+export async function dateRangeStepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSteps[]> {
+  const rawSteps = await getStepsInDateRange(userId, dateStart, dateEnd)
+  return rawSteps['activities-steps'].map(rs => { return { steps: rs.value, date: new Date(rs.dateTime) } })
 }
