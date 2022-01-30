@@ -89,7 +89,7 @@ async function redeemCode (userId: string, req: Request, res: Response) {
 export async function makeFitbitRequest<T> (userId: string, url: string): Promise<T> {
   const requestUrl = FITBIT_SETTINGS.rootApiUrl + url
   const cachedValue = await SERVICE_CACHE.GetResponse(userId, requestUrl)
-  if (cachedValue && new Date(cachedValue.date).getTime() > ((new Date()).getTime() - FITBIT_SETTINGS.cacheExpiryMilliseconds)) {
+  if (cachedValue && new Date(cachedValue.date).getTime() < ((new Date()).getTime() - FITBIT_SETTINGS.cacheExpiryMilliseconds)) {
     return JSON.parse(cachedValue.serialisedResponse) as T
   }
   const token = await getFitbitToken(userId)
@@ -99,6 +99,12 @@ export async function makeFitbitRequest<T> (userId: string, url: string): Promis
       authorization: `Bearer ${token.access_token}`
     }
   })
+  if (fitbitResponse.status !== 200) {
+    console.error('ErrorStatusFromFitbit', fitbitResponse.status)
+    console.error('ErrorStatusTextFromFitbit', fitbitResponse.statusText)
+    console.error('ErrorResponseFromFitbit', fitbitResponse.data)
+    throw new Error('Error from FitBit')
+  }
   SERVICE_CACHE.SaveResponse(userId, requestUrl, fitbitResponse.data)
   return JSON.parse(fitbitResponse.data) as T
 }
