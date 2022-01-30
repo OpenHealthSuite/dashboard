@@ -1,0 +1,2 @@
+export distributionId=$(cat cdk.out/frontend-outputs.json | jq -r .PaceMeFrontendStack.frontendCloudfrontDistributionId)
+aws cloudfront create-invalidation --distribution-id $distributionId --paths "/*"

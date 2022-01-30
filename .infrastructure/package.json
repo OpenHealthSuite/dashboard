@@ -9,11 +9,12 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "cdk:deploy:devscaffold": "cdk deploy PaceMeScaffoldStack --outputs-file ./cdk.out/scaffold-outputs.json",
-    "cdk:deploy:devfrontend": "cdk deploy PaceMeFrontendStack --outputs-file ./cdk.out/frontend-outputs.json",
+    "cdk:deploy:scaffold": "cdk deploy PaceMeScaffoldStack --outputs-file ./cdk.out/scaffold-outputs.json",
+    "cdk:deploy:frontend": "cdk deploy PaceMeFrontendStack --outputs-file ./cdk.out/frontend-outputs.json",
     "cdk:deploy:out": "cdk deploy --all --outputs-file ./cdk.out/outputs.json",
     "script:outfiletoenv": "ts-node ./scripts/write-dev-env-files.ts",
     "script:outfiletocredstash": "./scripts/write-secrets-to-credstash.sh",
+    "aws:invalidatecache": "./scripts/invalidate-cache.sh",
     "cdk:deploy:devout": "npm run cdk:deploy:out && npm run script:outfiletoenv"
   },
   "devDependencies": {
