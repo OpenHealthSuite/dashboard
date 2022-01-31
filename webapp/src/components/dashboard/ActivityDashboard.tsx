@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface IDashboardState {
     loading: boolean,
@@ -89,7 +90,7 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
         const yesterDate = new Date()
         yesterDate.setDate(yesterDate.getDate() - 1)
         const lastWeekDate = new Date()
-        lastWeekDate.setDate(lastWeekDate.getDate() - 8)
+        lastWeekDate.setDate(lastWeekDate.getDate() - 7)
         const lastWeekSteps = await getDateRangeSteps(lastWeekDate, yesterDate)
         const lastWeekCalories = await getDateRangeCalories(lastWeekDate, yesterDate)
         this.setState({
@@ -126,7 +127,15 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
     }
 
     render(): React.ReactNode {
-
+        const dayLabels = [
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat"
+        ]
         let content = <Grid container spacing={2}>
                 <Grid item xs={4}>
                     <DashboardTile>
@@ -173,29 +182,43 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
                 <Grid item xs={4}>
                     <DashboardTile>
                         <h1>Last Week Steps</h1>
-                        <div>
-                            <ul>
-                                {this.state.lastWeekSteps.map((x, i) => 
-                                    <li key={`steps-${i}`}>
-                                        {new Date(x.date).toISOString().split('T')[0]}: {x.steps}
-                                    </li>
-                                )}
-                            </ul>
-                        </div>
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart
+                                
+                                data={this.state.lastWeekSteps.map(x => { 
+                                    return { 
+                                        dateLabel: dayLabels[new Date(x.date).getDay()],
+                                        steps: x.steps
+                                    }})}
+                                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                                >
+                                <XAxis dataKey="dateLabel"/>
+                                <YAxis orientation="right"/>
+                                <Bar type="monotone" dataKey="steps" fill="#44C" yAxisId={0} />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </DashboardTile>
                 </Grid>
                 <Grid item xs={4}>
                     <DashboardTile>
                         <h1>Last Week Calories</h1>
-                        <div>
-                            <ul>
-                                {this.state.lastWeekCalories.map((x, i) => 
-                                    <li key={`calories-${i}`}>
-                                        {new Date(x.date).toISOString().split('T')[0]}: {x.caloriesIn} - {x.caloriesOut} 
-                                    </li>
-                                )}
-                            </ul>
-                        </div>
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart
+                                
+                                data={this.state.lastWeekCalories.map(x => { 
+                                    return { 
+                                        dateLabel: dayLabels[new Date(x.date).getDay()],
+                                        caloriesIn: x.caloriesIn,
+                                        caloriesOut: x.caloriesOut
+                                    }})}
+                                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                                >
+                                <XAxis dataKey="dateLabel"/>
+                                <YAxis orientation="right"/>
+                                <Bar type="monotone" dataKey="caloriesIn" fill="#3A3" yAxisId={0} />
+                                <Bar type="monotone" dataKey="caloriesOut" fill="#A33" yAxisId={0} />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </DashboardTile>
                 </Grid>
             </Grid>
