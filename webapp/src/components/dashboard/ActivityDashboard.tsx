@@ -222,7 +222,7 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
                 </Grid>
                 <Grid item xs={4}>
                     <DashboardTile headerText='Sleep'>
-                        <div>
+                        <div style={{textAlign:"center"}}>
                             <h1>{formatMinutesToText(this.state.sleep.asleep)}</h1>
                             <h3>REM: {formatMinutesToText(this.state.sleep.rem)}</h3>
                             <h4>Awake: {formatMinutesToText(this.state.sleep.awake)}</h4>
