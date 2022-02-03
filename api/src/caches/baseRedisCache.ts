@@ -1,7 +1,6 @@
 import IORedis from 'ioredis'
 
 export interface IBaseCachedValue {
-    itemKey: string,
     cachedValue: string,
     date: Date
 }
@@ -20,6 +19,6 @@ export abstract class BaseRedisCache {
   }
 
   protected async BaseSaveResponse (itemKey: string, itemValue: string) {
-    return await this._redis.set(`${this._cacheKey}:${itemKey}`, JSON.stringify({ itemValue, date: new Date() }))
+    return await this._redis.set(`${this._cacheKey}:${itemKey}`, JSON.stringify({ cachedValue: itemValue, date: new Date() }))
   }
 }

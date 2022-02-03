@@ -90,9 +90,11 @@ async function redeemCode (userId: string, req: Request, res: Response) {
 export async function makeFitbitRequest<T> (userId: string, url: string): Promise<T> {
   const requestUrl = FITBIT_SETTINGS.rootApiUrl + url
   const cachedValue = await SERVICE_CACHE.GetResponse(userId, requestUrl)
-  if (cachedValue && new Date(cachedValue.date).getTime() < ((new Date()).getTime() - FITBIT_SETTINGS.cacheExpiryMilliseconds)) {
+  if (cachedValue && cachedValue.serialisedResponse && new Date(cachedValue.date).getTime() > ((new Date()).getTime() - FITBIT_SETTINGS.cacheExpiryMilliseconds)) {
+    console.log('cachehit')
     return JSON.parse(cachedValue.serialisedResponse) as T
   }
+  console.log('cachemiss')
   const token = await getFitbitToken(userId)
   if (!token) { throw new Error('No Fitbit Token') }
   const fitbitResponse = await axios.get(requestUrl, {
