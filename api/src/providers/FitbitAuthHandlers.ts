@@ -4,6 +4,7 @@ import { createHash, randomBytes } from 'crypto'
 import { Axios } from 'axios'
 import { UserServiceTokenRepository } from '../repositories/userServiceTokenRepository'
 import { ServiceCache } from '../caches/serviceCache'
+import { CodeChallenceCache } from '../caches/codeChallengeCache'
 
 const axios = new Axios({})
 
@@ -39,19 +40,19 @@ interface IFitbitTokenDetails extends IFitbitTokenResponse {
 
 const FITBIT_TOKEN_REPO = new UserServiceTokenRepository<IFitbitTokenDetails>(SERVICE_KEY)
 const SERVICE_CACHE = new ServiceCache()
+const CODE_CHALLENGE_CACHE = new CodeChallenceCache()
 
 export function addFitbitHandlers (app: Application) {
   app.post('/users/:userId/providers/fitbit/start', (req, res) => userRestrictedHandler(req, res, startAuthenticationFlow))
   app.post('/users/:userId/providers/fitbit/redeem', (req, res) => userRestrictedHandler(req, res, redeemCode))
 }
 
-const CODE_VERIFIERS: {[key:string]: string} = {}
-
 function startAuthenticationFlow (userId: string, req: Request, res: Response) {
-  CODE_VERIFIERS[userId] = randomBytes(60).toString('hex')
+  const CODE_VERIFIER = randomBytes(60).toString('hex')
+  CODE_CHALLENGE_CACHE.SetCode(userId, CODE_VERIFIER)
   // Apparently fitbit wants - instead of +?
   // https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/
-  const challengeHash = createHash('sha256').update(CODE_VERIFIERS[userId]).digest('base64').replace('=', '').replace(/\+/g, '-')
+  const challengeHash = createHash('sha256').update(CODE_VERIFIER).digest('base64').replace('=', '').replace(/\+/g, '-')
   const authUrl = `https://www.fitbit.com/oauth2/authorize?client_id=${FITBIT_SETTINGS.clientId}&response_type=code` +
   `&code_challenge=${challengeHash}&code_challenge_method=S256` +
   '&scope=weight%20location%20settings%20profile%20nutrition%20activity%20sleep' +
@@ -61,7 +62,7 @@ function startAuthenticationFlow (userId: string, req: Request, res: Response) {
 
 async function redeemCode (userId: string, req: Request, res: Response) {
   const { code } = req.body
-  const codeVerifier = CODE_VERIFIERS[userId]
+  const codeVerifier = CODE_CHALLENGE_CACHE.GetCode(userId)
   const tokenParameters = {
     client_id: FITBIT_SETTINGS.clientId,
     code: code,
