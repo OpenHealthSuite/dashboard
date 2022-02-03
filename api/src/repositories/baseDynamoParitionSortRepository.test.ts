@@ -4,15 +4,15 @@ import * as AWS from 'aws-sdk'
 
 import { DeleteItemInput, GetItemInput, PutItemInput, ScanInput } from 'aws-sdk/clients/dynamodb'
 
-import { BaseDynamoPartitionRepository } from '../../../../src/repositories/baseDynamoPartitionRepository'
+import { BaseDynamoPartitionSortRepository } from './baseDynamoPartitionSortRepository'
 
-class FakeBaseDynamoRepository extends BaseDynamoPartitionRepository<{}> {
-  public getAll () {
-    return super.getAll()
+class FakeBaseDynamoRepository extends BaseDynamoPartitionSortRepository<{}> {
+  public getAllByPartitionKey (partitionKey: string) {
+    return super.getAllByPartitionKey(partitionKey)
   }
 
-  public getByPartitionKey (paritionKey: string) {
-    return super.getByPartitionKey(paritionKey)
+  public getByPartitionAndSortKeys (paritionKey: string, sortKey: string) {
+    return super.getByPartitionAndSortKeys(paritionKey, sortKey)
   }
 
   public create (newItem: {}) {
@@ -23,8 +23,8 @@ class FakeBaseDynamoRepository extends BaseDynamoPartitionRepository<{}> {
     return super.update(itemUpdate)
   }
 
-  public deleteByPartitionAndSortKey (paritionKey: string) {
-    return super.deleteByPartitionKey(paritionKey)
+  public deleteByPartitionAndSortKey (paritionKey: string, sortKey: string) {
+    return super.deleteByPartitionAndSortKey(paritionKey, sortKey)
   }
 }
 
@@ -37,6 +37,7 @@ test('baseDynamoRepository.create :: Overall Happy Test :: Creates new item', as
   const expectedActive = true
 
   const expectedPartitionKey = 'userId'
+  const expectedSortKey = 'id'
 
   const expectedExpressionAttributes = {
     '#nm': 'name',
@@ -60,7 +61,7 @@ test('baseDynamoRepository.create :: Overall Happy Test :: Creates new item', as
     callback(null, {})
   })
 
-  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes)
+  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedSortKey, expectedExpressionAttributes)
 
   // Act
   const result = await repository.create(newItem)
@@ -72,7 +73,7 @@ test('baseDynamoRepository.create :: Overall Happy Test :: Creates new item', as
   sinon.restore()
 })
 
-test('baseDynamoRepository.getAll :: Overall Happy Test :: Gets and returns items ', async () => {
+test('baseDynamoRepository.getAllByPartitionKey :: Overall Happy Test :: Gets and returns items ', async () => {
   const testTableName = 'TESTTABLE'
 
   const expectedUserId = '456EXPECTEDUSERID'
@@ -80,6 +81,7 @@ test('baseDynamoRepository.getAll :: Overall Happy Test :: Gets and returns item
   const mockItems = [{ id: '123TESTEXPECTEDID', userId: expectedUserId }]
 
   const expectedPartitionKey = 'userId'
+  const expectedSortKey = 'id'
 
   const expectedExpressionAttributes = {
     '#nm': 'name',
@@ -88,8 +90,12 @@ test('baseDynamoRepository.getAll :: Overall Happy Test :: Gets and returns item
 
   const expectedParams = {
     TableName: testTableName,
-    ProjectionExpression: 'userId, #nm, #active',
-    ExpressionAttributeNames: expectedExpressionAttributes
+    ProjectionExpression: 'userId, id, #nm, #active',
+    FilterExpression: 'userId = :requestedPartitionKey',
+    ExpressionAttributeNames: expectedExpressionAttributes,
+    ExpressionAttributeValues: {
+      ':requestedPartitionKey': expectedUserId
+    }
   }
 
   AWSMock.setSDKInstance(AWS)
@@ -98,10 +104,10 @@ test('baseDynamoRepository.getAll :: Overall Happy Test :: Gets and returns item
     callback(null, { Items: mockItems })
   })
 
-  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes)
+  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedSortKey, expectedExpressionAttributes)
 
   // Act
-  const result = await repository.getAll()
+  const result = await repository.getAllByPartitionKey(expectedUserId)
 
   // Assert
 
@@ -110,12 +116,14 @@ test('baseDynamoRepository.getAll :: Overall Happy Test :: Gets and returns item
   sinon.restore()
 })
 
-test('baseDynamoRepository.getByPartitionKey :: Overall Happy Test :: Gets item and returns it ', async () => {
+test('baseDynamoRepository.getByPartitionAndSortKeys :: Overall Happy Test :: Gets item and returns it ', async () => {
   const testTableName = 'TESTTABLE'
 
+  const expectedId = '123TESTEXPECTEDID'
   const expectedUserId = '456EXPECTEDUSERID'
 
   const expectedPartitionKey = 'userId'
+  const expectedSortKey = 'id'
 
   const expectedExpressionAttributes = {
     '#nm': 'name',
@@ -127,6 +135,7 @@ test('baseDynamoRepository.getByPartitionKey :: Overall Happy Test :: Gets item 
   const expectedParams = {
     TableName: testTableName,
     Key: {
+      id: expectedId,
       userId: expectedUserId
     }
   }
@@ -137,10 +146,10 @@ test('baseDynamoRepository.getByPartitionKey :: Overall Happy Test :: Gets item 
     callback(null, { Item: mockItem })
   })
 
-  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes)
+  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedSortKey, expectedExpressionAttributes)
 
   // Act
-  const result = await repository.getByPartitionKey(expectedUserId)
+  const result = await repository.getByPartitionAndSortKeys(expectedUserId, expectedId)
 
   // Assert
 
@@ -152,18 +161,20 @@ test('baseDynamoRepository.getByPartitionKey :: Overall Happy Test :: Gets item 
 test('BaseDynamoRepository.update :: Overall Happy Test :: updates item ', async () => {
   const testTableName = 'TESTTABLE'
 
+  const expectedId = '123TESTEXPECTEDID'
   const expectedUserId = '456EXPECTEDUSERID'
   const expectedName = 'EXPECTEDNAME9342'
   const expectedActive = true
 
   const expectedPartitionKey = 'userId'
+  const expectedSortKey = 'id'
 
   const expectedExpressionAttributes = {
     '#nm': 'name',
     '#active': 'active'
   }
 
-  const input = { userId: expectedUserId, name: expectedName, active: expectedActive }
+  const input = { id: expectedId, userId: expectedUserId, name: expectedName, active: expectedActive }
 
   const expectedUpdateParams = {
     TableName: testTableName,
@@ -176,7 +187,7 @@ test('BaseDynamoRepository.update :: Overall Happy Test :: updates item ', async
     callback(null, {})
   })
 
-  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes)
+  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedSortKey, expectedExpressionAttributes)
 
   // Act
   await repository.update(input)
@@ -189,9 +200,11 @@ test('BaseDynamoRepository.update :: Overall Happy Test :: updates item ', async
 test('BaseDynamoRepository.delete :: Overall Happy Test :: deletes item ', async () => {
   const testTableName = 'TESTTABLE'
 
+  const expectedId = '123TESTEXPECTEDID'
   const expectedUserId = '456EXPECTEDUSERID'
 
   const expectedPartitionKey = 'userId'
+  const expectedSortKey = 'id'
 
   const expectedExpressionAttributes = {
     '#nm': 'name',
@@ -201,6 +214,7 @@ test('BaseDynamoRepository.delete :: Overall Happy Test :: deletes item ', async
   const expectedParams = {
     TableName: testTableName,
     Key: {
+      id: expectedId,
       userId: expectedUserId
     }
   }
@@ -211,10 +225,10 @@ test('BaseDynamoRepository.delete :: Overall Happy Test :: deletes item ', async
     callback(null, {})
   })
 
-  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedExpressionAttributes)
+  const repository = new FakeBaseDynamoRepository(testTableName, expectedPartitionKey, expectedSortKey, expectedExpressionAttributes)
 
   // Act
-  await repository.deleteByPartitionAndSortKey(expectedUserId)
+  await repository.deleteByPartitionAndSortKey(expectedUserId, expectedId)
 
   // Assert
   AWSMock.restore('DynamoDB.DocumentClient')
