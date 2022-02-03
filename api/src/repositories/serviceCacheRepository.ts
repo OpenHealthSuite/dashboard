@@ -7,16 +7,17 @@ export interface ICachedResponse {
 
 export class ServiceCacheRepository {
   private _redis: IORedis.Redis;
+  private _cacheKey: string = 'servicecache'
   constructor () {
     this._redis = new IORedis(parseInt(process.env.REDIS_PORT ?? '6379'), process.env.REDIS_HOST ?? 'localhost')
   }
 
   async GetResponse (userId: string, url: string): Promise<ICachedResponse> {
-    const cachedValue = await this._redis.get(`${userId}:${url}`)
+    const cachedValue = await this._redis.get(`${this._cacheKey}:${userId}:${url}`)
     return cachedValue ? JSON.parse(cachedValue) : undefined
   }
 
   async SaveResponse (userId: string, url: string, serialisedResponse: string) {
-    return await this._redis.set(`${userId}:${url}`, JSON.stringify({ serialisedResponse, date: new Date() }))
+    return await this._redis.set(`${this._cacheKey}:${userId}:${url}`, JSON.stringify({ serialisedResponse, date: new Date() }))
   }
 }
