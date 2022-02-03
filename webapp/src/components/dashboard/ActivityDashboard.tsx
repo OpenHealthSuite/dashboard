@@ -140,6 +140,9 @@ function formatMinutesToText(minutes: number, startString: string = ""): string 
 }
 
 export default class ActivityDashboard extends React.Component<{}, IDashboardState> {
+    refreshInterval: number = 60 * 5 * 1000
+    autoUpdate: NodeJS.Timer | undefined
+
     constructor(props: {}) {
         super(props)
         this.state = {
@@ -153,12 +156,16 @@ export default class ActivityDashboard extends React.Component<{}, IDashboardSta
             lastWeekSteps: [],
             lastWeekCalories: []
         }
+        this.autoUpdate = undefined
         this.updateDash = this.updateDash.bind(this)
         this.markActivityComplete = this.markActivityComplete.bind(this)
     }
     
     componentDidMount(): void {
         this.updateDash()
+        if (!this.autoUpdate) {
+            this.autoUpdate = setInterval(this.updateDash, this.refreshInterval)
+        }
     }
 
     async updateDash() {
