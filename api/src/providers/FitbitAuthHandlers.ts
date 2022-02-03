@@ -3,7 +3,7 @@ import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
 import { createHash, randomBytes } from 'crypto'
 import { Axios } from 'axios'
 import { UserServiceTokenRepository } from '../repositories/userServiceTokenRepository'
-import { ServiceCacheRepository } from '../repositories/serviceCacheRepository'
+import { ServiceCache } from '../caches/serviceCache'
 
 const axios = new Axios({})
 
@@ -38,7 +38,7 @@ interface IFitbitTokenDetails extends IFitbitTokenResponse {
 }
 
 const FITBIT_TOKEN_REPO = new UserServiceTokenRepository<IFitbitTokenDetails>(SERVICE_KEY)
-const SERVICE_CACHE = new ServiceCacheRepository()
+const SERVICE_CACHE = new ServiceCache()
 
 export function addFitbitHandlers (app: Application) {
   app.post('/users/:userId/providers/fitbit/start', (req, res) => userRestrictedHandler(req, res, startAuthenticationFlow))

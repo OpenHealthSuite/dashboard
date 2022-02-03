@@ -5,7 +5,7 @@ export interface ICachedResponse {
     date: Date
 }
 
-export class ServiceCacheRepository extends BaseRedisCache {
+export class ServiceCache extends BaseRedisCache {
   constructor () {
     super('servicecache')
   }
