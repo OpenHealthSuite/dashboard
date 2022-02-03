@@ -1,23 +1,21 @@
-import IORedis from 'ioredis'
+import { BaseRedisCache } from './baseRedisCache'
 
 export interface ICachedResponse {
     serialisedResponse: string,
     date: Date
 }
 
-export class ServiceCacheRepository {
-  private _redis: IORedis.Redis;
-  private _cacheKey: string = 'servicecache'
+export class ServiceCacheRepository extends BaseRedisCache {
   constructor () {
-    this._redis = new IORedis(parseInt(process.env.REDIS_PORT ?? '6379'), process.env.REDIS_HOST ?? 'localhost')
+    super('servicecache')
   }
 
   async GetResponse (userId: string, url: string): Promise<ICachedResponse> {
-    const cachedValue = await this._redis.get(`${this._cacheKey}:${userId}:${url}`)
-    return cachedValue ? JSON.parse(cachedValue) : undefined
+    const cachedValue = await this.BaseGetResponse(`${userId}:${url}`)
+    return { serialisedResponse: cachedValue.cachedValue, date: cachedValue.date }
   }
 
   async SaveResponse (userId: string, url: string, serialisedResponse: string) {
-    return await this._redis.set(`${this._cacheKey}:${userId}:${url}`, JSON.stringify({ serialisedResponse, date: new Date() }))
+    return await this.BaseSaveResponse(`${userId}:${url}`, serialisedResponse)
   }
 }
