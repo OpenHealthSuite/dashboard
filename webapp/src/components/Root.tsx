@@ -1,7 +1,3 @@
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { AmplifySignOut } from '@aws-amplify/ui-react';
 import React, { useEffect, useState } from 'react';
@@ -23,6 +19,7 @@ import {
     useHistory
 } from "react-router-dom";
 import { getProviderStatuses, startChallenge, redeemCode, IProviderStatus } from '../services/ProvidersService'
+import { Fab } from '@mui/material';
 
 interface IRouteParameters {
     trainingPlanId: string,
@@ -121,6 +118,11 @@ const useStyles = makeStyles((theme: any) => ({
         textAlign: 'center',
         color: theme.palette.text.secondary,
     },
+    fabContainer: {
+        position: 'absolute',
+        right: theme.spacing(2),
+        bottom: theme.spacing(2)
+    }
 }));
 export function Root() {
     const classes = useStyles();
@@ -150,25 +152,19 @@ export function Root() {
                 {item.name}
         </ListItem>
     )
-    
     return (
         <>
-            <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
+            <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
                 <List>
                     {sidebarItems}
                 </List>
+                <AmplifySignOut></AmplifySignOut>
             </Drawer>
-            <AppBar position="static">
-                <Toolbar>
-                    <IconButton edge="start" onClick={toggleDrawer(true)} className={classes.menuButton} color="inherit" aria-label="menu">
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" className={classes.title}>
-                        PaceMe
-                    </Typography>
-                    <AmplifySignOut></AmplifySignOut>
-                </Toolbar>
-            </AppBar>
+            <div className={classes.fabContainer}>
+                <Fab color="primary" aria-label="menu" onClick={toggleDrawer(true)} >
+                    <MenuIcon />
+                </Fab>
+            </div>
             <Switch>
                 <Route path="/trainingplans/:trainingPlanId/activities/:trainingPlanActivityId" children={<TrainingPlanActivityRouteChild />} />
                 <Route path="/trainingplans/:trainingPlanId" children={<TrainingPlanRouteChild />} />
