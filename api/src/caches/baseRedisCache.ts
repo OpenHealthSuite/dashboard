@@ -1,4 +1,5 @@
 import IORedis from 'ioredis'
+import redisSingleton from './redisSingleton'
 
 export interface IBaseCachedValue {
     cachedValue: string,
@@ -8,9 +9,9 @@ export interface IBaseCachedValue {
 export abstract class BaseRedisCache {
   private _redis: IORedis.Redis;
   private readonly _cacheKey: string;
-  constructor (cacheKey: string) {
+  constructor (cacheKey: string, redisConnection: IORedis.Redis = redisSingleton.connection) {
     this._cacheKey = cacheKey
-    this._redis = new IORedis(parseInt(process.env.REDIS_PORT ?? '6379'), process.env.REDIS_HOST ?? 'localhost')
+    this._redis = redisConnection
   }
 
   protected async BaseGetResponse (itemKey: string): Promise<IBaseCachedValue | undefined> {
@@ -18,7 +19,7 @@ export abstract class BaseRedisCache {
     return cachedValue ? JSON.parse(cachedValue) : undefined
   }
 
-  protected async BaseSaveResponse (itemKey: string, itemValue: string) {
-    return await this._redis.set(`${this._cacheKey}:${itemKey}`, JSON.stringify({ cachedValue: itemValue, date: new Date() }))
+  protected async BaseSaveResponse (itemKey: string, itemValue: string): Promise<void> {
+    await this._redis.set(`${this._cacheKey}:${itemKey}`, JSON.stringify({ cachedValue: itemValue, date: new Date() }))
   }
 }
