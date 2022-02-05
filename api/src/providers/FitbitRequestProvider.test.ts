@@ -244,3 +244,41 @@ test('makeFitbitRequest :: no cached value, no token, returns undefined', async 
 
   expect(result).toBeUndefined()
 })
+
+test('makeFitbitRequest :: error from fitbit, returns undefined', async () => {
+  const inputUserId = 'testUserId-123'
+  const inputUrl = '/our/fake/endpoint'
+  const inputAxios = sinon.createStubInstance(Axios)
+  const fitbitSettings = stubInterface<IFitbitSettings>()
+  fitbitSettings.rootApiUrl = 'http://www.mytotallyrealfitbiturl.com'
+  fitbitSettings.cacheExpiryMilliseconds = 1000
+  const serviceCache = sinon.createStubInstance(ServiceCache)
+  serviceCache.GetResponse.resolves(undefined)
+  const fakeAccessToken = 'acces-token-12345'
+  const fnGetFitbitToken = sinon.fake.resolves({ access_token: fakeAccessToken })
+  inputAxios.get.resolves({ status: 400, statusText: 'something', data: JSON.stringify({}) })
+
+  const result = await makeFitbitRequest<FakeData>(
+    inputUserId,
+    inputUrl,
+    inputAxios,
+    fitbitSettings,
+    serviceCache,
+    fnGetFitbitToken
+  )
+
+  const expectedServiceCacheRequestUrl = fitbitSettings.rootApiUrl + inputUrl
+
+  expect(serviceCache.GetResponse.calledOnce).toBeTruthy()
+  expect(serviceCache.GetResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl)).toBeTruthy()
+
+  expect(fnGetFitbitToken.calledOnce).toBeTruthy()
+  expect(fnGetFitbitToken.calledOnceWith(inputUserId)).toBeTruthy()
+
+  expect(inputAxios.get.calledOnce).toBeTruthy()
+  expect(inputAxios.get.calledOnceWith(expectedServiceCacheRequestUrl, { headers: { authorization: `Bearer ${fakeAccessToken}` } })).toBeTruthy()
+
+  expect(serviceCache.SaveResponse.notCalled).toBeTruthy()
+
+  expect(result).toBeUndefined()
+})
