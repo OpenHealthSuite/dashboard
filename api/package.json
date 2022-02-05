@@ -5,6 +5,7 @@
     "main": "dist/index.js",
     "scripts": {
         "test": "jest",
+        "test:watch": "jest --watch",
         "watch:ts": "npx tsc -w",
         "start:watch": "concurrently 'npm run watch:ts' 'nodemon -r dotenv/config dist/index.js'",
         "start": "node -r dotenv/config dist/index.js",

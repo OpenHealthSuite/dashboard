@@ -134,14 +134,15 @@ export async function makeFitbitRequest<T> (
   url: string,
   axios: Axios = AXIOS,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
-  serviceCache: ServiceCache = SERVICE_CACHE
+  serviceCache: ServiceCache = SERVICE_CACHE,
+  fnGetFitbitToken: (userId: string) => Promise<IFitbitTokenDetails | null> = getFitbitToken
 ): Promise<T> {
   const requestUrl = fitbitSettings.rootApiUrl + url
   const cachedValue = await serviceCache.GetResponse(userId, requestUrl)
-  if (cachedValue && cachedValue.serialisedResponse && new Date(cachedValue.date).getTime() > ((new Date()).getTime() - fitbitSettings.cacheExpiryMilliseconds)) {
+  if (cachedValue && new Date(cachedValue.date).getTime() > ((new Date()).getTime() - fitbitSettings.cacheExpiryMilliseconds)) {
     return JSON.parse(cachedValue.serialisedResponse) as T
   }
-  const token = await getFitbitToken(userId)
+  const token = await fnGetFitbitToken(userId)
   if (!token) { throw new Error('No Fitbit Token') }
   const fitbitResponse = await axios.get(requestUrl, {
     headers: {

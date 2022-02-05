@@ -3,9 +3,12 @@ import { stubInterface } from 'ts-sinon'
 import { Request, Response } from 'express'
 import {
   IFitbitSettings,
+  makeFitbitRequest,
   startAuthenticationFlow
 } from './FitbitRequestProvider'
 import { CodeChallenceCache } from '../caches/codeChallengeCache'
+import { Axios } from 'axios'
+import { ServiceCache } from '../caches/serviceCache'
 
 test('startAuthenticationFlow :: generates code, caches code, and returns authUrl', async () => {
   const testUserId = 'input-user-id-123'
@@ -46,4 +49,41 @@ test('startAuthenticationFlow :: generates code, caches code, and returns authUr
   expect(authUrl.searchParams.get('code_challenge')).toBe(expectedFitbitCodeChallengeString)
   expect(authUrl.searchParams.get('code_challenge_method')).toBe('S256')
   expect(authUrl.searchParams.get('scope')).toBe(expectedScopeParam)
+})
+
+interface FakeData {
+  somefield: string
+}
+
+test('makeFitbitRequest :: cached value, returns cached value does nothing else', async () => {
+  const inputUserId = 'testUserId-123'
+  const inputUrl = '/our/fake/endpoint'
+  const inputAxios = sinon.createStubInstance(Axios)
+  const fitbitSettings = stubInterface<IFitbitSettings>()
+  fitbitSettings.rootApiUrl = 'http://www.mytotallyrealfitbiturl.com'
+  fitbitSettings.cacheExpiryMilliseconds = 10000000000
+  const serviceCache = sinon.createStubInstance(ServiceCache)
+  const unserialisedValue = { somefield: 'blahblahblah' }
+  const returnedCacheValue = { serialisedResponse: JSON.stringify(unserialisedValue), date: new Date() }
+  serviceCache.GetResponse.resolves(returnedCacheValue)
+  const fnGetFitbitToken = sinon.fake.resolves({})
+
+  const result = await makeFitbitRequest<FakeData>(
+    inputUserId,
+    inputUrl,
+    inputAxios,
+    fitbitSettings,
+    serviceCache,
+    fnGetFitbitToken
+  )
+
+  const expectedServiceCacheRequestUrl = fitbitSettings.rootApiUrl + inputUrl
+
+  expect(serviceCache.GetResponse.firstCall.calledWith(inputUserId, expectedServiceCacheRequestUrl))
+    .toBeTruthy()
+  expect(serviceCache.GetResponse.calledOnce).toBeTruthy()
+  expect(fnGetFitbitToken.notCalled).toBeTruthy()
+  expect(inputAxios.get.notCalled).toBeTruthy()
+  expect(serviceCache.SaveResponse.notCalled).toBeTruthy()
+  expect(result).toMatchObject(unserialisedValue)
 })
