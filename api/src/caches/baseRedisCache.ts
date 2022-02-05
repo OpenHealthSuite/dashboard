@@ -13,9 +13,9 @@ export abstract class BaseRedisCache {
     this._redis = new IORedis(parseInt(process.env.REDIS_PORT ?? '6379'), process.env.REDIS_HOST ?? 'localhost')
   }
 
-  protected async BaseGetResponse (itemKey: string): Promise<IBaseCachedValue> {
+  protected async BaseGetResponse (itemKey: string): Promise<IBaseCachedValue | undefined> {
     const cachedValue = await this._redis.get(`${this._cacheKey}:${itemKey}`)
-    return cachedValue ? JSON.parse(cachedValue) : { serialisedResponse: '', date: new Date(1920, 12, 1) }
+    return cachedValue ? JSON.parse(cachedValue) : undefined
   }
 
   protected async BaseSaveResponse (itemKey: string, itemValue: string) {

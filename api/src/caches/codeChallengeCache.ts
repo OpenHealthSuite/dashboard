@@ -5,9 +5,9 @@ export class CodeChallenceCache extends BaseRedisCache {
     super('codechallengecache')
   }
 
-  async GetCode (userId: string): Promise<string> {
+  async GetCode (userId: string): Promise<string | undefined> {
     const cachedValue = await this.BaseGetResponse(userId)
-    return cachedValue.cachedValue
+    return cachedValue ? cachedValue.cachedValue : undefined
   }
 
   async SetCode (userId: string, code: string) {

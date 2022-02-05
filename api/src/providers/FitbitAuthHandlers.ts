@@ -54,18 +54,28 @@ export function addFitbitHandlers (app: Application) {
   app.post('/users/:userId/providers/fitbit/redeem', (req, res) => userRestrictedHandler(req, res, redeemCode))
 }
 
+function randomString (size: number): string {
+  return randomBytes(size).toString('hex')
+}
+
+function createsha256String (input: string) {
+  return createHash('sha256').update(input).digest('base64')
+}
+
 export function startAuthenticationFlow (
   userId: string,
   _req: Request,
   res: Response,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
-  codeChallengeCache: CodeChallenceCache = CODE_CHALLENGE_CACHE
+  codeChallengeCache: CodeChallenceCache = CODE_CHALLENGE_CACHE,
+  fnRandomString: (size: number) => string = randomString,
+  fnCreatesha256String: (input: string) => string = createsha256String
 ) {
-  const codeVerifier = randomBytes(60).toString('hex')
+  const codeVerifier = fnRandomString(60)
   codeChallengeCache.SetCode(userId, codeVerifier)
   // Apparently fitbit wants - instead of +?
   // https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/
-  const challengeHash = createHash('sha256').update(codeVerifier).digest('base64').replace('=', '').replace(/\+/g, '-')
+  const challengeHash = fnCreatesha256String(codeVerifier).replace('=', '').replace(/\+/g, '-')
   const authUrl = `https://www.fitbit.com/oauth2/authorize?client_id=${fitbitSettings.clientId}&response_type=code` +
   `&code_challenge=${challengeHash}&code_challenge_method=S256` +
   '&scope=weight%20location%20settings%20profile%20nutrition%20activity%20sleep' +

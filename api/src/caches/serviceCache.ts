@@ -10,9 +10,9 @@ export class ServiceCache extends BaseRedisCache {
     super('servicecache')
   }
 
-  async GetResponse (userId: string, url: string): Promise<ICachedResponse> {
+  async GetResponse (userId: string, url: string): Promise<ICachedResponse | undefined> {
     const cachedValue = await this.BaseGetResponse(`${userId}:${url}`)
-    return { serialisedResponse: cachedValue.cachedValue, date: cachedValue.date }
+    return cachedValue ? { serialisedResponse: cachedValue.cachedValue, date: cachedValue.date } : undefined
   }
 
   async SaveResponse (userId: string, url: string, serialisedResponse: string) {
