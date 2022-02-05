@@ -16,7 +16,7 @@ interface CaloriesStepsDailyTileProps {
 export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories, fnGetTodaysSteps = getTodaysSteps }: CaloriesStepsDailyTileProps) {
   const [stepCount, setStepCount] = useState<IStepCount>()
   const [calories, setCalories] = useState<ICalories>()
-  const refreshIntervalMilliseconds = 300000;
+  const refreshIntervalMilliseconds = 1000 * 60 * 5; // Every 5 minutes
   const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)

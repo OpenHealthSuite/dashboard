@@ -19,7 +19,8 @@ interface SleepDailyTileProps {
 
 export function SleepDailyTile({ fnGetDaySleep = getTodaySleep }: SleepDailyTileProps) {
   const [sleep, setSleep] = useState<ISleep>()
-  const refreshIntervalMilliseconds = 300000;
+  // TODO: This should be changed to refresh every day unless hasn't been reported - API needs updating first though
+  const refreshIntervalMilliseconds = 1000 * 60 * 60; // Every hour
   const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)

@@ -31,7 +31,7 @@ interface CaloriesGraphTileProps {
 
 export function CaloriesGraphTile({ fnGetDateRangeCalories = getDateRangeCalories }: CaloriesGraphTileProps) {
   const [caloriesArray, setCaloriesArray] = useState<IDatedCaloriesInOut[]>([])
-  const refreshIntervalMilliseconds = 300000;
+  const refreshIntervalMilliseconds = 1000 * 60 * 60; // Every hour
   const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)

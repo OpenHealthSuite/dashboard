@@ -32,7 +32,7 @@ interface StepsGraphTileProps {
 export function StepsGraphTile({ fnGetDateRangeSteps = getDateRangeSteps }: StepsGraphTileProps) {
   const [lastWeekSteps, setLastWeekSteps] = useState<IDatedSteps[]>([])
 
-  const refreshIntervalMilliseconds = 300000;
+  const refreshIntervalMilliseconds = 1000 * 60 * 60; // Every hour
   const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
