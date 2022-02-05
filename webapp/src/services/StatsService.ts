@@ -6,11 +6,11 @@ import {
 const activitiesRoot = '/activities'
 const sleepRoot = '/sleep'
 
-interface IStepCount {
+export interface IStepCount {
   count: number
 }
 
-interface ICalories {
+export interface ICalories {
   caloriesIn: number,
   caloriesOut: number
 }
