@@ -32,17 +32,37 @@ interface StepsGraphTileProps {
 export function StepsGraphTile({ fnGetDateRangeSteps = getDateRangeSteps }: StepsGraphTileProps) {
   const [lastWeekSteps, setLastWeekSteps] = useState<IDatedSteps[]>([])
 
+  const refreshIntervalMilliseconds = 300000;
+  const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+
   useEffect(() => {
-    const getSteps = async () => {
+    const getInitialCalories = async () => { 
       setLastWeekSteps(await fnGetDateRangeSteps(lastWeekDate, yesterDate))
+      setIsLoading(false)
     }
-    if (lastWeekSteps.length === 0) {
-      getSteps()
+    getInitialCalories()
+  }, [setLastWeekSteps, fnGetDateRangeSteps, setIsLoading])
+
+  useEffect(() => {
+    const getCalories = async () => {
+      setIsRefreshing(true)
+      setLastWeekSteps(await fnGetDateRangeSteps(lastWeekDate, yesterDate))
+      setIsRefreshing(false)
+      setRefreshRemaining(refreshIntervalMilliseconds)
     }
-  }, [lastWeekSteps.length, fnGetDateRangeSteps])
+    const timer = setTimeout(() => {
+      setRefreshRemaining(refreshRemaining - 500)
+      if (refreshRemaining < 0 && !isRefreshing) {
+        getCalories()
+      }
+    }, 500)
+    return () => clearTimeout(timer);
+  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setRefreshRemaining, setLastWeekSteps, fnGetDateRangeSteps])
 
   const totalSteps = lastWeekSteps.map(x => x.steps - 0).reduce((partial, a) => a + partial, 0)
-  return (<DashboardTile headerText='Last Week Steps' loading={lastWeekSteps.length === 0}>
+  return (<DashboardTile headerText='Last Week Steps' loading={isLoading} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
     <>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart
