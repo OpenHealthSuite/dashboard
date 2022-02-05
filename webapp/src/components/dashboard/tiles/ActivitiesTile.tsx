@@ -39,10 +39,10 @@ async function getNextActivities(): Promise<ITrainingPlanActivity[]> {
   return comingActivites.filter(x => dateDaysMatch(nextActivityDate, x.activityTime));
 }
 
-async function markActivityComplete(activity: ITrainingPlanActivity) {
+async function markActivityComplete(activity: ITrainingPlanActivity, refreshActivities: () => Promise<void>) {
   activity.complete = true;
   await editActivity(activity)
-  // TODO: Refresh activities
+  await refreshActivities()
 }
 
 interface IActivitiesTileProps {
@@ -60,13 +60,18 @@ export function ActivitiesTile({ fnGetNextActivities = getNextActivities }: IAct
     }
     getActivities()
   }, [setIsLoading, fnGetNextActivities, setPendingActivities])
+
+  const refreshActivities =  async () => {
+    setPendingActivities(await fnGetNextActivities())
+  }
+
   const content = pendingActivities.length === 0 ? <>No Activities Scheduled</> : pendingActivities.map((x, i) =>
     <div key={`pendact-${i}`}>
       <h2>{x.activityTime.toISOString().split('T')[0]}</h2>
       <h3>{x.name}</h3>
       <div>
         <Button component={Link} to={"/trainingplans/" + x.trainingPlanId + "/activities/" + x.id}>View</Button>
-        <Button disabled={!dayIsToday(x.activityTime)} onClick={async () => { await markActivityComplete(x) }}>Mark Complete</Button>
+        <Button disabled={!dayIsToday(x.activityTime)} onClick={async () => { await markActivityComplete(x, refreshActivities) }}>Mark Complete</Button>
       </div>
     </div>
   )
