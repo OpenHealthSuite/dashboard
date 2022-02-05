@@ -79,11 +79,92 @@ test('makeFitbitRequest :: cached value, returns cached value does nothing else'
 
   const expectedServiceCacheRequestUrl = fitbitSettings.rootApiUrl + inputUrl
 
-  expect(serviceCache.GetResponse.firstCall.calledWith(inputUserId, expectedServiceCacheRequestUrl))
-    .toBeTruthy()
   expect(serviceCache.GetResponse.calledOnce).toBeTruthy()
+  expect(serviceCache.GetResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl)).toBeTruthy()
+
   expect(fnGetFitbitToken.notCalled).toBeTruthy()
   expect(inputAxios.get.notCalled).toBeTruthy()
   expect(serviceCache.SaveResponse.notCalled).toBeTruthy()
+  expect(result).toMatchObject(unserialisedValue)
+})
+
+test('makeFitbitRequest :: no cached value, asks fitbit for value', async () => {
+  const inputUserId = 'testUserId-123'
+  const inputUrl = '/our/fake/endpoint'
+  const inputAxios = sinon.createStubInstance(Axios)
+  const fitbitSettings = stubInterface<IFitbitSettings>()
+  fitbitSettings.rootApiUrl = 'http://www.mytotallyrealfitbiturl.com'
+  fitbitSettings.cacheExpiryMilliseconds = 0
+  const serviceCache = sinon.createStubInstance(ServiceCache)
+  const unserialisedValue = { somefield: 'blahblahblah' }
+  serviceCache.GetResponse.resolves(undefined)
+  const fakeAccessToken = 'acces-token-12345'
+  const fnGetFitbitToken = sinon.fake.resolves({ access_token: fakeAccessToken })
+  inputAxios.get.resolves({ status: 200, data: JSON.stringify(unserialisedValue) })
+
+  const result = await makeFitbitRequest<FakeData>(
+    inputUserId,
+    inputUrl,
+    inputAxios,
+    fitbitSettings,
+    serviceCache,
+    fnGetFitbitToken
+  )
+
+  const expectedServiceCacheRequestUrl = fitbitSettings.rootApiUrl + inputUrl
+
+  expect(serviceCache.GetResponse.calledOnce).toBeTruthy()
+  expect(serviceCache.GetResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl)).toBeTruthy()
+
+  expect(fnGetFitbitToken.calledOnce).toBeTruthy()
+  expect(fnGetFitbitToken.calledOnceWith()).toBeTruthy()
+
+  expect(inputAxios.get.calledOnce).toBeTruthy()
+  expect(inputAxios.get.calledOnceWith(expectedServiceCacheRequestUrl, { headers: { authorization: `Bearer ${fakeAccessToken}` } })).toBeTruthy()
+
+  expect(serviceCache.SaveResponse.calledOnce).toBeTruthy()
+  expect(serviceCache.SaveResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl, JSON.stringify(unserialisedValue))).toBeTruthy()
+
+  expect(result).toMatchObject(unserialisedValue)
+})
+
+test('makeFitbitRequest :: outdated cached value, asks fitbit for value', async () => {
+  const inputUserId = 'testUserId-123'
+  const inputUrl = '/our/fake/endpoint'
+  const inputAxios = sinon.createStubInstance(Axios)
+  const fitbitSettings = stubInterface<IFitbitSettings>()
+  fitbitSettings.rootApiUrl = 'http://www.mytotallyrealfitbiturl.com'
+  fitbitSettings.cacheExpiryMilliseconds = 1000
+  const serviceCache = sinon.createStubInstance(ServiceCache)
+  const unserialisedValue = { somefield: 'blahblahblah' }
+  const returnedCacheValue = { serialisedResponse: JSON.stringify(unserialisedValue), date: new Date(1920, 12, 12) }
+  serviceCache.GetResponse.resolves(returnedCacheValue)
+  const fakeAccessToken = 'acces-token-12345'
+  const fnGetFitbitToken = sinon.fake.resolves({ access_token: fakeAccessToken })
+  inputAxios.get.resolves({ status: 200, data: JSON.stringify(unserialisedValue) })
+
+  const result = await makeFitbitRequest<FakeData>(
+    inputUserId,
+    inputUrl,
+    inputAxios,
+    fitbitSettings,
+    serviceCache,
+    fnGetFitbitToken
+  )
+
+  const expectedServiceCacheRequestUrl = fitbitSettings.rootApiUrl + inputUrl
+
+  expect(serviceCache.GetResponse.calledOnce).toBeTruthy()
+  expect(serviceCache.GetResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl)).toBeTruthy()
+
+  expect(fnGetFitbitToken.calledOnce).toBeTruthy()
+  expect(fnGetFitbitToken.calledOnceWith()).toBeTruthy()
+
+  expect(inputAxios.get.calledOnce).toBeTruthy()
+  expect(inputAxios.get.calledOnceWith(expectedServiceCacheRequestUrl, { headers: { authorization: `Bearer ${fakeAccessToken}` } })).toBeTruthy()
+
+  expect(serviceCache.SaveResponse.calledOnce).toBeTruthy()
+  expect(serviceCache.SaveResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl, JSON.stringify(unserialisedValue))).toBeTruthy()
+
   expect(result).toMatchObject(unserialisedValue)
 })
