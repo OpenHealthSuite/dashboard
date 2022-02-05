@@ -14,6 +14,7 @@ export interface IFitbitSettings {
   authUrl: string,
   tokenUrl: string,
   rootApiUrl: string,
+  neededScopes: string[],
   cacheExpiryMilliseconds: number
 }
 
@@ -23,6 +24,17 @@ const FITBIT_SETTINGS: IFitbitSettings = {
   authUrl: 'https://www.fitbit.com/oauth2/authorize',
   tokenUrl: 'https://api.fitbit.com/oauth2/token',
   rootApiUrl: 'https://api.fitbit.com',
+  neededScopes: [
+    'weight',
+    'location',
+    'settings',
+    'profile',
+    'nutrition',
+    'activity',
+    'sleep',
+    'heartrate',
+    'social'
+  ],
   cacheExpiryMilliseconds: 300000
 }
 
@@ -76,10 +88,9 @@ export function startAuthenticationFlow (
   // Apparently fitbit wants - instead of +?
   // https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/
   const challengeHash = fnCreatesha256String(codeVerifier).replace('=', '').replace(/\+/g, '-')
-  const authUrl = `https://www.fitbit.com/oauth2/authorize?client_id=${fitbitSettings.clientId}&response_type=code` +
+  const authUrl = `${fitbitSettings.authUrl}?client_id=${fitbitSettings.clientId}&response_type=code` +
   `&code_challenge=${challengeHash}&code_challenge_method=S256` +
-  '&scope=weight%20location%20settings%20profile%20nutrition%20activity%20sleep' +
-  '%20heartrate%20social'
+  `&scope=${fitbitSettings.neededScopes.join('%20')}`
   return res.send({ authUrl })
 }
 
