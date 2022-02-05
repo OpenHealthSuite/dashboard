@@ -16,16 +16,36 @@ interface CaloriesStepsDailyTileProps {
 export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories, fnGetTodaysSteps = getTodaysSteps }: CaloriesStepsDailyTileProps) {
   const [stepCount, setStepCount] = useState<IStepCount>()
   const [calories, setCalories] = useState<ICalories>()
+  const refreshIntervalMilliseconds = 300000;
+  const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const getValues = async () => {
       setCalories(await fnGetTodayCalories())
       setStepCount(await fnGetTodaysSteps())
+      setIsLoading(false)
     }
-    if (!stepCount && !calories) {
-      getValues()
+    getValues()
+  }, [fnGetTodaysSteps, fnGetTodayCalories, setIsLoading])
+
+  useEffect(() => {
+    const getCalories = async () => {
+      setIsRefreshing(true)
+      setCalories(await fnGetTodayCalories())
+      setStepCount(await fnGetTodaysSteps())
+      setIsRefreshing(false)
     }
-  }, [stepCount, fnGetTodaysSteps, calories, fnGetTodayCalories])
+    const timer = setTimeout(() => {
+      setRefreshRemaining(refreshRemaining - 500)
+      if (refreshRemaining < 0 && !isRefreshing) {
+        getCalories()
+      }
+    }, 500)
+    return () => clearTimeout(timer);
+  }, [isRefreshing, refreshRemaining, setRefreshRemaining, setCalories, fnGetTodayCalories, setStepCount, fnGetTodaysSteps])
+
 
   let content;
   if (calories && stepCount) {
@@ -39,7 +59,7 @@ export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories,
     </div>
   }
 
-  return (<DashboardTile headerText='Today' loading={!stepCount || !calories}>
+  return (<DashboardTile headerText='Today' loading={isLoading} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
     {content}
   </DashboardTile>)
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 import { getDateRangeCalories, IDatedCaloriesInOut } from '../../../services/StatsService'
@@ -34,11 +34,15 @@ export function CaloriesGraphTile({ fnGetDateRangeCalories = getDateRangeCalorie
   const refreshIntervalMilliseconds = 300000;
   const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const getInitialCalories = async () => { setCaloriesArray(await fnGetDateRangeCalories(lastWeekDate, yesterDate)) }
+    const getInitialCalories = async () => { 
+      setCaloriesArray(await fnGetDateRangeCalories(lastWeekDate, yesterDate))
+      setIsLoading(false)
+    }
     getInitialCalories()
-  }, [setCaloriesArray, fnGetDateRangeCalories])
+  }, [setCaloriesArray, fnGetDateRangeCalories, setIsLoading])
 
   useEffect(() => {
     const getCalories = async () => {
@@ -59,7 +63,7 @@ export function CaloriesGraphTile({ fnGetDateRangeCalories = getDateRangeCalorie
   const caloriesOutTotal = caloriesArray.map(x => x.caloriesOut - 0).reduce((partial, a) => a + partial, 0)
   const caloriesDelta = caloriesInTotal - caloriesOutTotal
   const caloriesString = `In: ${caloriesInTotal.toLocaleString()}  |  Out: ${caloriesOutTotal.toLocaleString()}  |  Delta: ${caloriesDelta.toLocaleString()}`
-  return (<DashboardTile headerText='Last Week Calories' loading={caloriesArray.length === 0} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
+  return (<DashboardTile headerText='Last Week Calories' loading={isLoading} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
     <>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart
