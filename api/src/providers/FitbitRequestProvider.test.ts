@@ -117,7 +117,7 @@ test('makeFitbitRequest :: no cached value, asks fitbit for value', async () => 
   expect(serviceCache.GetResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl)).toBeTruthy()
 
   expect(fnGetFitbitToken.calledOnce).toBeTruthy()
-  expect(fnGetFitbitToken.calledOnceWith()).toBeTruthy()
+  expect(fnGetFitbitToken.calledOnceWith(inputUserId)).toBeTruthy()
 
   expect(inputAxios.get.calledOnce).toBeTruthy()
   expect(inputAxios.get.calledOnceWith(expectedServiceCacheRequestUrl, { headers: { authorization: `Bearer ${fakeAccessToken}` } })).toBeTruthy()
@@ -158,7 +158,7 @@ test('makeFitbitRequest :: outdated cached value, asks fitbit for value', async 
   expect(serviceCache.GetResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl)).toBeTruthy()
 
   expect(fnGetFitbitToken.calledOnce).toBeTruthy()
-  expect(fnGetFitbitToken.calledOnceWith()).toBeTruthy()
+  expect(fnGetFitbitToken.calledOnceWith(inputUserId)).toBeTruthy()
 
   expect(inputAxios.get.calledOnce).toBeTruthy()
   expect(inputAxios.get.calledOnceWith(expectedServiceCacheRequestUrl, { headers: { authorization: `Bearer ${fakeAccessToken}` } })).toBeTruthy()
@@ -199,7 +199,7 @@ test('makeFitbitRequest :: outdated cached value, asks fitbit for value', async 
   expect(serviceCache.GetResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl)).toBeTruthy()
 
   expect(fnGetFitbitToken.calledOnce).toBeTruthy()
-  expect(fnGetFitbitToken.calledOnceWith()).toBeTruthy()
+  expect(fnGetFitbitToken.calledOnceWith(inputUserId)).toBeTruthy()
 
   expect(inputAxios.get.calledOnce).toBeTruthy()
   expect(inputAxios.get.calledOnceWith(expectedServiceCacheRequestUrl, { headers: { authorization: `Bearer ${fakeAccessToken}` } })).toBeTruthy()
@@ -208,4 +208,39 @@ test('makeFitbitRequest :: outdated cached value, asks fitbit for value', async 
   expect(serviceCache.SaveResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl, JSON.stringify(unserialisedValue))).toBeTruthy()
 
   expect(result).toMatchObject(unserialisedValue)
+})
+
+test('makeFitbitRequest :: no cached value, no token, returns undefined', async () => {
+  const inputUserId = 'testUserId-123'
+  const inputUrl = '/our/fake/endpoint'
+  const inputAxios = sinon.createStubInstance(Axios)
+  const fitbitSettings = stubInterface<IFitbitSettings>()
+  fitbitSettings.rootApiUrl = 'http://www.mytotallyrealfitbiturl.com'
+  fitbitSettings.cacheExpiryMilliseconds = 1000
+  const serviceCache = sinon.createStubInstance(ServiceCache)
+  serviceCache.GetResponse.resolves(undefined)
+  const fnGetFitbitToken = sinon.fake.resolves(undefined)
+
+  const result = await makeFitbitRequest<FakeData>(
+    inputUserId,
+    inputUrl,
+    inputAxios,
+    fitbitSettings,
+    serviceCache,
+    fnGetFitbitToken
+  )
+
+  const expectedServiceCacheRequestUrl = fitbitSettings.rootApiUrl + inputUrl
+
+  expect(serviceCache.GetResponse.calledOnce).toBeTruthy()
+  expect(serviceCache.GetResponse.calledOnceWith(inputUserId, expectedServiceCacheRequestUrl)).toBeTruthy()
+
+  expect(fnGetFitbitToken.calledOnce).toBeTruthy()
+  expect(fnGetFitbitToken.calledOnceWith(inputUserId)).toBeTruthy()
+
+  expect(inputAxios.get.notCalled).toBeTruthy()
+
+  expect(serviceCache.SaveResponse.notCalled).toBeTruthy()
+
+  expect(result).toBeUndefined()
 })
