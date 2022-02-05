@@ -31,35 +31,36 @@ interface StepsGraphTileProps {
 
 export function StepsGraphTile({ fnGetDateRangeSteps = getDateRangeSteps }: StepsGraphTileProps) {
   const [lastWeekSteps, setLastWeekSteps] = useState<IDatedSteps[]>([])
-  
+
   useEffect(() => {
     const getSteps = async () => {
       setLastWeekSteps(await fnGetDateRangeSteps(lastWeekDate, yesterDate))
     }
-    if(lastWeekSteps.length === 0) {
+    if (lastWeekSteps.length === 0) {
       getSteps()
     }
   }, [lastWeekSteps.length, fnGetDateRangeSteps])
-  
-  const totalSteps= lastWeekSteps.map(x => x.steps - 0).reduce((partial, a) => a + partial, 0)
+
+  const totalSteps = lastWeekSteps.map(x => x.steps - 0).reduce((partial, a) => a + partial, 0)
   return (<DashboardTile headerText='Last Week Steps' loading={lastWeekSteps.length === 0}>
-      <>
-          <ResponsiveContainer width="100%" height={250}>
-              <BarChart
-                  
-                  data={lastWeekSteps.map(x => { 
-                      return { 
-                          dateLabel: dayLabels[new Date(x.date).getDay()],
-                          steps: x.steps
-                      }})}
-                  margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-                  >
-                  <XAxis dataKey="dateLabel"/>
-                  <YAxis orientation="right"/>
-                  <Bar type="monotone" dataKey="steps" fill={colors.steps} yAxisId={0} />
-              </BarChart>
-          </ResponsiveContainer>
-          <p style={{textAlign:"center"}}>{totalSteps.toLocaleString()} Total Steps | {Math.floor(totalSteps / lastWeekSteps.length).toLocaleString()} Avg.</p>
-      </>
+    <>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart
+
+          data={lastWeekSteps.map(x => {
+            return {
+              dateLabel: dayLabels[new Date(x.date).getDay()],
+              steps: x.steps
+            }
+          })}
+          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        >
+          <XAxis dataKey="dateLabel" />
+          <YAxis orientation="right" />
+          <Bar type="monotone" dataKey="steps" fill={colors.steps} yAxisId={0} />
+        </BarChart>
+      </ResponsiveContainer>
+      <p style={{ textAlign: "center" }}>{totalSteps.toLocaleString()} Total Steps | {Math.floor(totalSteps / lastWeekSteps.length).toLocaleString()} Avg.</p>
+    </>
   </DashboardTile>)
 }

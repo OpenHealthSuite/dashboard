@@ -9,19 +9,19 @@ import Grid from '@mui/material/Grid';
 export default function ActivityDashboard() {
     return (<Grid container spacing={2}>
         <Grid item xs={4}>
-            <ActivitiesTile/>
+            <ActivitiesTile />
         </Grid>
         <Grid item xs={4}>
-            <CaloriesStepsDailyTile/>
+            <CaloriesStepsDailyTile />
         </Grid>
         <Grid item xs={4}>
-            <SleepDailyTile/>
+            <SleepDailyTile />
         </Grid>
         <Grid item xs={4}>
-            <StepsGraphTile/>
+            <StepsGraphTile />
         </Grid>
         <Grid item xs={4}>
-            <CaloriesGraphTile/>
+            <CaloriesGraphTile />
         </Grid>
     </Grid>
     )

@@ -28,12 +28,12 @@ function dayIsTodayOrLater(date: Date): boolean {
 async function getNextActivities(): Promise<ITrainingPlanActivity[]> {
   const plans = (await getUserPlans()).filter(x => x.active)
   const allActivePlanActivities = (await Promise.all(plans.map(async p => await getActivities(p.id)))).flat()
-  if ( allActivePlanActivities.length === 0 ) { 
-      return [] 
+  if (allActivePlanActivities.length === 0) {
+    return []
   }
   const comingActivites = allActivePlanActivities.filter(x => !x.complete && dayIsTodayOrLater(x.activityTime))
-  if ( comingActivites.length === 0 ) { 
-      return [] 
+  if (comingActivites.length === 0) {
+    return []
   }
   const nextActivityDate = comingActivites.sort((a, b) => new Date(a.activityTime).getTime() - new Date(b.activityTime).getTime())[0].activityTime
   return comingActivites.filter(x => dateDaysMatch(nextActivityDate, x.activityTime));
@@ -49,28 +49,28 @@ interface IActivitiesTileProps {
   fnGetNextActivities?: () => Promise<ITrainingPlanActivity[]>
 }
 
-export function ActivitiesTile({ fnGetNextActivities = getNextActivities }: IActivitiesTileProps){
+export function ActivitiesTile({ fnGetNextActivities = getNextActivities }: IActivitiesTileProps) {
   const [pendingActivities, setPendingActivities] = useState<ITrainingPlanActivity[]>([])
-  
+
   useEffect(() => {
     const getSteps = async () => {
       setPendingActivities(await fnGetNextActivities())
     }
-    if(pendingActivities.length === 0) {
+    if (pendingActivities.length === 0) {
       getSteps()
     }
   }, [pendingActivities.length, fnGetNextActivities])
-  
-                    return (<DashboardTile headerText='Activities' loading={pendingActivities.length === 0}>
-                    {pendingActivities.map((x, i) => 
-                        <div key={`pendact-${i}`}>
-                            <h2>{x.activityTime.toISOString().split('T')[0]}</h2>
-                            <h3>{x.name}</h3>
-                            <div>
-                                <Button component={Link} to={"/trainingplans/"+x.trainingPlanId+"/activities/"+x.id}>View</Button>
-                                <Button disabled={!dayIsToday(x.activityTime)} onClick={async () => { await markActivityComplete(x) }}>Mark Complete</Button>
-                            </div>
-                        </div>
-                    )}
-                    </DashboardTile>)
+
+  return (<DashboardTile headerText='Activities' loading={pendingActivities.length === 0}>
+    {pendingActivities.map((x, i) =>
+      <div key={`pendact-${i}`}>
+        <h2>{x.activityTime.toISOString().split('T')[0]}</h2>
+        <h3>{x.name}</h3>
+        <div>
+          <Button component={Link} to={"/trainingplans/" + x.trainingPlanId + "/activities/" + x.id}>View</Button>
+          <Button disabled={!dayIsToday(x.activityTime)} onClick={async () => { await markActivityComplete(x) }}>Mark Complete</Button>
+        </div>
+      </div>
+    )}
+  </DashboardTile>)
 }

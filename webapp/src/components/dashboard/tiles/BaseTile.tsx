@@ -9,13 +9,14 @@ interface IDashboardTileProps {
 }
 
 export function DashboardTile({ headerText, children, loading = false }: IDashboardTileProps) {
-  const cardHeader = headerText ? <CardHeader title={headerText}/> : null
+  const cardHeader = headerText ? <CardHeader title={headerText} /> : null
   return (<Card>
-        {cardHeader}
-        <CardContent>
-          <LoadingIndicator loading={loading}>
-              {children}
-          </LoadingIndicator>
-        </CardContent>
+    {cardHeader}
+    <CardContent>
+      <LoadingIndicator loading={loading}>
+        {children}
+      </LoadingIndicator>
+    </CardContent>
+
   </Card>)
 }
