@@ -128,10 +128,8 @@ export async function makeFitbitRequest<T> (
   const requestUrl = fitbitSettings.rootApiUrl + url
   const cachedValue = await serviceCache.GetResponse(userId, requestUrl)
   if (cachedValue && cachedValue.serialisedResponse && new Date(cachedValue.date).getTime() > ((new Date()).getTime() - fitbitSettings.cacheExpiryMilliseconds)) {
-    console.log('cachehit')
     return JSON.parse(cachedValue.serialisedResponse) as T
   }
-  console.log('cachemiss')
   const token = await getFitbitToken(userId)
   if (!token) { throw new Error('No Fitbit Token') }
   const fitbitResponse = await axios.get(requestUrl, {
