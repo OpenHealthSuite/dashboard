@@ -4,7 +4,7 @@ import { Request, Response } from 'express'
 import {
   IFitbitSettings,
   startAuthenticationFlow
-} from './FitbitAuthHandlers'
+} from './FitbitRequestProvider'
 import { CodeChallenceCache } from '../caches/codeChallengeCache'
 
 test('startAuthenticationFlow :: generates code, caches code, and returns authUrl', async () => {

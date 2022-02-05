@@ -1,4 +1,4 @@
-import { makeFitbitRequest } from './FitbitAuthHandlers'
+import { makeFitbitRequest } from './FitbitRequestProvider'
 
 interface IStepCount {
   count: number

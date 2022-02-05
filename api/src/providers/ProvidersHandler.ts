@@ -1,5 +1,5 @@
 import { Application, Request, Response } from 'express'
-import { getFitbitToken } from './FitbitAuthHandlers'
+import { getFitbitToken } from './FitbitRequestProvider'
 import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
 
 interface IProviderStatus {

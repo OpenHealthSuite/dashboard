@@ -4,7 +4,7 @@ import { addTrainingPlanActivityHandlers } from './handlers/trainingPlanActivity
 import { addTrainingPlanHandlers } from './handlers/trainingPlanHandlers'
 import CognitoExpress from 'cognito-express'
 import { addProviderRoutes } from './providers/ProvidersHandler'
-import { addFitbitHandlers } from './providers/FitbitAuthHandlers'
+import { addFitbitHandlers } from './providers/FitbitRequestProvider'
 import { addStepHandlers } from './handlers/stepsHandlers'
 import { addCaloriesHandlers } from './handlers/caloriesHandlers'
 import { addSleepHandlers } from './handlers/sleepHandlers'

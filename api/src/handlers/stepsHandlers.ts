@@ -1,6 +1,6 @@
 import { Application, Request, Response } from 'express'
 import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
-import { getFitbitToken } from '../providers/FitbitAuthHandlers'
+import { getFitbitToken } from '../providers/FitbitRequestProvider'
 import { dailyStepsProvider, dateRangeStepProvider } from '../providers/FitbitStatProvider'
 
 export function addStepHandlers (app: Application) {
