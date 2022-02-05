@@ -49,10 +49,11 @@ interface IActivitiesTileProps {
   fnGetNextActivities?: () => Promise<ITrainingPlanActivity[]>
 }
 
+// No timer hookup for this tile - this should probably be our first websocket tile
 export function ActivitiesTile({ fnGetNextActivities = getNextActivities }: IActivitiesTileProps) {
   const [pendingActivities, setPendingActivities] = useState<ITrainingPlanActivity[]>([])
   const [isLoading, setIsLoading] = useState(true)
-
+  const [lastLoadDay, setLastLoadDay] = useState((new Date()).getDay())
   useEffect(() => {
     const getActivities = async () => {
       setPendingActivities(await fnGetNextActivities())
@@ -60,6 +61,17 @@ export function ActivitiesTile({ fnGetNextActivities = getNextActivities }: IAct
     }
     getActivities()
   }, [setIsLoading, fnGetNextActivities, setPendingActivities])
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      const currentDay = (new Date()).getDay()
+      if (currentDay !== lastLoadDay) {
+        setLastLoadDay(currentDay)
+        setPendingActivities(await fnGetNextActivities())
+      }
+    }, 30000)
+    return () => clearTimeout(timer);
+  }, [lastLoadDay, setLastLoadDay, fnGetNextActivities])
 
   const refreshActivities =  async () => {
     setPendingActivities(await fnGetNextActivities())
