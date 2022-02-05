@@ -136,14 +136,14 @@ export async function makeFitbitRequest<T> (
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
   serviceCache: ServiceCache = SERVICE_CACHE,
   fnGetFitbitToken: (userId: string) => Promise<IFitbitTokenDetails | null> = getFitbitToken
-): Promise<T> {
+): Promise<T | undefined> {
   const requestUrl = fitbitSettings.rootApiUrl + url
   const cachedValue = await serviceCache.GetResponse(userId, requestUrl)
   if (cachedValue && new Date(cachedValue.date).getTime() > ((new Date()).getTime() - fitbitSettings.cacheExpiryMilliseconds)) {
     return JSON.parse(cachedValue.serialisedResponse) as T
   }
   const token = await fnGetFitbitToken(userId)
-  if (!token) { throw new Error('No Fitbit Token') }
+  if (!token) { return undefined }
   const fitbitResponse = await axios.get(requestUrl, {
     headers: {
       authorization: `Bearer ${token.access_token}`
@@ -153,7 +153,7 @@ export async function makeFitbitRequest<T> (
     console.error('ErrorStatusFromFitbit', fitbitResponse.status)
     console.error('ErrorStatusTextFromFitbit', fitbitResponse.statusText)
     console.error('ErrorResponseFromFitbit', fitbitResponse.data)
-    throw new Error('Error from FitBit')
+    return undefined
   }
   serviceCache.SaveResponse(userId, requestUrl, fitbitResponse.data)
   return JSON.parse(fitbitResponse.data) as T

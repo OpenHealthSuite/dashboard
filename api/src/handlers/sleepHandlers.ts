@@ -16,5 +16,5 @@ const getUserSleepStats = async (userId: string, req: Request, res: Response) =>
 
   const steps = await dailySleepProvider(userId, new Date(date))
 
-  return res.send(steps)
+  return res.status(!steps ? 404 : 200).send(steps)
 }

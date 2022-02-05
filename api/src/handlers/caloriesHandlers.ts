@@ -17,7 +17,7 @@ const getUserCalories = async (userId: string, req: Request, res: Response) => {
 
   const calories = await dailyCaloriesProvider(userId, new Date(date))
 
-  return res.send(calories)
+  return res.status(!calories ? 404 : 200).send(calories)
 }
 
 const getUserCaloriesDateRange = async (userId: string, req: Request, res: Response) => {
@@ -29,5 +29,5 @@ const getUserCaloriesDateRange = async (userId: string, req: Request, res: Respo
 
   const caloriesInOut = await dateRangeCaloriesInOutProvider(userId, new Date(dateStart), new Date(dateEnd))
 
-  return res.send(caloriesInOut)
+  return res.status(!caloriesInOut ? 404 : 200).send(caloriesInOut)
 }

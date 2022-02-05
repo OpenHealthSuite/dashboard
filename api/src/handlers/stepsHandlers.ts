@@ -17,7 +17,7 @@ const getUserSteps = async (userId: string, req: Request, res: Response) => {
 
   const steps = await dailyStepsProvider(userId, new Date(date))
 
-  return res.send(steps)
+  return res.status(!steps ? 404 : 200).send(steps)
 }
 
 const getUserStepsRange = async (userId: string, req: Request, res: Response) => {
@@ -29,5 +29,5 @@ const getUserStepsRange = async (userId: string, req: Request, res: Response) =>
 
   const steps = await dateRangeStepProvider(userId, new Date(dateStart), new Date(dateEnd))
 
-  return res.send(steps)
+  return res.status(!steps ? 404 : 200).send(steps)
 }
