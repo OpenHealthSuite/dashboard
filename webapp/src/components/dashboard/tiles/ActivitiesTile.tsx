@@ -51,26 +51,26 @@ interface IActivitiesTileProps {
 
 export function ActivitiesTile({ fnGetNextActivities = getNextActivities }: IActivitiesTileProps) {
   const [pendingActivities, setPendingActivities] = useState<ITrainingPlanActivity[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const getSteps = async () => {
+    const getActivities = async () => {
       setPendingActivities(await fnGetNextActivities())
+      setIsLoading(false)
     }
-    if (pendingActivities.length === 0) {
-      getSteps()
-    }
-  }, [pendingActivities.length, fnGetNextActivities])
-
-  return (<DashboardTile headerText='Activities' loading={pendingActivities.length === 0}>
-    {pendingActivities.map((x, i) =>
-      <div key={`pendact-${i}`}>
-        <h2>{x.activityTime.toISOString().split('T')[0]}</h2>
-        <h3>{x.name}</h3>
-        <div>
-          <Button component={Link} to={"/trainingplans/" + x.trainingPlanId + "/activities/" + x.id}>View</Button>
-          <Button disabled={!dayIsToday(x.activityTime)} onClick={async () => { await markActivityComplete(x) }}>Mark Complete</Button>
-        </div>
+    getActivities()
+  }, [setIsLoading, fnGetNextActivities, setPendingActivities])
+  const content = pendingActivities.length === 0 ? <>No Activities Scheduled</> : pendingActivities.map((x, i) =>
+    <div key={`pendact-${i}`}>
+      <h2>{x.activityTime.toISOString().split('T')[0]}</h2>
+      <h3>{x.name}</h3>
+      <div>
+        <Button component={Link} to={"/trainingplans/" + x.trainingPlanId + "/activities/" + x.id}>View</Button>
+        <Button disabled={!dayIsToday(x.activityTime)} onClick={async () => { await markActivityComplete(x) }}>Mark Complete</Button>
       </div>
-    )}
+    </div>
+  )
+  return (<DashboardTile headerText='Activities' loading={isLoading}>
+    {content}
   </DashboardTile>)
 }
