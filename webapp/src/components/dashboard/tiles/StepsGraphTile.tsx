@@ -20,35 +20,51 @@ const colors = {
   steps: "#44C"
 }
 
-const yesterDate = new Date()
-yesterDate.setDate(yesterDate.getDate() - 1)
-const lastWeekDate = new Date()
-lastWeekDate.setDate(lastWeekDate.getDate() - 7)
-
 interface StepsGraphTileProps {
-  fnGetDateRangeSteps?: (startDate: Date, endDate: Date) => Promise<IDatedSteps[]>
+  fnGetDateRangeSteps?: (startDate: Date, endDate: Date) => Promise<IDatedSteps[] | undefined>
 }
 
 export function StepsGraphTile({ fnGetDateRangeSteps = getDateRangeSteps }: StepsGraphTileProps) {
   const [lastWeekSteps, setLastWeekSteps] = useState<IDatedSteps[]>([])
-
+  
   const refreshIntervalMilliseconds = 1000 * 60 * 60; // Every hour
   const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isErrored, setIsErrored] = useState<boolean>(false)
 
   useEffect(() => {
     const getInitialCalories = async () => { 
-      setLastWeekSteps(await fnGetDateRangeSteps(lastWeekDate, yesterDate))
+      const yesterDate = new Date()
+      yesterDate.setDate(yesterDate.getDate() - 1)
+      const lastWeekDate = new Date()
+      lastWeekDate.setDate(lastWeekDate.getDate() - 7)
+      const steps = await fnGetDateRangeSteps(lastWeekDate, yesterDate)
+      if (steps === undefined) {
+        setIsErrored(true)
+      } else {
+        setLastWeekSteps(steps)
+        setIsErrored(false)
+      }
       setIsLoading(false)
     }
     getInitialCalories()
-  }, [setLastWeekSteps, fnGetDateRangeSteps, setIsLoading])
+  }, [setLastWeekSteps, fnGetDateRangeSteps, setIsErrored, setIsLoading])
 
   useEffect(() => {
     const getCalories = async () => {
+      const yesterDate = new Date()
+      yesterDate.setDate(yesterDate.getDate() - 1)
+      const lastWeekDate = new Date()
+      lastWeekDate.setDate(lastWeekDate.getDate() - 7)
       setIsRefreshing(true)
-      setLastWeekSteps(await fnGetDateRangeSteps(lastWeekDate, yesterDate))
+      const steps = await fnGetDateRangeSteps(lastWeekDate, yesterDate)
+      if (steps === undefined) {
+        setIsErrored(true)
+      } else {
+        setLastWeekSteps(steps)
+        setIsErrored(false)
+      }
       setIsRefreshing(false)
       setRefreshRemaining(refreshIntervalMilliseconds)
     }
@@ -59,10 +75,10 @@ export function StepsGraphTile({ fnGetDateRangeSteps = getDateRangeSteps }: Step
       }
     }, 500)
     return () => clearTimeout(timer);
-  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setRefreshRemaining, setLastWeekSteps, fnGetDateRangeSteps])
+  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setIsErrored, setRefreshRemaining, setLastWeekSteps, fnGetDateRangeSteps])
 
   const totalSteps = lastWeekSteps.map(x => x.steps - 0).reduce((partial, a) => a + partial, 0)
-  return (<DashboardTile headerText='Last Week Steps' loading={isLoading} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
+  return (<DashboardTile headerText='Last Week Steps' loading={isLoading} errored={isErrored} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
     <>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart

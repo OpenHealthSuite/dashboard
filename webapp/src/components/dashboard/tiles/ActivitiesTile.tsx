@@ -26,8 +26,12 @@ function dayIsTodayOrLater(date: Date): boolean {
 }
 
 async function getNextActivities(): Promise<ITrainingPlanActivity[]> {
-  const plans = (await getUserPlans()).filter(x => x.active)
-  const allActivePlanActivities = (await Promise.all(plans.map(async p => await getActivities(p.id)))).flat()
+  const allPlans = await getUserPlans()
+  if (allPlans === undefined) {
+    return []
+  }
+  const plans = allPlans.filter(x => x.active)
+  const allActivePlanActivities = (await Promise.all(plans.map(async p => await getActivities(p.id)))).flat().filter(x => x !== undefined) as ITrainingPlanActivity[]
   if (allActivePlanActivities.length === 0) {
     return []
   }

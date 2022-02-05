@@ -70,11 +70,17 @@ export default class TrainingPlanActivityBrowser extends React.Component<IProps,
     }
 
     async getUsersTrainingPlan(){
-        this.setState({plan: await getPlan(this.props.trainingPlanId)});
+        const plan = await getPlan(this.props.trainingPlanId)
+        if (plan === undefined) {
+          // TODO: Add a toast saying something has gone wrong
+          window.location.href = '/'
+        } else {
+          this.setState({plan: plan});
+        }
     }
   
     async getUsersTrainingPlanActivites(){
-        this.setState({existing: await getActivities(this.props.trainingPlanId)});
+        this.setState({existing: (await getActivities(this.props.trainingPlanId)) || [] });
     }
   
   

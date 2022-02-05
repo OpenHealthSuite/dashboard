@@ -11,7 +11,7 @@ export interface IProviderStatus {
     authenticated: boolean
 }
 
-export async function getProviderStatuses(): Promise<IProviderStatus[]> {
+export async function getProviderStatuses(): Promise<IProviderStatus[] | undefined> {
     return await pacemeGetRequest<IProviderStatus[]>([providersRoot].join('/'))
 }
 

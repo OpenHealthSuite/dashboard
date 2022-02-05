@@ -54,7 +54,8 @@ function SettingsChild() {
 
     const getStatuses = async () => {
         setLoading(false)
-        setStatuses(await getProviderStatuses())
+        // TODO: Graceful error handling with toast
+        setStatuses((await getProviderStatuses()) || [])
     }
 
     useEffect(() => {

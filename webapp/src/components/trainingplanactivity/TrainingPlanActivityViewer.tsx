@@ -215,10 +215,16 @@ class TrainingPlanActivityViewer extends React.Component<ITrainingPlanActivityVi
   }
 
   async getStateActivity() {
-    this.setState({
-      activityViewing: await getActivity(this.props.trainingPlanId, this.props.trainingPlanActivityId),
-      activityLoaded: true
-    });
+    const activity = await getActivity(this.props.trainingPlanId, this.props.trainingPlanActivityId)
+    if (activity === undefined) {
+      // TODO: Add a toast saying something has gone wrong
+      window.location.href = '/'
+    } else {
+      this.setState({
+        activityViewing: activity,
+        activityLoaded: true
+      });
+    }
   }
 
   async handleDeleteTrainingPlanActivity() {

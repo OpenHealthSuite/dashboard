@@ -54,7 +54,7 @@ export default class TrainingPlanGrid extends React.Component<IProps, IState> {
     }
   
     async getUsersTrainingPlans(){
-        this.setState({existing: await getUserPlans()});
+        this.setState({existing: (await getUserPlans()) || []});
     }
   
     render() {

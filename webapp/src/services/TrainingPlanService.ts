@@ -8,11 +8,11 @@ import {
 
 const trainingPlanRoot = '/trainingplans'
 
-export async function getPlan(planId: string): Promise<ITrainingPlan> {
+export async function getPlan(planId: string): Promise<ITrainingPlan | undefined> {
     return await pacemeGetRequest<ITrainingPlan>([trainingPlanRoot, planId].join('/'))
 }
 
-export async function getUserPlans(): Promise<ITrainingPlan[]> {
+export async function getUserPlans(): Promise<ITrainingPlan[] | undefined> {
     return await pacemeGetRequest<ITrainingPlan[]>(trainingPlanRoot)
 }
 

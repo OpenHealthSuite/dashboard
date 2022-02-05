@@ -16,12 +16,20 @@ function parseDate(activity: ITrainingPlanActivity) : ITrainingPlanActivity {
     return activity
 }
 
-export async function getActivity(planId: string, activityId: string): Promise<ITrainingPlanActivity> {
-    return parseDate(await pacemeGetRequest<ITrainingPlanActivity>([trainingPlanRoot, planId, activitySlug, activityId].join('/')))
+export async function getActivity(planId: string, activityId: string): Promise<ITrainingPlanActivity | undefined> {
+    const response = await pacemeGetRequest<ITrainingPlanActivity>([trainingPlanRoot, planId, activitySlug, activityId].join('/'))
+    if (response === undefined) {
+        return undefined
+    }
+    return parseDate(response)
 }
 
-export async function getActivities(planId: string): Promise<ITrainingPlanActivity[]> {
-    return (await pacemeGetRequest<ITrainingPlanActivity[]>([trainingPlanRoot, planId, activitySlug].join('/'))).map(parseDate)
+export async function getActivities(planId: string): Promise<ITrainingPlanActivity[] | undefined> {
+    const response = await pacemeGetRequest<ITrainingPlanActivity[]>([trainingPlanRoot, planId, activitySlug].join('/'))
+    if (response === undefined) {
+        return undefined
+    }
+    return response.map(parseDate)
 }
 
 export async function createNewActivity(planId: string, newActivity: ITrainingPlanActivity): Promise<string> {

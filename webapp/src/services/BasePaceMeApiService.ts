@@ -9,7 +9,7 @@ async function getAuthDetails(): Promise<{ userId: string, authHeader: string }>
 // This might need to be moved to parents soon, but this'll do for now.
 const usersRoot = '/users/'
 
-export async function pacemeGetRequest<T>(path: string): Promise<T> {
+export async function pacemeGetRequest<T>(path: string): Promise<T | undefined> {
     const authDetails = await getAuthDetails()
     const response = await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
         method: "GET",
@@ -18,7 +18,8 @@ export async function pacemeGetRequest<T>(path: string): Promise<T> {
             "Content-Type": "application/json"
         }
     })
-    return await response.json() as T
+
+    return response.status === 200 ? await response.json() as T : undefined
 }
 
 export async function pacemePostRequest<T, R>(path: string, item: T): Promise<R> {

@@ -9,8 +9,8 @@ const colors = {
 }
 
 interface CaloriesStepsDailyTileProps {
-  fnGetTodaysSteps?: () => Promise<IStepCount>
-  fnGetTodayCalories?: () => Promise<ICalories>
+  fnGetTodaysSteps?: () => Promise<IStepCount | undefined>
+  fnGetTodayCalories?: () => Promise<ICalories | undefined>
 }
 
 export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories, fnGetTodaysSteps = getTodaysSteps }: CaloriesStepsDailyTileProps) {
@@ -20,21 +20,36 @@ export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories,
   const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isErrored, setIsErrored] = useState<boolean>(false)
 
   useEffect(() => {
     const getValues = async () => {
-      setCalories(await fnGetTodayCalories())
-      setStepCount(await fnGetTodaysSteps())
+      const todayCalories = await fnGetTodayCalories()
+      const todaySteps = await fnGetTodaysSteps()
+      if (todayCalories === undefined || todaySteps === undefined) {
+        setIsErrored(true)
+      } else {
+        setCalories(todayCalories)
+        setStepCount(todaySteps)
+        setIsErrored(false)
+      }
       setIsLoading(false)
     }
     getValues()
-  }, [fnGetTodaysSteps, fnGetTodayCalories, setIsLoading])
+  }, [fnGetTodaysSteps, fnGetTodayCalories, setIsErrored, setIsLoading])
 
   useEffect(() => {
     const getCalories = async () => {
       setIsRefreshing(true)
-      setCalories(await fnGetTodayCalories())
-      setStepCount(await fnGetTodaysSteps())
+      const todayCalories = await fnGetTodayCalories()
+      const todaySteps = await fnGetTodaysSteps()
+      if (todayCalories === undefined || todaySteps === undefined) {
+        setIsErrored(true)
+      } else {
+        setCalories(todayCalories)
+        setStepCount(todaySteps)
+        setIsErrored(false)
+      }
       setIsRefreshing(false)
       setRefreshRemaining(refreshIntervalMilliseconds)
     }
@@ -45,7 +60,7 @@ export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories,
       }
     }, 500)
     return () => clearTimeout(timer);
-  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setRefreshRemaining, setCalories, fnGetTodayCalories, setStepCount, fnGetTodaysSteps])
+  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setIsErrored, setRefreshRemaining, setCalories, fnGetTodayCalories, setStepCount, fnGetTodaysSteps])
 
 
   let content;
@@ -60,7 +75,7 @@ export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories,
     </div>
   }
 
-  return (<DashboardTile headerText='Today' loading={isLoading} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
+  return (<DashboardTile headerText='Today' loading={isLoading} errored={isErrored} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
     {content}
   </DashboardTile>)
 }

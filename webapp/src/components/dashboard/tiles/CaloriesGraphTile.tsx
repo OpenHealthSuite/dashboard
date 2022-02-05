@@ -20,13 +20,8 @@ const colors = {
   steps: "#44C"
 }
 
-const yesterDate = new Date()
-yesterDate.setDate(yesterDate.getDate() - 1)
-const lastWeekDate = new Date()
-lastWeekDate.setDate(lastWeekDate.getDate() - 7)
-
 interface CaloriesGraphTileProps {
-  fnGetDateRangeCalories?: (startDate: Date, endDate: Date) => Promise<IDatedCaloriesInOut[]>
+  fnGetDateRangeCalories?: (startDate: Date, endDate: Date) => Promise<IDatedCaloriesInOut[] | undefined>
 }
 
 export function CaloriesGraphTile({ fnGetDateRangeCalories = getDateRangeCalories }: CaloriesGraphTileProps) {
@@ -35,19 +30,40 @@ export function CaloriesGraphTile({ fnGetDateRangeCalories = getDateRangeCalorie
   const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isErrored, setIsErrored] = useState<boolean>(false)
 
   useEffect(() => {
     const getInitialCalories = async () => { 
-      setCaloriesArray(await fnGetDateRangeCalories(lastWeekDate, yesterDate))
+      const yesterDate = new Date()
+      yesterDate.setDate(yesterDate.getDate() - 1)
+      const lastWeekDate = new Date()
+      lastWeekDate.setDate(lastWeekDate.getDate() - 7)
+      const calories = await fnGetDateRangeCalories(lastWeekDate, yesterDate)
+      if (calories === undefined) {
+        setIsErrored(true)
+      } else {
+        setCaloriesArray(calories)
+        setIsErrored(false)
+      }
       setIsLoading(false)
     }
     getInitialCalories()
-  }, [setCaloriesArray, fnGetDateRangeCalories, setIsLoading])
+  }, [setIsErrored, setCaloriesArray, fnGetDateRangeCalories, setIsLoading])
 
   useEffect(() => {
     const getCalories = async () => {
       setIsRefreshing(true)
-      setCaloriesArray(await fnGetDateRangeCalories(lastWeekDate, yesterDate))
+      const yesterDate = new Date()
+      yesterDate.setDate(yesterDate.getDate() - 1)
+      const lastWeekDate = new Date()
+      lastWeekDate.setDate(lastWeekDate.getDate() - 7)
+      const calories = await fnGetDateRangeCalories(lastWeekDate, yesterDate)
+      if (calories === undefined) {
+        setIsErrored(true)
+      } else {
+        setCaloriesArray(calories)
+        setIsErrored(false)
+      }
       setRefreshRemaining(refreshIntervalMilliseconds)
       setIsRefreshing(false)
     }
@@ -58,13 +74,13 @@ export function CaloriesGraphTile({ fnGetDateRangeCalories = getDateRangeCalorie
       }
     }, 500)
     return () => clearTimeout(timer);
-  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setRefreshRemaining, setCaloriesArray, fnGetDateRangeCalories])
+  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setIsErrored, setRefreshRemaining, setCaloriesArray, fnGetDateRangeCalories])
 
   const caloriesInTotal = caloriesArray.map(x => x.caloriesIn - 0).reduce((partial, a) => a + partial, 0)
   const caloriesOutTotal = caloriesArray.map(x => x.caloriesOut - 0).reduce((partial, a) => a + partial, 0)
   const caloriesDelta = caloriesInTotal - caloriesOutTotal
   const caloriesString = `In: ${caloriesInTotal.toLocaleString()}  |  Out: ${caloriesOutTotal.toLocaleString()}  |  Delta: ${caloriesDelta.toLocaleString()}`
-  return (<DashboardTile headerText='Last Week Calories' loading={isLoading} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
+  return (<DashboardTile headerText='Last Week Calories' loading={isLoading} errored={isErrored} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
     <>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart

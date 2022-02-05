@@ -14,7 +14,7 @@ function formatMinutesToText(minutes: number, startString: string = ""): string 
 }
 
 interface SleepDailyTileProps {
-  fnGetDaySleep?: () => Promise<ISleep>
+  fnGetDaySleep?: () => Promise<ISleep | undefined>
 }
 
 export function SleepDailyTile({ fnGetDaySleep = getTodaySleep }: SleepDailyTileProps) {
@@ -24,19 +24,32 @@ export function SleepDailyTile({ fnGetDaySleep = getTodaySleep }: SleepDailyTile
   const [refreshRemaining, setRefreshRemaining] = useState<number>(refreshIntervalMilliseconds)
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isErrored, setIsErrored] = useState<boolean>(false)
 
   useEffect(() => {
     const getInitialCalories = async () => { 
-      setSleep(await fnGetDaySleep())
+      const sleep = await fnGetDaySleep()
+      if (sleep === undefined) {
+        setIsErrored(true)
+      } else {
+        setSleep(sleep)
+        setIsErrored(false)
+      }
       setIsLoading(false)
     }
     getInitialCalories()
-  }, [setSleep, fnGetDaySleep, setIsLoading])
+  }, [setSleep, setIsErrored, fnGetDaySleep, setIsLoading])
 
   useEffect(() => {
     const getCalories = async () => {
       setIsRefreshing(true)
-      setSleep(await fnGetDaySleep())
+      const sleep = await fnGetDaySleep()
+      if (sleep === undefined) {
+        setIsErrored(true)
+      } else {
+        setSleep(sleep)
+        setIsErrored(false)
+      }
       setIsRefreshing(false)
       setRefreshRemaining(refreshIntervalMilliseconds)
     }
@@ -47,7 +60,7 @@ export function SleepDailyTile({ fnGetDaySleep = getTodaySleep }: SleepDailyTile
       }
     }, 500)
     return () => clearTimeout(timer);
-  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setRefreshRemaining, setSleep, fnGetDaySleep])
+  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setIsErrored, setRefreshRemaining, setSleep, fnGetDaySleep])
 
   let content;
   if (sleep) {
@@ -57,7 +70,7 @@ export function SleepDailyTile({ fnGetDaySleep = getTodaySleep }: SleepDailyTile
       <h4>Awake: {formatMinutesToText(sleep.awake)}</h4>
     </div>
   }
-  return (<DashboardTile headerText='Sleep' loading={isLoading} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
+  return (<DashboardTile headerText='Sleep' loading={isLoading} errored={isErrored} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
     {content}
   </DashboardTile>)
 }
