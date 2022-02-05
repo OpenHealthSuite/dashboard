@@ -8,6 +8,7 @@ on:
       - 'webapp/**'
       - '.github/workflows/build_and_deploy_frontend_main.yml'
       - '.infrastructure/**'
+  workflow_dispatch:
 env:
   REACT_APP_API_ROOT: 'https://api.paceme.info'
   REACT_APP_AWS_REGION: eu-west-2
