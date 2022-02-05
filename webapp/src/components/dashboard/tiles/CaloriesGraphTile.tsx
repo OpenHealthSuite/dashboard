@@ -48,6 +48,7 @@ export function CaloriesGraphTile({ fnGetDateRangeCalories = getDateRangeCalorie
     const getCalories = async () => {
       setIsRefreshing(true)
       setCaloriesArray(await fnGetDateRangeCalories(lastWeekDate, yesterDate))
+      setRefreshRemaining(refreshIntervalMilliseconds)
       setIsRefreshing(false)
     }
     const timer = setTimeout(() => {
@@ -57,7 +58,7 @@ export function CaloriesGraphTile({ fnGetDateRangeCalories = getDateRangeCalorie
       }
     }, 500)
     return () => clearTimeout(timer);
-  }, [isRefreshing, refreshRemaining, setRefreshRemaining, setCaloriesArray, fnGetDateRangeCalories])
+  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setRefreshRemaining, setCaloriesArray, fnGetDateRangeCalories])
 
   const caloriesInTotal = caloriesArray.map(x => x.caloriesIn - 0).reduce((partial, a) => a + partial, 0)
   const caloriesOutTotal = caloriesArray.map(x => x.caloriesOut - 0).reduce((partial, a) => a + partial, 0)

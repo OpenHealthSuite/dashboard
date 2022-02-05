@@ -36,6 +36,7 @@ export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories,
       setCalories(await fnGetTodayCalories())
       setStepCount(await fnGetTodaysSteps())
       setIsRefreshing(false)
+      setRefreshRemaining(refreshIntervalMilliseconds)
     }
     const timer = setTimeout(() => {
       setRefreshRemaining(refreshRemaining - 500)
@@ -44,7 +45,7 @@ export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories,
       }
     }, 500)
     return () => clearTimeout(timer);
-  }, [isRefreshing, refreshRemaining, setRefreshRemaining, setCalories, fnGetTodayCalories, setStepCount, fnGetTodaysSteps])
+  }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setRefreshRemaining, setCalories, fnGetTodayCalories, setStepCount, fnGetTodaysSteps])
 
 
   let content;
