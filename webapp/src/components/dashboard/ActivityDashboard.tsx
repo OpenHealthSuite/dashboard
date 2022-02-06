@@ -15,6 +15,10 @@ interface DashboardSettings {
     }
 }
 
+interface TileSettings { 
+    component: (props: any) => JSX.Element
+}
+
 export default function ActivityDashboard() {
     const dashboardSettings: DashboardSettings = {
         spacing: 2,
@@ -24,22 +28,20 @@ export default function ActivityDashboard() {
             md: 4
         }
     }
+
+    const tiles: TileSettings[] = [
+        { component: ActivitiesTile },
+        { component: CaloriesStepsDailyTile },
+        { component: SleepDailyTile },
+        { component: StepsGraphTile },
+        { component: CaloriesGraphTile }
+    ]
+
     return (<Grid container spacing={dashboardSettings.spacing}>
-        <Grid item xs={dashboardSettings.tileSizes.xs} sm={dashboardSettings.tileSizes.sm} md={dashboardSettings.tileSizes.md}>
-            <ActivitiesTile />
+        {tiles.map((tile, i) => { 
+            return <Grid key={`gridkey-${i}`} item xs={dashboardSettings.tileSizes.xs} sm={dashboardSettings.tileSizes.sm} md={dashboardSettings.tileSizes.md}>
+                <tile.component />
+            </Grid> })}
         </Grid>
-        <Grid item xs={dashboardSettings.tileSizes.xs} sm={dashboardSettings.tileSizes.sm} md={dashboardSettings.tileSizes.md}>
-            <CaloriesStepsDailyTile />
-        </Grid>
-        <Grid item xs={dashboardSettings.tileSizes.xs} sm={dashboardSettings.tileSizes.sm} md={dashboardSettings.tileSizes.md}>
-            <SleepDailyTile />
-        </Grid>
-        <Grid item xs={dashboardSettings.tileSizes.xs} sm={dashboardSettings.tileSizes.sm} md={dashboardSettings.tileSizes.md}>
-            <StepsGraphTile />
-        </Grid>
-        <Grid item xs={dashboardSettings.tileSizes.xs} sm={dashboardSettings.tileSizes.sm} md={dashboardSettings.tileSizes.md}>
-            <CaloriesGraphTile />
-        </Grid>
-    </Grid>
     )
 }
