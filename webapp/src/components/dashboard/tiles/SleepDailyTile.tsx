@@ -49,6 +49,7 @@ export function SleepDailyTile({ fnGetDaySleep = getTodaySleep }: SleepDailyTile
       } else {
         setSleep(sleep)
         setIsErrored(false)
+        setIsLoading(false)
       }
       setIsRefreshing(false)
       setRefreshRemaining(refreshIntervalMilliseconds)

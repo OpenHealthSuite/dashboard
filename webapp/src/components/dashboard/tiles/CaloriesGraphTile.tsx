@@ -63,6 +63,7 @@ export function CaloriesGraphTile({ fnGetDateRangeCalories = getDateRangeCalorie
       } else {
         setCaloriesArray(calories)
         setIsErrored(false)
+        setIsLoading(false)
       }
       setRefreshRemaining(refreshIntervalMilliseconds)
       setIsRefreshing(false)

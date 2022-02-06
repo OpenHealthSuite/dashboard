@@ -49,6 +49,7 @@ export function CaloriesStepsDailyTile({ fnGetTodayCalories = getTodaysCalories,
         setCalories(todayCalories)
         setStepCount(todaySteps)
         setIsErrored(false)
+        setIsLoading(false)
       }
       setIsRefreshing(false)
       setRefreshRemaining(refreshIntervalMilliseconds)

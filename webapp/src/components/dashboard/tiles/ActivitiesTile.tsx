@@ -72,6 +72,7 @@ export function ActivitiesTile({ fnGetNextActivities = getNextActivities }: IAct
       if (currentDay !== lastLoadDay) {
         setLastLoadDay(currentDay)
         setPendingActivities(await fnGetNextActivities())
+        setIsLoading(false)
       }
     }, 30000)
     return () => clearTimeout(timer);

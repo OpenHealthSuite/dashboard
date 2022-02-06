@@ -64,6 +64,7 @@ export function StepsGraphTile({ fnGetDateRangeSteps = getDateRangeSteps }: Step
       } else {
         setLastWeekSteps(steps)
         setIsErrored(false)
+        setIsLoading(false)
       }
       setIsRefreshing(false)
       setRefreshRemaining(refreshIntervalMilliseconds)
