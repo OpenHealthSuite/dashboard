@@ -15,8 +15,7 @@ export function addUserSettingHandlers (app: Application) {
 
 const settingsGet = async (userId: string, req: Request, res: Response) => {
   const settingId = req.params.settingId
-
-  if (Object.values(SettingKeys).includes(settingId)) {
+  if (!Object.values(SettingKeys).includes(settingId)) {
     return res.status(400).send(`Setting "${settingId}" Not Found`)
   }
 
@@ -33,7 +32,7 @@ const settingsUpdate = async (userId: string, req: Request, res: Response) => {
   const body: any = req.body
   const settingId = req.params.settingId
 
-  if (Object.values(SettingKeys).includes(settingId)) {
+  if (!Object.values(SettingKeys).includes(settingId)) {
     return res.status(400).send(`Setting "${settingId}" Not Found`)
   }
 
