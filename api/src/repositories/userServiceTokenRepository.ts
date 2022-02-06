@@ -28,7 +28,7 @@ export class UserServiceTokenRepository<T> extends BaseDynamoPartitionSortReposi
     if (cachedValue) {
       return cachedValue.value
     }
-    const result = await (await this.getByPartitionAndSortKeys(userId, this.SERVICE_ID))
+    const result = await this.getByPartitionAndSortKeys(userId, this.SERVICE_ID)
     await this.cache.SaveOnKey(userId, result.token)
     return result ? result.token : undefined
   }

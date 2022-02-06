@@ -8,6 +8,7 @@ import { addFitbitHandlers } from './providers/FitbitRequestProvider'
 import { addStepHandlers } from './handlers/stepsHandlers'
 import { addCaloriesHandlers } from './handlers/caloriesHandlers'
 import { addSleepHandlers } from './handlers/sleepHandlers'
+import { addUserSettingHandlers } from './handlers/userSettingHandlers'
 
 const app = express()
 const configuration = {
@@ -65,6 +66,7 @@ if (process.env.RUNNING_IN_CONTAINER) {
 }
 
 // Add our Handlers
+addUserSettingHandlers(app)
 addTrainingPlanHandlers(app)
 addTrainingPlanActivityHandlers(app)
 addProviderRoutes(app)
