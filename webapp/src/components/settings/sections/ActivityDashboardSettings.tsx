@@ -8,6 +8,19 @@ interface ActivityDashboardSettingsProps {
   fnUpdateSettings?: <T>(settingId: string, settings: T) => Promise<void>
 }
 
+interface IAvailableTile {
+  componentName: string,
+  componentNiceName: string
+}
+
+const ALL_AVAILABLE_TILES: IAvailableTile[] = [
+  { componentName: 'ActivitiesTile', componentNiceName: 'Activities' },
+  { componentName: 'CaloriesStepsDailyTile', componentNiceName: 'Calories/Steps Daily Summary' },
+  { componentName: 'SleepDailyTile', componentNiceName: 'Sleep Daily Summary' },
+  { componentName: 'StepsGraphTile', componentNiceName: 'Steps Graph' },
+  { componentName: 'CaloriesGraphTile', componentNiceName: 'Calories Graph' }
+]
+
 export default function ActivityDashboardSettings({fnGetSettings = getSettings, fnUpdateSettings = updateSettings}: ActivityDashboardSettingsProps) {
   const [dashboardSettings, setDashboardSettings] = useState<IDashboardSettings>(DEFAULT_DASHBOARD_SETTINGS)
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -30,7 +43,9 @@ export default function ActivityDashboardSettings({fnGetSettings = getSettings, 
       <CardContent>
           <LoadingIndicator loading={isLoading}>
               <ul>
-                  {dashboardSettings.tileSettings.map((s, i) => <li key={`key-${i}`}>{s.componentName}</li>)}
+                  {ALL_AVAILABLE_TILES.map((at, i) => {
+                    return <li key={`key-${i}`}>{at.componentNiceName} - {dashboardSettings.tileSettings.map(x => x.componentName).includes(at.componentName) ? 'Enabled': 'Disabled'}</li>
+                  })}
               </ul>
           </LoadingIndicator></CardContent>
   </Card>)
