@@ -1,11 +1,12 @@
 import MenuIcon from '@mui/icons-material/Menu';
 import { AmplifySignOut } from '@aws-amplify/ui-react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Drawer from '@mui/material/Drawer';
 import TrainingPlanGrid from './trainingplan/TrainingPlanGrid'
 import TrainingPlanActivityBrowser from './trainingplanactivity/TrainingPlanActivityBrowser'
 import TrainingPlanActivityViewer from './trainingplanactivity/TrainingPlanActivityViewer'
 import ActivityDashboard from './dashboard/ActivityDashboard'
+import SettingsDashboard from './settings/SettingsDashboard'
 
 import { makeStyles } from '@mui/styles';
 import List from '@mui/material/List';
@@ -18,7 +19,7 @@ import {
     useLocation,
     useHistory
 } from "react-router-dom";
-import { getProviderStatuses, startChallenge, redeemCode, IProviderStatus } from '../services/ProvidersService'
+import { redeemCode } from '../services/ProvidersService'
 import { Fab } from '@mui/material';
 
 interface IRouteParameters {
@@ -48,48 +49,15 @@ function TrainingPlanActivityRouteChild() {
     );
 }
 
-function SettingsChild() {
-    const [statuses, setStatuses] = useState<IProviderStatus[]>([]);
-    const [loading, setLoading] = useState(true)
-
-    const getStatuses = async () => {
-        setLoading(false)
-        // TODO: Graceful error handling with toast
-        setStatuses((await getProviderStatuses()) || [])
-    }
-
-    useEffect(() => {
-        if (loading) {
-            getStatuses()
-        }
-    }, [loading])
-
-    return <ul>
-        {statuses.map(s => <li key={s.key}>{s.name} - {s.authenticated ? 'Authed':'Unauthed'}: <button onClick={() => GetChallenge(s.key)}>Authenticate</button></li>)}
-        </ul>
-}
-
-async function GetChallenge(key: string) {
-    // Send post to api.address/users/:userId/providers/:key/start to get URL w/ challenge
-    // Send user to retreived URL
-    const { authUrl } = await startChallenge(key)
-
-    window.location.href = authUrl
-}
-
 function CallbackRouteChild() {
     const { serviceId } = useParams<ICallbackParameters>();  
     const searchParams = new URLSearchParams(useLocation().search);
     const navigate = useHistory();
     
-    // TODO: This is all kinds of awful
+    // TODO: This could do with some love
     const redeemCodeSync = async (navigate: any, serviceIdFn: string, searchParams: URLSearchParams) => {
         switch (serviceIdFn) {
             case "fitbitauth":
-                //handle fitbit
-                // TODO: Get code from query parameters
-                // post code to api.address/users/:userId/providers/fitbit/redeem in body { code: "code" }
-                // await happy response
                 await redeemCode('fitbit', searchParams.get('code') ?? '')
                 break;
             default:
@@ -171,7 +139,7 @@ export function Root() {
                 <Route path="/trainingplans/:trainingPlanId" children={<TrainingPlanRouteChild />} />
                 <Route path="/trainingplans" children={<TrainingPlanGrid />}/>
                 <Route path="/callback/:serviceId" children={<CallbackRouteChild />}/>
-                <Route path="/settings" children={<SettingsChild />} />
+                <Route path="/settings" children={<SettingsDashboard />} />
                 <Route path="/" children={<ActivityDashboard />} />
             </Switch>
         </>
