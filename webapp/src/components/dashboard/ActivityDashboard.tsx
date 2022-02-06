@@ -3,26 +3,13 @@ import { CaloriesGraphTile } from './tiles/CaloriesGraphTile'
 import { ActivitiesTile } from './tiles/ActivitiesTile'
 import { CaloriesStepsDailyTile } from './tiles/CaloriesStepsDailyTile'
 import { SleepDailyTile } from './tiles/SleepDailyTile'
-import { getSettings, updateSettings } from '../../services/SettingsService'
-import { Grid, GridSize } from '@mui/material';
+import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, updateSettings } from '../../services/SettingsService'
+import { Grid } from '@mui/material';
 import { useEffect, useState } from 'react'
 import { LoadingIndicator } from '../shared/LoadingIndicator'
 
-interface ITileSettings { 
-    componentName: string
-}
 
-interface IDashboardSettings { 
-    spacing: number, 
-    tileSizes: { 
-        xs: GridSize, 
-        sm: GridSize, 
-        md: GridSize
-    },
-    tileSettings: ITileSettings[]
-}
-
-interface IComponentLookup {
+export interface IComponentLookup {
     [x: string]: (props: any) => JSX.Element
 }
 
@@ -32,22 +19,6 @@ const ComponentLookup: IComponentLookup = {
     'SleepDailyTile': SleepDailyTile,
     'StepsGraphTile': StepsGraphTile,
     'CaloriesGraphTile': CaloriesGraphTile
-}
-
-const DEFAULT_SETTINGS: IDashboardSettings = {
-    spacing: 2,
-    tileSizes: {
-        xs: 12,
-        sm: 6,
-        md: 4
-    },
-    tileSettings: [
-        { componentName: 'ActivitiesTile' },
-        { componentName: 'CaloriesStepsDailyTile' },
-        { componentName: 'SleepDailyTile' },
-        { componentName: 'StepsGraphTile' },
-        { componentName: 'CaloriesGraphTile' }
-    ]
 }
 
 interface DashboardProps {
@@ -74,9 +45,9 @@ export default function ActivityDashboard({ fnGetSettings = getSettings, fnUpdat
         const getSettings = async () => {
           const userSettings = await fnGetSettings<IDashboardSettings>("dashboard")
           if (!userSettings){
-            fnUpdateSettings("dashboard", DEFAULT_SETTINGS)
+            fnUpdateSettings("dashboard", DEFAULT_DASHBOARD_SETTINGS)
           }
-          const currentSettings = (userSettings || DEFAULT_SETTINGS)
+          const currentSettings = (userSettings || DEFAULT_DASHBOARD_SETTINGS)
           setDashboardSettings(currentSettings)
           setIsLoading(false)
         }
