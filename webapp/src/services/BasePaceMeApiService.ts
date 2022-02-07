@@ -9,64 +9,89 @@ async function getAuthDetails(): Promise<{ userId: string, authHeader: string }>
 // This might need to be moved to parents soon, but this'll do for now.
 const usersRoot = '/users/'
 
+// TODO: The undefined responses on errors should generate toasts...
 export async function pacemeGetRequest<T>(path: string): Promise<T | undefined> {
     const authDetails = await getAuthDetails()
-    const response = await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
-        method: "GET",
-        headers: {
-            Authorization: authDetails.authHeader,
-            "Content-Type": "application/json"
-        }
-    })
+    try {
+        const response = await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
+            method: "GET",
+            headers: {
+                Authorization: authDetails.authHeader,
+                "Content-Type": "application/json"
+            }
+        })
+        return response.status === 200 ? await response.json() as T : undefined
+    } catch {
+        return undefined
+    }
 
-    return response.status === 200 ? await response.json() as T : undefined
 }
 
-export async function pacemePostRequest<T, R>(path: string, item: T): Promise<R> {
+export async function pacemePostRequest<T, R>(path: string, item: T): Promise<R | undefined> {
     const authDetails = await getAuthDetails()
-    const response = await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
-        method: "POST",
-        headers: {
-            Authorization: authDetails.authHeader,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(item)
-    })
-    return await response.json() as R
+    try {
+        const response = await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
+            method: "POST",
+            headers: {
+                Authorization: authDetails.authHeader,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(item)
+        })
+        return await response.json() as R
+    }
+    catch {
+        return undefined
+    }
 }
 
-export async function pacemePutRequest<T>(path: string, item: T) {
+export async function pacemePutRequest<T>(path: string, item: T):  Promise<boolean> {
     const authDetails = await getAuthDetails()
-    await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
-        method: "PUT",
-        headers: {
-            Authorization: authDetails.authHeader,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(item)
-    })
+    try {
+        await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
+            method: "PUT",
+            headers: {
+                Authorization: authDetails.authHeader,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(item)
+        })
+        return true
+    } catch {
+        return false
+    }
 }
 
-export async function pacemeDeleteRequest<T>(path: string, item: T) {
+export async function pacemeDeleteRequest<T>(path: string, item: T):  Promise<boolean> {
     const authDetails = await getAuthDetails()
-    await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
-        method: "DELETE",
-        headers: {
-            Authorization: authDetails.authHeader,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(item)
-    })
+    try {
+        await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
+            method: "DELETE",
+            headers: {
+                Authorization: authDetails.authHeader,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(item)
+        })
+        return true
+    } catch {
+        return false
+    }
 }
 
 
-export async function pacemeBodylessDeleteRequest(path: string) {
+export async function pacemeBodylessDeleteRequest(path: string):  Promise<boolean> {
     const authDetails = await getAuthDetails()
-    await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
-        method: "DELETE",
-        headers: {
-            Authorization: authDetails.authHeader,
-            "Content-Type": "application/json"
-        }
-    })
+    try {
+        await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
+            method: "DELETE",
+            headers: {
+                Authorization: authDetails.authHeader,
+                "Content-Type": "application/json"
+            }
+        })        
+        return true
+    } catch {
+        return false
+    }
 }

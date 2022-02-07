@@ -6,9 +6,10 @@ import { LoadingIndicator } from '../../shared/LoadingIndicator';
 async function GetChallenge(key: string) {
   // Send post to api.address/users/:userId/providers/:key/start to get URL w/ challenge
   // Send user to retreived URL
-  const { authUrl } = await startChallenge(key)
-
-  window.location.href = authUrl
+  const challenge = await startChallenge(key)
+  if (challenge) {
+    window.location.href = challenge.authUrl
+  }
 }
 
 export default function ProviderSettings() {

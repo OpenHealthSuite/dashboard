@@ -32,7 +32,7 @@ export async function getActivities(planId: string): Promise<ITrainingPlanActivi
     return response.map(parseDate)
 }
 
-export async function createNewActivity(planId: string, newActivity: ITrainingPlanActivity): Promise<string> {
+export async function createNewActivity(planId: string, newActivity: ITrainingPlanActivity): Promise<string | undefined> {
     return await pacemePostRequest<ITrainingPlanActivity, string>([trainingPlanRoot, planId, activitySlug].join('/'), newActivity)
 }
 
@@ -41,5 +41,5 @@ export async function editActivity(editedActivity: ITrainingPlanActivity): Promi
 }
 
 export async function deleteActivity(planId: string, activityId: string): Promise<void> {
-    return await pacemeBodylessDeleteRequest([trainingPlanRoot, planId, activitySlug, activityId].join('/'))
+    await pacemeBodylessDeleteRequest([trainingPlanRoot, planId, activitySlug, activityId].join('/'))
 }

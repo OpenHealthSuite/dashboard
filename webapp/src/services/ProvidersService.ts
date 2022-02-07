@@ -15,10 +15,10 @@ export async function getProviderStatuses(): Promise<IProviderStatus[] | undefin
     return await pacemeGetRequest<IProviderStatus[]>([providersRoot].join('/'))
 }
 
-export async function startChallenge(providerKey: string): Promise<{ authUrl: string }> {
+export async function startChallenge(providerKey: string): Promise<{ authUrl: string } | undefined> {
     return await pacemePostRequest<{}, { authUrl: string }>([providersRoot, providerKey, 'start'].join('/'), {})
 }
 
-export async function redeemCode(providerKey: string, code: string): Promise<{}> {
+export async function redeemCode(providerKey: string, code: string): Promise<{} | undefined> {
     return await pacemePostRequest<{ code: string }, {}>([providersRoot, providerKey, 'redeem'].join('/'), { code })
 }

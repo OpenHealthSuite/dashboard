@@ -16,7 +16,7 @@ export async function getUserPlans(): Promise<ITrainingPlan[] | undefined> {
     return await pacemeGetRequest<ITrainingPlan[]>(trainingPlanRoot)
 }
 
-export async function createNewPlan(newplan: ITrainingPlan): Promise<string> {
+export async function createNewPlan(newplan: ITrainingPlan): Promise<string | undefined> {
     return await pacemePostRequest<ITrainingPlan, string>(trainingPlanRoot, newplan)
 }
 
@@ -25,5 +25,5 @@ export async function editPlan(editedPlan: ITrainingPlan): Promise<void> {
 }
 
 export async function deletePlan(planId: string): Promise<void> {
-    return await pacemeBodylessDeleteRequest([trainingPlanRoot, planId].join('/'))
+    await pacemeBodylessDeleteRequest([trainingPlanRoot, planId].join('/'))
 }
