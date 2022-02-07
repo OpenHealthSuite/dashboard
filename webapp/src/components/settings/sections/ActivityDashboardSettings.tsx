@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { LoadingIndicator } from '../../shared/LoadingIndicator';
-import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, ITileSettings, updateSettings } from '../../../services/SettingsService'
+import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, updateSettings } from '../../../services/SettingsService'
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
