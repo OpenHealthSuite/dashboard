@@ -23,7 +23,7 @@ test('startAuthenticationFlow :: generates code, caches code, and returns authUr
   const codeChallengeCache = sinon.createStubInstance(CodeChallenceCache)
   const fakeRandomString = 'TotallyARandomStringasdkmasd123'
   const fakeEncodedString = 'ajdksfnWEQO-IDJQWDksdjfanlikdj-n312094u123++++='
-  const expectedFitbitCodeChallengeString = 'ajdksfnWEQO-IDJQWDksdjfanlikdj-n312094u123----'
+  const expectedFitbitCodeChallengeString = encodeURIComponent('ajdksfnWEQO-IDJQWDksdjfanlikdj-n312094u123----')
   const fnRandomString = sinon.fake.returns(fakeRandomString)
   const fnCreatesha256String = sinon.fake.returns(fakeEncodedString)
 

@@ -87,7 +87,7 @@ export function startAuthenticationFlow (
   codeChallengeCache.SetCode(userId, codeVerifier)
   // Apparently fitbit wants - instead of +?
   // https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/
-  const challengeHash = fnCreatesha256String(codeVerifier).replace('=', '').replace(/\+/g, '-')
+  const challengeHash = encodeURIComponent(fnCreatesha256String(codeVerifier).replace('=', '').replace(/\+/g, '-'))
   const authUrl = `${fitbitSettings.authUrl}?client_id=${fitbitSettings.clientId}&response_type=code` +
   `&code_challenge=${challengeHash}&code_challenge_method=S256` +
   `&scope=${fitbitSettings.neededScopes.join('%20')}`
