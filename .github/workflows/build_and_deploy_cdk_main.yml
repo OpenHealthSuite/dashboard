@@ -50,9 +50,10 @@ jobs:
       # npm build
       - name: build webapp
         working-directory: ./webapp
+        # There is a potential for bootstrap woes here - future lee's problem?
         run: |
-          export REACT_APP_AWS_USER_POOL_ID=$(aws cloudformation describe-stacks --stack-name PaceMeScaffoldStack | jq -r '.Stacks | .[] | .Outputs | .[] | select(.OutputKey=="CognitoPoolId").OutputValue')
-          export REACT_APP_AWS_USER_POOL_CLIENTID=$(aws cloudformation describe-stacks --stack-name PaceMeScaffoldStack | jq -r '.Stacks | .[] | .Outputs | .[] | select(.OutputKey=="CognitoLocalWebappClientId").OutputValue')
+          export REACT_APP_AWS_USER_POOL_ID=$(credstash get paceme/CognitoPoolId)
+          export REACT_APP_AWS_USER_POOL_CLIENTID=$(credstash get paceme/CognitoLocalWebappClientId)
           npm run build
       # install infrastructure
       - uses: actions/cache@v2
