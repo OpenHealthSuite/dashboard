@@ -15,10 +15,11 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: eu-west-2
+  AWS_DEFAULT_REGION: eu-west-2
   CDK_ENVIRONMENT: Production
 jobs:
   build_frontend:
-    name: Build Frontend
+    name: Build CDK/AWS Resources
     runs-on: ubuntu-latest
     steps:
       # Checkout Code
@@ -68,7 +69,7 @@ jobs:
         working-directory: ./.infrastructure
         run: npm run cdk:deploy:out
       # save credstash
-      - name: deploy cdk
+      - name: save credstash values
         working-directory: ./.infrastructure
         run: npm run script:outfiletocredstash
       # clear cloudfront
