@@ -48,7 +48,6 @@ jobs:
         run: npm run test:ci
       # npm build
       - name: build webapp
-        if: steps.cdk-install.outputs.cache-hit != 'true'
         working-directory: ./webapp
         run: |
           export REACT_APP_AWS_USER_POOL_ID=$(aws cloudformation describe-stacks --stack-name PaceMeScaffoldStack | jq -r '.Stacks | .[] | .Outputs | .[] | select(.OutputKey=="CognitoPoolId").OutputValue')
