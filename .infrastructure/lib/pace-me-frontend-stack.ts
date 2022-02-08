@@ -8,10 +8,18 @@ import * as acm from 'aws-cdk-lib/aws-certificatemanager'
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront'
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
 import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
+import { joinTruthyStrings } from '../utilities/stringjoiner';
+
+interface PaceMeFrontendStackProps extends StackProps {
+  stackPrefix: string | undefined
+}
 
 export class PaceMeFrontendStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: PaceMeFrontendStackProps) {
     super(scope, id, props);
+
+    const domainPrefix = joinTruthyStrings([props.stackPrefix, 'app'])
+    const domainName = `${domainPrefix}.paceme.info`
 
     const frontendS3Bucket = new s3.Bucket(this, 'PaceMeWebApp', {
       removalPolicy: RemovalPolicy.DESTROY,
@@ -30,7 +38,7 @@ export class PaceMeFrontendStack extends Stack {
     });
 
     const certificate = new acm.Certificate(this, 'PaceMeAppCertificate', {
-      domainName: 'app.paceme.info',
+      domainName,
       validation: acm.CertificateValidation.fromDns(zone),
     });
 
@@ -49,12 +57,12 @@ export class PaceMeFrontendStack extends Stack {
         }
       ],
       certificate: certificate,
-      domainNames: ['app.paceme.info']
+      domainNames: [domainName]
     });
 
     const cName = new route53.CnameRecord(this, 'Frontend53', {
       zone: zone,
-      recordName: 'app',
+      recordName: domainPrefix,
       domainName: cfDist.distributionDomainName,
     });
 

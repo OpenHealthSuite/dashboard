@@ -7,11 +7,16 @@ import * as ecr from 'aws-cdk-lib/aws-ecr'
 // import * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { TagStatus } from 'aws-cdk-lib/aws-ecr';
+import { joinTruthyStrings } from '../utilities/stringjoiner';
 // import * as ecrdeploy from 'cdk-ecr-deployment';
 // import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 
+interface PaceMeScaffoldStackProps extends StackProps {
+  stackPrefix: string | undefined
+}
+
 export class PaceMeScaffoldStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: PaceMeScaffoldStackProps) {
     super(scope, id, props);
 
     const dynamoTables : { name: string, partKey: string, sortKey: string }[] = [ 
@@ -108,7 +113,7 @@ export class PaceMeScaffoldStack extends Stack {
     const ecrRepo = new ecr.Repository(this, 
     id + 'ApiRepository', 
     { 
-      repositoryName: (id + 'Api').toLowerCase(),
+      repositoryName: (joinTruthyStrings([props.stackPrefix, "paceme-api"])).toLowerCase(),
       removalPolicy: RemovalPolicy.DESTROY
     })
     ecrRepo.addLifecycleRule({ tagStatus: TagStatus.UNTAGGED, maxImageAge: Duration.days(1) })
