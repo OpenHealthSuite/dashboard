@@ -31,7 +31,7 @@ jobs:
           node-version: "16.13.1"
       # Get Credstash
       - name: get credstash
-        uses: robertbeal/credstashv8
+        uses: robertbeal/credstash@v8
       - uses: actions/cache@v2
         id: frontend-deps
         with:
