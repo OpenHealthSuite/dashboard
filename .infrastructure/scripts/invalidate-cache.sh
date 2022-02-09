@@ -1,2 +1,2 @@
-export distributionId=$(aws cloudformation describe-stacks --stack-name PaceMeFrontendStack | jq -r '.Stacks | .[] | .Outputs | .[] | select(.OutputKey=="frontendCloudfrontDistributionId").OutputValue')
+export distributionId=$(aws --region us-east-1 cloudformation describe-stacks --stack-name PaceMeFrontendStack | jq -r '.Stacks | .[] | .Outputs | .[] | select(.OutputKey=="frontendCloudfrontDistributionId").OutputValue')
 aws cloudfront create-invalidation --distribution-id $distributionId --paths "/*"
