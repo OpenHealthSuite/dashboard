@@ -20,9 +20,15 @@ There is a helper script to build and push up to your CDK ECR (assuming you save
 
 ## Some Kubernetes notes
 
-Shamelessly stole the SSL cert magic from here: [https://www.thinktecture.com/en/kubernetes/ssl-certificates-with-cert-manager-in-kubernetes/](https://www.thinktecture.com/en/kubernetes/ssl-certificates-with-cert-manager-in-kubernetes/)
+Right now, this has been setup to run on Microk8s on a raspberry pi, with the following addons:
 
-There was a crash loop issue with the helm version used in the guide though. Instead, just install from their own manifest.
+- dashboard
+- dns
+- rbac
+- helm3
+- ingress
+
+You'll also need to install cert-manager for certification using letsencrypt:
 
 https://cert-manager.io/docs/installation/
 
