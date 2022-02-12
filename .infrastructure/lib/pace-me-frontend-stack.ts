@@ -46,7 +46,8 @@ export class PaceMeFrontendStack extends Stack {
       defaultBehavior: { 
           origin: new origins.S3Origin(frontendS3Bucket, {
               originAccessIdentity: frontendS3BucketOriginAccess
-            })
+            }),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
         },
       defaultRootObject: 'index.html',
       errorResponses: [
