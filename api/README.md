@@ -24,6 +24,6 @@ Shamelessly stole the SSL cert magic from here: [https://www.thinktecture.com/en
 
 There was a crash loop issue with the helm version used in the guide though. Instead, just install from their own manifest.
 
-https://github.com/jetstack/cert-manager/issues/2817#issuecomment-971126977
+https://cert-manager.io/docs/installation/
 
-`kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml`
+`kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.7.1/cert-manager.yaml`
