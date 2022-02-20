@@ -78,6 +78,7 @@ export function StepsGraphTile({ fnGetDateRangeSteps = getDateRangeSteps }: Step
     return () => clearTimeout(timer);
   }, [refreshIntervalMilliseconds, isRefreshing, refreshRemaining, setIsErrored, setRefreshRemaining, setLastWeekSteps, fnGetDateRangeSteps])
 
+  const maxBarSize = Math.max(...lastWeekSteps.map(x => x.steps))
   const totalSteps = lastWeekSteps.map(x => x.steps - 0).reduce((partial, a) => a + partial, 0)
   return (<DashboardTile headerText='Last Week Steps' loading={isLoading} errored={isErrored} refreshDetails={{refreshInterval: refreshIntervalMilliseconds, remaining: refreshRemaining}}>
     <>
@@ -93,7 +94,7 @@ export function StepsGraphTile({ fnGetDateRangeSteps = getDateRangeSteps }: Step
           margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
         >
           <XAxis dataKey="dateLabel" />
-          <YAxis orientation="right" />
+          <YAxis orientation="right" type="number" domain={[0, maxBarSize]} />
           <Bar type="monotone" dataKey="steps" fill={colors.steps} yAxisId={0} />
         </BarChart>
       </ResponsiveContainer>
