@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from '@mui/material';
+import { Card, CardContent, CardHeader, ListItemButton } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { LoadingIndicator } from '../../shared/LoadingIndicator';
 import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, updateSettings } from '../../../services/SettingsService'
@@ -119,18 +119,43 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
     setDisabled([]);
   };
 
-  const customList = (items: readonly IAvailableTile[]) => (
+  const adjustEnabledIndex = (index: number, adjustment: number) => {
+    const newEnabled = enabled;
+    const newIndex = index + adjustment;
+    const oldValue = newEnabled[newIndex];
+    newEnabled[newIndex] = newEnabled[index];
+    newEnabled[index] = oldValue;
+    setEnabled(newEnabled)
+    // This bit is filth. I don't know why I have to duplicate this
+    const updateSettings = async () => {
+      dashboardSettings.tileSettings = enabled.map(e => { return { componentName: e.componentName }})
+      fnUpdateSettings("dashboard", dashboardSettings)
+    }
+    updateSettings()
+  }
+
+  // Definitely should take this to a component...
+  const customList = (items: readonly IAvailableTile[], isEnabledList: boolean = false) => (
     <Paper sx={{ height: 230, overflow: 'auto' }}>
       <List dense component="div" role="list">
-        {items.map((value: IAvailableTile) => {
+        {items.map((value: IAvailableTile, index: number) => {
           const labelId = `transfer-list-item-${value}-label`;
-
+          let buttons = <></>
+          if (isEnabledList && items.length > 1) {
+            buttons = <><ListItemButton onClick={() => adjustEnabledIndex(index, 1)}>▼</ListItemButton><ListItemButton onClick={() => adjustEnabledIndex(index, -1)}>▲</ListItemButton></>
+            if (index === 0) {
+              buttons = (<ListItemButton onClick={() => adjustEnabledIndex(index, 1)}>▼</ListItemButton>)
+            } else if (index === items.length -1) {
+              buttons = (<ListItemButton onClick={() => adjustEnabledIndex(index, -1)}>▲</ListItemButton>)
+            }
+          }
           return (
             <ListItem
               key={value.componentName}
               role="listitem"
               button
               onClick={handleToggle(value)}
+              style={{justifyContent:'flex-start'}}
             >
               <ListItemIcon>
                 <Checkbox
@@ -142,6 +167,7 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
                   }}
                 />
               </ListItemIcon>
+              {buttons}
               <ListItemText id={labelId} primary={value.componentNiceName} />
             </ListItem>
           );
@@ -154,7 +180,7 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
   return (
     <div style={{ flexGrow: 1 }}>
       <Grid container spacing={2} justifyContent="center" alignItems="center" direction="column" style={{flexGrow: 1}}>
-        <Grid item xs={12}>{customList(enabled)}</Grid>
+        <Grid item xs={12}>{customList(enabled, true)}</Grid>
         <Grid item xs={12}>
           <Grid container direction="row" alignItems="center">
             <Button
