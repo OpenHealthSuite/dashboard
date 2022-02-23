@@ -1,4 +1,40 @@
 {{ if .Values.autosecretjob }}
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: {{ .Values.metadata.namespace }}
+  name: paceme-api-job-runner
+rules:
+- apiGroups: [""]
+  resources:
+  - secrets
+  verbs:
+  - 'patch'
+  - 'create'
+  - 'delete'
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: paceme-api-job-runner
+  namespace: {{ .Values.metadata.namespace }}
+subjects:
+- kind: ServiceAccount
+  name: paceme-api-job-runner
+  namespace: {{ .Values.metadata.namespace }}
+roleRef:
+  kind: Role
+  name: paceme-api-job-runner
+  apiGroup: ""
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: paceme-api-job-runner
+  namespace: {{ .Values.metadata.namespace }}
+---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -16,14 +52,15 @@ spec:
         metadata:
           creationTimestamp: null
         spec:
+          serviceAccountName: paceme-api-job-runner
           containers:
           - command:
             - /bin/sh
             - -c
             - |-
-              ACCOUNT=$(aws sts get-caller-identity --query "Account" --output text)
-              SECRET_NAME=awsregcred
-              EMAIL=hello@leejohnmartin.co.uk
+              export ACCOUNT=$(aws sts get-caller-identity --query "Account" --output text)
+              export SECRET_NAME=awsregcred
+              export EMAIL=hello@leejohnmartin.co.uk
               echo "ENV variables setup done."
               kubectl delete secret --ignore-not-found $SECRET_NAME
               kubectl create secret docker-registry $SECRET_NAME \
@@ -46,7 +83,7 @@ spec:
                 secretKeyRef:
                   name: paceme-api-secrets
                   key: aws-secret-access-key
-            image: odaniait/aws-kubectl:latest
+            image: leemartin91/awskubectl:latest
             imagePullPolicy: IfNotPresent
             name: ecr-cred-helper
             resources: {}

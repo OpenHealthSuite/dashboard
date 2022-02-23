@@ -9,5 +9,5 @@ metadata:
     app: paceme-api
   namespace: paceme-api
 
-autosecretjob: false
+autosecretjob: true
 nodeEnv: production
