@@ -7,6 +7,7 @@
         "test": "jest",
         "test:watch": "jest --watch",
         "watch:ts": "npx tsc -w",
+        "prestart:watch": "docker rm paceme-redis || docker run --name paceme-redis -d -p 6379:6379 redis:6.2.6 || docker start paceme-redis",
         "start:watch": "concurrently 'npm run watch:ts' 'nodemon -r dotenv/config dist/index.js'",
         "start": "node -r dotenv/config dist/index.js",
         "lint": "npx eslint . --ext .ts",
