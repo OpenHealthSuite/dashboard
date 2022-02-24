@@ -4,7 +4,7 @@ export async function userRestrictedHandler (req: Request, res: Response, next: 
   const localUserId = res.locals.userId
   const userId = req.params.userId
 
-  if (localUserId === userId) {
+  if (!!localUserId && !!userId && localUserId === userId) {
     return await next(userId, req, res)
   }
   res.sendStatus(403)
