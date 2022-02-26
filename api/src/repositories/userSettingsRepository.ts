@@ -1,5 +1,5 @@
 import { GenericCache } from '../caches/GenericCache'
-import { BaseDynamoPartitionSortRepository } from './baseDynamoPartitionSortRepository'
+import * as baseDynamoRepo from './baseDynamoPartitionRepository'
 
 export interface IUserSetting {
     userId: string,
@@ -7,17 +7,9 @@ export interface IUserSetting {
     details: any
 }
 
-export class UserSettingRepository extends BaseDynamoPartitionSortRepository<IUserSetting> {
+export class UserSettingRepository {
   private readonly cache: GenericCache<IUserSetting>;
   constructor () {
-    super(
-      process.env.USER_SETTING_TABLE ?? 'UserSetting',
-      'userId',
-      'settingId',
-      {
-        '#details': 'details'
-      }
-    )
     this.cache = new GenericCache<IUserSetting>('userSettingCache')
   }
 
@@ -26,13 +18,13 @@ export class UserSettingRepository extends BaseDynamoPartitionSortRepository<IUs
     if (cachedValue) {
       return cachedValue.value
     }
-    const result = await this.getByPartitionAndSortKeys(userId, settingId)
+    const result = await baseDynamoRepo.getByPartitionAndSortKeys<IUserSetting>(process.env.USER_SETTING_TABLE ?? 'UserSetting', 'userId', userId, 'settingId', settingId)
     await this.cache.SaveOnKey(`${userId}:${settingId}`, result)
     return result
   }
 
   public async updateSetting (userId: string, settingId: string, details: any): Promise<void> {
-    await this.update({ userId, settingId, details })
+    await baseDynamoRepo.update(process.env.USER_SETTING_TABLE ?? 'UserSetting', { userId, settingId, details })
     await this.cache.SaveOnKey(`${userId}:${settingId}`, { userId, settingId, details })
   }
 }

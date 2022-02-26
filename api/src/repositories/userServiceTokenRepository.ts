@@ -1,5 +1,5 @@
 import { GenericCache } from '../caches/GenericCache'
-import { BaseDynamoPartitionSortRepository } from './baseDynamoPartitionSortRepository'
+import * as baseDynamoRepo from './baseDynamoPartitionRepository'
 
 export interface IUserServiceToken<T> {
     userId: string,
@@ -7,18 +7,10 @@ export interface IUserServiceToken<T> {
     token: T
 }
 
-export class UserServiceTokenRepository<T> extends BaseDynamoPartitionSortRepository<IUserServiceToken<T>> {
+export class UserServiceTokenRepository<T> {
   private readonly SERVICE_ID: string;
   private readonly cache: GenericCache<T>;
   constructor (serviceId: string) {
-    super(
-      process.env.USER_SERVICE_TOKEN_TABLE ?? 'UserServiceToken',
-      'userId',
-      'serviceId',
-      {
-        '#token': 'token'
-      }
-    )
     this.SERVICE_ID = serviceId
     this.cache = new GenericCache<T>(`userServiceTokenCache:${serviceId}`)
   }
@@ -28,13 +20,13 @@ export class UserServiceTokenRepository<T> extends BaseDynamoPartitionSortReposi
     if (cachedValue) {
       return cachedValue.value
     }
-    const result = await this.getByPartitionAndSortKeys(userId, this.SERVICE_ID)
+    const result = await baseDynamoRepo.getByPartitionAndSortKeys<IUserServiceToken<T>>(process.env.USER_SERVICE_TOKEN_TABLE ?? 'UserServiceToken', 'userId', userId, 'serviceId', this.SERVICE_ID)
     await this.cache.SaveOnKey(userId, result.token)
     return result ? result.token : undefined
   }
 
   async updateUserToken (userId: string, token: T) {
-    await this.update({ userId, serviceId: this.SERVICE_ID, token })
+    await baseDynamoRepo.update(process.env.USER_SERVICE_TOKEN_TABLE ?? 'UserServiceToken', { userId, serviceId: this.SERVICE_ID, token })
     await this.cache.SaveOnKey(userId, token)
   }
 }

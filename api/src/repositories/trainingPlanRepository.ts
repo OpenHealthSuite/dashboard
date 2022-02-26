@@ -1,4 +1,4 @@
-import { BaseDynamoPartitionSortRepository } from './baseDynamoPartitionSortRepository'
+import * as baseDynamoRepo from './baseDynamoPartitionRepository'
 import { randomUUID } from 'crypto'
 
 export interface ITrainingPlan {
@@ -8,25 +8,18 @@ export interface ITrainingPlan {
     active: boolean
 }
 
-export class TrainingPlanRepository extends BaseDynamoPartitionSortRepository<ITrainingPlan> {
-  constructor () {
-    super(
-      process.env.TRAINING_PLAN_TABLE ?? 'TrainingPlan',
-      'userId',
-      'id',
-      {
-        '#nm': 'name',
-        '#active': 'active'
-      }
-    )
+export class TrainingPlanRepository {
+  private expressionAttributes = {
+    '#nm': 'name',
+    '#active': 'active'
   }
 
   public async getTrainingPlansForUser (userId: string): Promise<ITrainingPlan[]> {
-    return await this.getAllByPartitionKey(userId)
+    return await baseDynamoRepo.getAllByPartitionKey<ITrainingPlan>(process.env.TRAINING_PLAN_TABLE ?? 'TrainingPlan', 'userId', 'id', userId, this.expressionAttributes)
   }
 
   public async getTrainingPlan (userId: string, planId: string): Promise<ITrainingPlan> {
-    return await this.getByPartitionAndSortKeys(userId, planId)
+    return await baseDynamoRepo.getByPartitionAndSortKeys<ITrainingPlan>(process.env.TRAINING_PLAN_TABLE ?? 'TrainingPlan', 'userId', userId, 'id', planId)
   }
 
   public async createTrainingPlan (userId: string, newItem: ITrainingPlan): Promise<ITrainingPlan> {
@@ -36,14 +29,14 @@ export class TrainingPlanRepository extends BaseDynamoPartitionSortRepository<IT
       name: newItem.name,
       active: newItem.active
     }
-    return await this.create(newTableItem)
+    return await baseDynamoRepo.create(process.env.TRAINING_PLAN_TABLE ?? 'TrainingPlan', newTableItem)
   }
 
   public async updateTrainingPlan (itemUpdate: ITrainingPlan): Promise<void> {
-    return await this.update(itemUpdate)
+    return await baseDynamoRepo.update(process.env.TRAINING_PLAN_TABLE ?? 'TrainingPlan', itemUpdate)
   }
 
   public async deleteTrainingPlan (userId: string, planId: string): Promise<void> {
-    return await this.deleteByPartitionAndSortKey(userId, planId)
+    return await baseDynamoRepo.deleteByPartitionAndSortKey(process.env.TRAINING_PLAN_TABLE ?? 'TrainingPlan', 'userId', userId, 'id', planId)
   }
 }

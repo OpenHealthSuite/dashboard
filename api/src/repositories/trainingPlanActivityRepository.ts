@@ -1,4 +1,4 @@
-import { BaseDynamoPartitionSortRepository } from './baseDynamoPartitionSortRepository'
+import * as baseDynamoRepo from './baseDynamoPartitionRepository'
 import { randomUUID } from 'crypto'
 
 export interface ITrainingPlanActivitySegmentIntervals {
@@ -22,28 +22,20 @@ export interface ITrainingPlanActivity {
   segments: ITrainingPlanActivitySegment[],
   complete: boolean
 }
-
-export class TrainingPlanActivityRepository extends BaseDynamoPartitionSortRepository<ITrainingPlanActivity> {
-  constructor () {
-    super(
-      process.env.TRAINING_PLAN_ACTIVITY_TABLE ?? 'TrainingPlanActivity',
-      'trainingPlanId',
-      'id',
-      {
-        '#nm': 'name',
-        '#acttime': 'activityTime',
-        '#segments': 'segments',
-        '#complete': 'complete'
-      }
-    )
+export class TrainingPlanActivityRepository {
+  private expressionAttributes = {
+    '#nm': 'name',
+    '#acttime': 'activityTime',
+    '#segments': 'segments',
+    '#complete': 'complete'
   }
 
   public async getTrainingPlanActivitiesForTrainingPlan (planId: string): Promise<ITrainingPlanActivity[]> {
-    return await this.getAllByPartitionKey(planId)
+    return await baseDynamoRepo.getAllByPartitionKey(process.env.TRAINING_PLAN_ACTIVITY_TABLE ?? 'TrainingPlanActivity', 'trainingPlanId', 'id', planId, this.expressionAttributes)
   }
 
   public async getTrainingPlanActivity (planId: string, activityId: string): Promise<ITrainingPlanActivity> {
-    return await this.getByPartitionAndSortKeys(planId, activityId)
+    return await baseDynamoRepo.getByPartitionAndSortKeys(process.env.TRAINING_PLAN_ACTIVITY_TABLE ?? 'TrainingPlanActivity', 'trainingPlanId', planId, 'id', activityId)
   }
 
   public async createTrainingPlanActivity (planId: string, newItem: ITrainingPlanActivity): Promise<ITrainingPlanActivity> {
@@ -55,14 +47,14 @@ export class TrainingPlanActivityRepository extends BaseDynamoPartitionSortRepos
       segments: newItem.segments,
       complete: newItem.complete
     }
-    return await this.create(newTableItem)
+    return await baseDynamoRepo.create(process.env.TRAINING_PLAN_ACTIVITY_TABLE ?? 'TrainingPlanActivity', newTableItem)
   }
 
   public async updateTrainingPlanActivity (itemUpdate: ITrainingPlanActivity): Promise<void> {
-    return await this.update(itemUpdate)
+    return await baseDynamoRepo.update(process.env.TRAINING_PLAN_ACTIVITY_TABLE ?? 'TrainingPlanActivity', itemUpdate)
   }
 
   public async deleteTrainingPlanActivity (planId: string, activityId: string): Promise<void> {
-    return await this.deleteByPartitionAndSortKey(planId, activityId)
+    return await baseDynamoRepo.deleteByPartitionAndSortKey(process.env.TRAINING_PLAN_ACTIVITY_TABLE ?? 'TrainingPlanActivity', 'trainingPlanId', planId, 'id', activityId)
   }
 }
