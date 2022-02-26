@@ -1,87 +1,119 @@
-import { BaseDynamoRepository } from './baseDynamoRepository'
+import * as dynamodb from 'aws-sdk/clients/dynamodb'
+
+const _docClient: dynamodb.DocumentClient = new dynamodb.DocumentClient({
+  region: process.env.AWS_REGION ?? 'eu-west-2'
+})
 
 interface LooseKeyObject {
     [key: string]: string
 }
 
-export abstract class BaseDynamoPartitionRepository<T> extends BaseDynamoRepository {
-    private readonly _tableName: string;
-    private readonly _expressionAttributeNames = {}
-    private readonly _partitionKey: string
+export async function getAll<T> (tableName: string, partitionKey: string, expressionAttributeNames: LooseKeyObject, docClient: dynamodb.DocumentClient = _docClient): Promise<T[]> {
+  const params = {
+    TableName: tableName,
+    ProjectionExpression: `${partitionKey}, ${Object.keys(expressionAttributeNames).join(', ')}`,
+    ExpressionAttributeNames: expressionAttributeNames
+  }
 
-    constructor (tableName: string, paritionKey: string, expressionAttributeNames: {}) {
-      super()
-      this._tableName = tableName
-      this._partitionKey = paritionKey
-      this._expressionAttributeNames = expressionAttributeNames
+  const data = await docClient.scan(params).promise()
+  return data.Items as T[]
+}
+
+export async function getAllByPartitionKey<T> (tableName: string, partitionKey: string, sortKey: string, partitionKeyValue: string, expressionAttributeNames: LooseKeyObject, docClient: dynamodb.DocumentClient = _docClient): Promise<T[]> {
+  const params = {
+    TableName: tableName,
+    ProjectionExpression: `${partitionKey}, ${sortKey}, ${Object.keys(expressionAttributeNames).join(', ')}`,
+    FilterExpression: `${partitionKey} = :requestedPartitionKey`,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: {
+      ':requestedPartitionKey': partitionKeyValue
     }
+  }
 
-    protected async getAll (): Promise<T[]> {
-      const params = {
-        TableName: this._tableName,
-        ProjectionExpression: `${this._partitionKey}, ${Object.keys(this._expressionAttributeNames).join(', ')}`,
-        ExpressionAttributeNames: this._expressionAttributeNames
-      }
+  const data = await docClient.scan(params).promise()
+  return data.Items as T[]
+}
 
-      const data = await this._docClient.scan(params).promise()
-      return data.Items as T[]
+export async function getByPartitionAndSortKeys<T> (tableName: string, partitionKey: string, partitionKeyValue: string, sortKey: string, sortKeyValue: string, docClient: dynamodb.DocumentClient = _docClient): Promise<T> {
+  const key: LooseKeyObject = {}
+  key[partitionKey] = partitionKeyValue
+  key[sortKey as string] = sortKeyValue
+
+  const params = {
+    TableName: tableName,
+    Key: key
+  }
+
+  const data = await docClient.get(params).promise()
+  return data.Item as T
+}
+
+export async function getFilteredItems<T> (tableName: string, partitionKey: string, expressionAttributeNames: LooseKeyObject, property: string, value: string | number | undefined, docClient: dynamodb.DocumentClient = _docClient) {
+  const params = {
+    TableName: tableName,
+    ProjectionExpression: `${partitionKey}, ${Object.keys(expressionAttributeNames).join(', ')}`,
+    FilterExpression: `${property} = :propertyValue`,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: {
+      ':propertyValue': value
     }
+  }
 
-    protected async getFilteredItems (property: string, value: string | number | undefined) {
-      const params = {
-        TableName: this._tableName,
-        ProjectionExpression: `${this._partitionKey}, ${Object.keys(this._expressionAttributeNames).join(', ')}`,
-        FilterExpression: `${property} = :propertyValue`,
-        ExpressionAttributeNames: this._expressionAttributeNames,
-        ExpressionAttributeValues: {
-          ':propertyValue': value
-        }
-      }
+  const data = await docClient.scan(params).promise()
+  return data.Items as T[]
+}
 
-      const data = await this._docClient.scan(params).promise()
-      return data.Items as T[]
-    }
+export async function getByPartitionKey<T> (tableName: string, partitionKey: string, paritionKeyValue: string, docClient: dynamodb.DocumentClient = _docClient): Promise<T> {
+  const key: LooseKeyObject = {}
+  key[partitionKey] = paritionKeyValue
 
-    protected async getByPartitionKey (paritionKey: string): Promise<T> {
-      const key: LooseKeyObject = {}
-      key[this._partitionKey] = paritionKey
+  const params = {
+    TableName: tableName,
+    Key: key
+  }
 
-      const params = {
-        TableName: this._tableName,
-        Key: key
-      }
+  const data = await docClient.get(params).promise()
+  return data.Item as T
+}
 
-      const data = await this._docClient.get(params).promise()
-      return data.Item as T
-    }
+export async function create<T> (tableName: string, newItem: T, docClient: dynamodb.DocumentClient = _docClient): Promise<T> {
+  const params = {
+    TableName: tableName,
+    Item: newItem
+  }
 
-    protected async create (newItem: T): Promise<T> {
-      const params = {
-        TableName: this._tableName,
-        Item: newItem
-      }
+  await docClient.put(params).promise()
+  return newItem
+}
 
-      await this._docClient.put(params).promise()
-      return newItem
-    }
+export async function update<T> (tableName: string, itemUpdate: T, docClient: dynamodb.DocumentClient = _docClient): Promise<void> {
+  const updateParams = {
+    TableName: tableName,
+    Item: itemUpdate
+  }
 
-    protected async update (itemUpdate: T): Promise<void> {
-      const updateParams = {
-        TableName: this._tableName,
-        Item: itemUpdate
-      }
+  await docClient.put(updateParams).promise()
+}
 
-      await this._docClient.put(updateParams).promise()
-    }
+export async function deleteByPartitionKey (tableName: string, partitionKey: string, paritionKeyValue: string, docClient: dynamodb.DocumentClient = _docClient): Promise<void> {
+  const key: LooseKeyObject = {}
+  key[partitionKey] = paritionKeyValue
+  const deleteParams = {
+    TableName: tableName,
+    Key: key
+  }
 
-    protected async deleteByPartitionKey (paritionKey: string): Promise<void> {
-      const key: LooseKeyObject = {}
-      key[this._partitionKey] = paritionKey
-      const deleteParams = {
-        TableName: this._tableName,
-        Key: key
-      }
+  await docClient.delete(deleteParams).promise()
+}
 
-      await this._docClient.delete(deleteParams).promise()
-    }
+export async function deleteByPartitionAndSortKey (tableName: string, partitionKey: string, paritionKeyValue: string, sortKey: string, sortKeyValue: string, docClient: dynamodb.DocumentClient = _docClient): Promise<void> {
+  const key: LooseKeyObject = {}
+  key[partitionKey] = paritionKeyValue
+  key[sortKey as string] = sortKeyValue
+  const deleteParams = {
+    TableName: tableName,
+    Key: key
+  }
+
+  await docClient.delete(deleteParams).promise()
 }
