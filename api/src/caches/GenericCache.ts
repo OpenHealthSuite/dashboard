@@ -1,12 +1,23 @@
-import { BaseRedisCache } from './baseRedisCache'
+import IORedis from 'ioredis'
 
-export class GenericCache<T> extends BaseRedisCache {
-  async GetByKey (cackeKey: string): Promise<{value: T, date: Date } | undefined> {
-    const cachedValue = await this.BaseGetResponse(cackeKey)
-    return cachedValue ? { value: JSON.parse(cachedValue.cachedValue), date: cachedValue.date } : cachedValue
-  }
+export interface GenericCacheValue<T> {
+  value: T,
+  date: Date
+}
 
-  async SaveOnKey (cacheKey: string, value: T) {
-    return await this.BaseSaveResponse(cacheKey, JSON.stringify(value))
-  }
+export interface IBaseCachedValue {
+  cachedValue: string,
+  date: Date
+}
+
+const REDIS_CONNECTION = new IORedis(parseInt(process.env.REDIS_PORT ?? '6379'), process.env.REDIS_HOST ?? 'localhost')
+
+export async function GetByKey<T> (cacheKey: string, redisConnection: IORedis.Redis = REDIS_CONNECTION): Promise<GenericCacheValue<T> | undefined> {
+  const cachedValueRaw = await redisConnection.get(`${cacheKey}`)
+  const cachedValue = cachedValueRaw ? JSON.parse(cachedValueRaw) : undefined
+  return cachedValue ? { value: cachedValue.cachedValue, date: cachedValue.date } : cachedValue
+}
+
+export async function SaveOnKey<T> (cacheKey: string, value: T, redisConnection: IORedis.Redis = REDIS_CONNECTION): Promise<void> {
+  await redisConnection.set(`${cacheKey}`, JSON.stringify({ cachedValue: value, date: new Date() }))
 }

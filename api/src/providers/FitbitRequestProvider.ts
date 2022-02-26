@@ -3,8 +3,7 @@ import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
 import { createHash, randomBytes } from 'crypto'
 import { Axios } from 'axios'
 import { UserServiceTokenRepository } from '../repositories/userServiceTokenRepository'
-import { ServiceCache } from '../caches/serviceCache'
-import { CodeChallenceCache } from '../caches/codeChallengeCache'
+import * as GenericCache from '../caches/GenericCache'
 
 const AXIOS = new Axios({})
 
@@ -58,8 +57,8 @@ export interface IFitbitTokenDetails extends IFitbitTokenResponse {
 }
 
 const FITBIT_TOKEN_REPO = new UserServiceTokenRepository<IFitbitTokenDetails>('fitbit')
-const SERVICE_CACHE = new ServiceCache()
-const CODE_CHALLENGE_CACHE = new CodeChallenceCache()
+const SERVICE_CACHE_KEY = 'servicecache'
+const CODE_CHALLENGE_CACHE = 'codechallengecache'
 
 export function addFitbitHandlers (app: Application) {
   app.post('/users/:userId/providers/fitbit/start', (req, res) => userRestrictedHandler(req, res, startAuthenticationFlow))
@@ -74,17 +73,17 @@ function createsha256String (input: string) {
   return createHash('sha256').update(input).digest('base64')
 }
 
-export function startAuthenticationFlow (
+export async function startAuthenticationFlow (
   userId: string,
   _req: Request,
   res: Response,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
-  codeChallengeCache: CodeChallenceCache = CODE_CHALLENGE_CACHE,
+  SetCache: (key: string, value: string) => Promise<void> = GenericCache.SaveOnKey,
   fnRandomString: (size: number) => string = randomString,
   fnCreatesha256String: (input: string) => string = createsha256String
 ) {
   const codeVerifier = fnRandomString(60)
-  codeChallengeCache.SetCode(userId, codeVerifier)
+  await SetCache(`${CODE_CHALLENGE_CACHE}:${userId}`, codeVerifier)
   // Apparently fitbit wants - instead of +?
   // https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/
   const challengeHash = encodeURIComponent(fnCreatesha256String(codeVerifier).replace('=', '').replace(/\+/g, '-'))
@@ -100,15 +99,15 @@ export async function redeemCode (
   res: Response,
   axios: Axios = AXIOS,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
-  codeChallengeCache: CodeChallenceCache = CODE_CHALLENGE_CACHE,
+  GetCache: (key: string) => Promise<GenericCache.GenericCacheValue<string> | undefined> = GenericCache.GetByKey,
   fitbitTokenRepo: UserServiceTokenRepository<IFitbitTokenDetails> = FITBIT_TOKEN_REPO
 ) {
   const { code } = req.body
-  const codeVerifier = codeChallengeCache.GetCode(userId)
+  const codeVerifier = await GetCache(`${CODE_CHALLENGE_CACHE}:${userId}`)
   const tokenParameters = {
     client_id: fitbitSettings.clientId,
     code: code,
-    code_verifier: codeVerifier,
+    code_verifier: codeVerifier?.value,
     grant_type: 'authorization_code'
   }
   const headers = {
@@ -134,13 +133,14 @@ export async function makeFitbitRequest<T> (
   url: string,
   axios: Axios = AXIOS,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
-  serviceCache: ServiceCache = SERVICE_CACHE,
+  GetCache: (key: string) => Promise<GenericCache.GenericCacheValue<string> | undefined> = GenericCache.GetByKey,
+  SaveCache: (key: string, value: string) => Promise<void> = GenericCache.SaveOnKey,
   fnGetFitbitToken: (userId: string) => Promise<IFitbitTokenDetails | undefined> = getFitbitToken
 ): Promise<T | undefined> {
   const requestUrl = fitbitSettings.rootApiUrl + url
-  const cachedValue = await serviceCache.GetResponse(userId, requestUrl)
+  const cachedValue = await GetCache(`${SERVICE_CACHE_KEY}:${userId}:${requestUrl}`)
   if (cachedValue && new Date(cachedValue.date).getTime() > ((new Date()).getTime() - fitbitSettings.cacheExpiryMilliseconds)) {
-    return JSON.parse(cachedValue.serialisedResponse) as T
+    return JSON.parse(cachedValue.value) as T
   }
   const token = await fnGetFitbitToken(userId)
   if (!token) { return undefined }
@@ -155,7 +155,7 @@ export async function makeFitbitRequest<T> (
     console.error('ErrorResponseFromFitbit', fitbitResponse.data)
     return undefined
   }
-  serviceCache.SaveResponse(userId, requestUrl, fitbitResponse.data)
+  SaveCache(`${SERVICE_CACHE_KEY}:${userId}:${requestUrl}`, fitbitResponse.data)
   return JSON.parse(fitbitResponse.data) as T
 }
 
