@@ -10,6 +10,8 @@ import { CodeChallenceCache } from '../caches/codeChallengeCache'
 import { Axios } from 'axios'
 import { ServiceCache } from '../caches/serviceCache'
 
+// TODO: WE NEED TO MOCK THE REPO - THIS ONLY WORKS BECAUSE OF AWS ACCESS
+
 test('startAuthenticationFlow :: generates code, caches code, and returns authUrl', async () => {
   const testUserId = 'input-user-id-123'
   const req = stubInterface<Request>()
