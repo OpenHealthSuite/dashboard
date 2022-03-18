@@ -15,9 +15,9 @@ const REDIS_CONNECTION = new IORedis(parseInt(process.env.REDIS_PORT ?? '6379'),
 export async function GetByKey<T> (cacheKey: string, redisConnection: IORedis.Redis = REDIS_CONNECTION): Promise<GenericCacheValue<T> | undefined> {
   const cachedValueRaw = await redisConnection.get(`${cacheKey}`)
   const cachedValue = cachedValueRaw ? JSON.parse(cachedValueRaw) : undefined
-  return cachedValue ? { value: cachedValue.cachedValue, date: cachedValue.date } : cachedValue
+  return cachedValue ? { value: cachedValue.cachedValue, date: new Date(cachedValue.date) } : cachedValue
 }
 
-export async function SaveOnKey<T> (cacheKey: string, value: T, redisConnection: IORedis.Redis = REDIS_CONNECTION): Promise<void> {
-  await redisConnection.set(`${cacheKey}`, JSON.stringify({ cachedValue: value, date: new Date() }))
+export async function SaveOnKey<T> (cacheKey: string, value: T, redisConnection: IORedis.Redis = REDIS_CONNECTION, saveDate: Date = new Date()): Promise<void> {
+  await redisConnection.set(`${cacheKey}`, JSON.stringify({ cachedValue: value, date: saveDate }))
 }
