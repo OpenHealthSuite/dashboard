@@ -1,6 +1,5 @@
 import { StepsGraphTile } from './tiles/StepsGraphTile'
 import { CaloriesGraphTile } from './tiles/CaloriesGraphTile'
-import { ActivitiesTile } from './tiles/ActivitiesTile'
 import { CaloriesStepsDailyTile } from './tiles/CaloriesStepsDailyTile'
 import { SleepDailyTile } from './tiles/SleepDailyTile'
 import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, updateSettings } from '../../services/SettingsService'
@@ -14,7 +13,6 @@ export interface IComponentLookup {
 }
 
 const ComponentLookup: IComponentLookup = {
-    'ActivitiesTile': ActivitiesTile,
     'CaloriesStepsDailyTile': CaloriesStepsDailyTile,
     'SleepDailyTile': SleepDailyTile,
     'StepsGraphTile': StepsGraphTile,
@@ -29,7 +27,7 @@ interface DashboardProps {
 function generateContent(settings: IDashboardSettings | undefined): JSX.Element {
     if (!settings) { return <></> }
     return <Grid container spacing={settings.spacing}>
-        {settings.tileSettings.map(ts => { return { tileFunction: ComponentLookup[ts.componentName] } } ).map((tile, i) => { 
+        {settings.tileSettings.filter(ts => Object.keys(ComponentLookup).includes(ts.componentName)).map(ts => { return { tileFunction: ComponentLookup[ts.componentName] } } ).map((tile, i) => { 
             return <Grid key={`gridkey-${i}`} item xs={settings.tileSizes.xs} sm={settings.tileSizes.sm} md={settings.tileSizes.md}>
                     <tile.tileFunction />
                 </Grid>})

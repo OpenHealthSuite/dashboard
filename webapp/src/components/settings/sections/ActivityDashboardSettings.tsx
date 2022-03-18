@@ -24,7 +24,6 @@ interface IAvailableTile {
 }
 
 const ALL_AVAILABLE_TILES: IAvailableTile[] = [
-  { componentName: 'ActivitiesTile', componentNiceName: 'Activities' },
   { componentName: 'CaloriesStepsDailyTile', componentNiceName: 'Calories/Steps Daily Summary' },
   { componentName: 'SleepDailyTile', componentNiceName: 'Sleep Daily Summary' },
   { componentName: 'StepsGraphTile', componentNiceName: 'Steps Graph' },

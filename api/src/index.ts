@@ -1,7 +1,5 @@
 import express, { Request, Response, NextFunction, json } from 'express'
 import cors from 'cors'
-import { addTrainingPlanActivityHandlers } from './handlers/trainingPlanActivityHandlers'
-import { addTrainingPlanHandlers } from './handlers/trainingPlanHandlers'
 import CognitoExpress from 'cognito-express'
 import { addProviderRoutes } from './providers/ProvidersHandler'
 import { addFitbitHandlers } from './providers/FitbitRequestProvider'
@@ -67,8 +65,6 @@ if (process.env.RUNNING_IN_CONTAINER) {
 
 // Add our Handlers
 addUserSettingHandlers(app)
-addTrainingPlanHandlers(app)
-addTrainingPlanActivityHandlers(app)
 addProviderRoutes(app)
 addFitbitHandlers(app)
 addSleepHandlers(app)

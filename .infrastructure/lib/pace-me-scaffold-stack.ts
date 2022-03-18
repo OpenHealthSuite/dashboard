@@ -29,17 +29,7 @@ export class PaceMeScaffoldStack extends Stack {
         name: 'UserServiceToken',
         partKey: 'userId',
         sortKey: 'serviceId'
-      },
-      {
-        name: 'TrainingPlan',
-        partKey: 'userId',
-        sortKey: 'id'
-      },      
-      {
-        name: 'TrainingPlanActivity',
-        partKey: 'trainingPlanId',
-        sortKey: 'id'
-      },
+      }
     ]
 
     const createdTables = dynamoTables.map(dt => {

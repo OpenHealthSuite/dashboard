@@ -67,10 +67,6 @@ spec:
               value: {{ required "Dynamo.UserServiceToken is required" .Values.Dynamo.UserServiceToken }}
             - name: USER_SETTING_TABLE
               value: {{ required "Dynamo.UserSetting is required" .Values.Dynamo.UserSetting }}
-            - name: TRAINING_PLAN_TABLE
-              value: {{ required "Dynamo.TrainingPlan is required" .Values.Dynamo.TrainingPlan }}
-            - name: TRAINING_PLAN_ACTIVITY_TABLE
-              value: {{ required "Dynamo.TrainingPlanActivity is required" .Values.Dynamo.TrainingPlanActivity }}
             - name: NODE_ENV
               value: {{ required "nodeEnv is required" .Values.nodeEnv }}
       imagePullSecrets:

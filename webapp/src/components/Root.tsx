@@ -2,9 +2,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { AmplifySignOut } from '@aws-amplify/ui-react';
 import React from 'react';
 import Drawer from '@mui/material/Drawer';
-import TrainingPlanGrid from './trainingplan/TrainingPlanGrid'
-import TrainingPlanActivityBrowser from './trainingplanactivity/TrainingPlanActivityBrowser'
-import TrainingPlanActivityViewer from './trainingplanactivity/TrainingPlanActivityViewer'
 import ActivityDashboard from './dashboard/ActivityDashboard'
 import SettingsDashboard from './settings/SettingsDashboard'
 
@@ -22,31 +19,9 @@ import {
 import { redeemCode } from '../services/ProvidersService'
 import { Fab } from '@mui/material';
 
-interface IRouteParameters {
-    trainingPlanId: string,
-    trainingPlanActivityId: string
-}
 
 interface ICallbackParameters {
     serviceId: string
-}
-
-function TrainingPlanRouteChild() {
-    // We can use the `useParams` hook here to access
-    // the dynamic pieces of the URL.
-    const { trainingPlanId } = useParams<IRouteParameters>();
-
-    return (
-        <TrainingPlanActivityBrowser trainingPlanId={trainingPlanId} />
-    );
-}
-
-function TrainingPlanActivityRouteChild() {
-    const { trainingPlanId, trainingPlanActivityId} = useParams<IRouteParameters>();
-
-    return (
-        <TrainingPlanActivityViewer trainingPlanId={trainingPlanId} trainingPlanActivityId={trainingPlanActivityId} />
-    );
 }
 
 function CallbackRouteChild() {
@@ -109,7 +84,6 @@ export function Root() {
     const sidebarItems = 
     [
         { linkDest: '/', name: 'Dashboard' },
-        { linkDest: '/trainingplans', name: 'TrainingPlans' },
         { linkDest: '/settings', name: 'Settings' }
     ].map(item => 
         <ListItem 
@@ -135,9 +109,6 @@ export function Root() {
                 </Fab>
             </div>
             <Switch>
-                <Route path="/trainingplans/:trainingPlanId/activities/:trainingPlanActivityId" children={<TrainingPlanActivityRouteChild />} />
-                <Route path="/trainingplans/:trainingPlanId" children={<TrainingPlanRouteChild />} />
-                <Route path="/trainingplans" children={<TrainingPlanGrid />}/>
                 <Route path="/callback/:serviceId" children={<CallbackRouteChild />}/>
                 <Route path="/settings" children={<SettingsDashboard />} />
                 <Route path="/" children={<ActivityDashboard />} />
