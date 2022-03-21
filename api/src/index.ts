@@ -7,6 +7,7 @@ import { addCaloriesHandlers } from './handlers/caloriesHandlers'
 import { addSleepHandlers } from './handlers/sleepHandlers'
 import { addUserSettingHandlers } from './handlers/userSettingHandlers'
 import { authenticationMiddleware } from './middlewares/authenticationMiddleware'
+import CognitoExpress from 'cognito-express'
 
 const app = express()
 const configuration = {
@@ -22,7 +23,14 @@ app.get('/', (req, res) => {
   res.send('Hello world from PaceMe!')
 })
 
-app.use(authenticationMiddleware)
+const cognitoExpress = new CognitoExpress({
+  region: process.env.AWS_REGION ?? 'eu-west-2',
+  cognitoUserPoolId: process.env.COGNITO_USER_POOL_ID,
+  tokenUse: 'id',
+  tokenExpiration: 3600000
+})
+
+app.use((req, res, next) => authenticationMiddleware(req, res, next, cognitoExpress))
 
 if (process.env.RUNNING_IN_CONTAINER) {
   configuration.host = '0.0.0.0' // Mapping to container host
