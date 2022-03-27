@@ -6,8 +6,8 @@ ingress:
 
 metadata: 
   labels:
-    app: paceme-api
-  namespace: paceme-api
+    app: paceme
+  namespace: paceme
 
 autosecretjob: true
 nodeEnv: production

@@ -1,4 +1,4 @@
-helm upgrade paceme-api ./helm \
+helm upgrade paceme ./helm \
   --install \
   --set "Aws.AccessKey=$(credstash get paceme/ApiAwsAccessKey)" \
   --set "Aws.SecretKey=$(credstash get paceme/ApiAwsSecretKey)" \
