@@ -12,4 +12,4 @@ spec:
     solvers: 
       - http01:
           ingress:
-            name: paceme-ingress
+            class: nginx
