@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import * as dyn from 'aws-cdk-lib/aws-dynamodb'
 import * as cdk from 'aws-cdk-lib';
 import * as cognito from 'aws-cdk-lib/aws-cognito'
+import * as iam from 'aws-cdk-lib/aws-iam'
 
 interface PaceMeScaffoldStackProps extends StackProps {
   stackPrefix: string | undefined
@@ -72,6 +73,17 @@ export class PaceMeScaffoldStack extends Stack {
         userPassword: true
       }
     });
+
+    const awsApiUser = new iam.User(this, 'ApiUser', { })
+
+    createdTables.map(x => x.table.grantFullAccess(awsApiUser))
+
+    const accessKey = new iam.CfnAccessKey(this, 'PaceMeApiAWSAccessKey', {
+      userName: awsApiUser.userName
+    });
+
+    new cdk.CfnOutput(this, 'ApiAwsAccessKey', { value: accessKey.ref });
+    new cdk.CfnOutput(this, 'ApiAwsSecretKey', { value: accessKey.attrSecretAccessKey });
 
     new cdk.CfnOutput(
       this, 
