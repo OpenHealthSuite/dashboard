@@ -36,7 +36,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:ci": "jest",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "docker:buildandpush": "scripts/build-and-push-to-repo.sh"
   },
   "eslintConfig": {
     "extends": [

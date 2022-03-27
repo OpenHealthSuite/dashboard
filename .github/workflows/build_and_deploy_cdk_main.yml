@@ -1,17 +1,13 @@
-name: build_and_deploy_cdk_main
+name: Update AWS Resources
 on:
   push:
     branches: 
       - main
     paths:
-      - 'webapp/**'
       - '.github/workflows/build_and_deploy_cdk_main.yml'
       - '.infrastructure/**'
   workflow_dispatch:
 env:
-  REACT_APP_API_ROOT: 'https://api.paceme.info'
-  REACT_APP_AWS_REGION: eu-west-2
-  REACT_APP_AWS_COOKIE_STORAGE_DOMAIN: app.paceme.info
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: eu-west-2
@@ -33,28 +29,6 @@ jobs:
       # Get Credstash
       - name: get credstash
         uses: robertbeal/credstash@v8
-      - uses: actions/cache@v2
-        id: frontend-deps
-        with:
-          path: ./webapp/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('./webapp/package.json') }}-${{ hashFiles('./webapp/package-lock.json') }}
-      # Install webapp
-      - name: install webapp
-        if: steps.frontend-deps.outputs.cache-hit != 'true'
-        working-directory: ./webapp
-        run: npm ci
-      # npm test
-      - name: test webapp
-        working-directory: ./webapp
-        run: npm run test:ci
-      # npm build
-      - name: build webapp
-        working-directory: ./webapp
-        # There is a potential for bootstrap woes here - future lee's problem?
-        run: |
-          export REACT_APP_AWS_USER_POOL_ID=$(credstash get paceme/CognitoPoolId)
-          export REACT_APP_AWS_USER_POOL_CLIENTID=$(credstash get paceme/CognitoLocalWebappClientId)
-          npm run build
       # install infrastructure
       - uses: actions/cache@v2
         id: cdk-install
@@ -73,7 +47,3 @@ jobs:
       - name: save credstash values
         working-directory: ./.infrastructure
         run: npm run script:outfiletocredstash
-      # clear cloudfront
-      - name: clear cloudfront
-        working-directory: ./.infrastructure
-        run: npm run aws:invalidatecache

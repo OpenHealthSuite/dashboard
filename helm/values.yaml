@@ -1,0 +1,17 @@
+api:
+  image: leemartin77/paceme-api
+  tag: latest
+webapp: 
+  image: leemartin77/paceme-webapp
+  tag: latest
+
+hostname: app.paceme.info
+
+ingress:
+  enabled: true
+
+metadata: 
+  namespace: paceme
+
+autosecretjob: true
+nodeEnv: production

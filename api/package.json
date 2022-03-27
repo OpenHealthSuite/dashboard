@@ -16,12 +16,7 @@
         "dev:redis:create": "docker run --name paceme-redis -d -p 6379:6379 redis:6.2.6",
         "dev:redis:start": "docker start paceme-redis",
         "dev:redis:stop": "docker stop paceme-redis",
-        "docker:buildandpush": "scripts/build-and-push-to-repo.sh",
-        "k8s:deleteimagesecret": "kubectl delete secret awsregcred --namespace=paceme-api",
-        "k8s:addimagesecret": "./scripts/kubernetes-ecr-access.sh",
-        "k8s:deploy": "./scripts/deploy.sh",
-        "k8s:undeploy": "./scripts/undeploy.sh",
-        "k8s:status": "kubectl get all --namespace=paceme-api"
+        "docker:buildandpush": "scripts/build-and-push-to-repo.sh"
     },
     "author": "Lee Martin <hello@leejohnmartin.co.uk>",
     "license": "GPL-3.0-only",

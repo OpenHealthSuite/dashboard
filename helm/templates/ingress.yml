@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  name: paceme-ingress
+  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+spec:
+  rules:
+    - host: {{ required "hostname is required" .Values.hostname }}
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name:  paceme-api
+                port:
+                  number: 8081
+          - path: /api/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name:  paceme-api
+                port:
+                  number: 8081
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name:  paceme-webapp
+                port:
+                  number: 9000
+  tls:
+    - hosts:
+      - {{ required "hostname is required" .Values.hostname }}
+      secretName: paceme-le-certificate
