@@ -1,11 +1,11 @@
 helm upgrade paceme ./helm \
+  --namespace paceme \
+  --create-namespace \
   --install \
   --set "Aws.AccessKey=$(credstash get paceme/ApiAwsAccessKey)" \
   --set "Aws.SecretKey=$(credstash get paceme/ApiAwsSecretKey)" \
   --set "CognitoPoolId=$(credstash get paceme/CognitoPoolId)" \
   --set "fitbit.clientId=$(credstash get paceme/fitbit-client-id)" \
   --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
-  --set "ECRApiRepository=$(credstash get paceme/ECRApiRepository)" \
-  --set "image.tag=$(cat package.json | jq -r '.version')" \
   --set "Dynamo.UserServiceToken=$(credstash get paceme/DynamoUserServiceToken)" \
   --set "Dynamo.UserSetting=$(credstash get paceme/DynamoUserSetting)" 
