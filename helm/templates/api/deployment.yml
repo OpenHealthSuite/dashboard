@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: {{ .Values.metadata.labels.app }}
+    app: paceme-api
   namespace: {{ .Values.metadata.namespace }}
   name: paceme-api
 spec:
@@ -20,13 +20,13 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Values.metadata.labels.app }}
+        app: paceme-api
       namespace: {{ .Values.metadata.namespace }}
       name: paceme-api
     spec:
       containers:
         - name: paceme-api
-          image: {{ required "ECRApiRepository is required" .Values.ECRApiRepository }}:{{  required "Image tag is required" .Values.image.tag }}
+          image: {{ required "api.image is required" .Values.api.image }}:{{  required "api.tag is required" .Values.api.tag }}
           imagePullPolicy: IfNotPresent
           ports:
             - name: web
@@ -69,5 +69,4 @@ spec:
               value: {{ required "Dynamo.UserSetting is required" .Values.Dynamo.UserSetting }}
             - name: NODE_ENV
               value: {{ required "nodeEnv is required" .Values.nodeEnv }}
-      imagePullSecrets:
-          - name: awsregcred
+

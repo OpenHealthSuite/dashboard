@@ -1,12 +1,16 @@
-image:
+api:
+  image: leemartin91/paceme-api
   tag: latest
+webapp: 
+  image: leemartin91/paceme-client
+  tag: latest
+
+hostname: app.paceme.info
 
 ingress:
   enabled: true
 
 metadata: 
-  labels:
-    app: paceme
   namespace: paceme
 
 autosecretjob: true
