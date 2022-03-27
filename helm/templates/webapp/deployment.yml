@@ -31,3 +31,13 @@ spec:
           ports:
             - name: web
               containerPort: 80
+          volumeMounts:
+            - name: webappconfig
+              mountPath: /etc/nginx/conf.d/{{ required "hostname is required" .Values.hostname }}.conf
+              subPath: nginx_webapp.conf
+              readOnly: true    
+      volumes: 
+        - name: webappconfig
+          configMap: 
+            name:  paceme-webapp
+            defaultMode: 0444
