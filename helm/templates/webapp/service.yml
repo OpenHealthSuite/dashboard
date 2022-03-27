@@ -10,7 +10,7 @@ spec:
   - name: http
     port: 9000
     protocol: TCP
-    targetPort: 80
+    targetPort: 8080
   selector:
     app: paceme-webapp
   type: ClusterIP

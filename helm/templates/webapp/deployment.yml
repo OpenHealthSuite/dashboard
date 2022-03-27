@@ -30,7 +30,7 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - name: web
-              containerPort: 80
+              containerPort: 8080
           volumeMounts:
             - name: webappconfig
               mountPath: /etc/nginx/conf.d/{{ required "hostname is required" .Values.hostname }}.conf

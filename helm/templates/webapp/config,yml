@@ -32,8 +32,8 @@ data:
         application/rdf+xml
         application/vnd.ms-fontobject
         application/x-web-app-manifest+json;
-      listen 80 default_server;
-      listen [::]:80 default_server;
+      listen 8080 default_server;
+      listen [::]:8080 default_server;
       root /usr/share/nginx/html;
       index index.html;
       server_name {{ required "hostname is required" .Values.hostname }};
