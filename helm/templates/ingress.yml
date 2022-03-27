@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   annotations:
     cert-manager.io/issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
   name: paceme-ingress
   namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
 spec:
@@ -11,14 +11,21 @@ spec:
     - host: {{ required "hostname is required" .Values.hostname }}
       http:
         paths:
-          - path: /api(/|$)(.*)
+          - path: /api
             pathType: Prefix
             backend:
               service:
                 name:  paceme-api
                 port:
                   number: 8081
-          - path: (/|$)(.*)
+          - path: /api/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name:  paceme-api
+                port:
+                  number: 8081
+          - path: /(.*)
             pathType: Prefix
             backend:
               service:
