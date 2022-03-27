@@ -1,3 +1,3 @@
 #!/bin/bash
 
-helm uninstall paceme
+helm uninstall paceme --namespace=paceme
