@@ -65,7 +65,7 @@ test('baseDynamoRepository.getAll :: Overall Happy Test :: Gets and returns item
   fakeDynamoClient.scan.calledOnceWithExactly(expectedParams)
 })
 
-test('baseDynamoRepository.getByPartitionKey :: Overall Happy Test :: Gets item and returns it ', async () => {
+test('baseDynamoRepository.getByPrimaryKey :: Overall Happy Test :: Gets item and returns it ', async () => {
   const testTableName = 'TESTTABLE'
 
   const expectedUserId = '456EXPECTEDUSERID'
@@ -84,7 +84,7 @@ test('baseDynamoRepository.getByPartitionKey :: Overall Happy Test :: Gets item 
   const fakeDynamoClient = { get: sinon.stub().returns({ promise: sinon.stub().resolves({ Item: mockItem }) }) }
 
   // Act
-  const result = await repository.getByPartitionKey(testTableName, expectedPartitionKey, expectedUserId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
+  const result = await repository.getByPrimaryKey(testTableName, expectedPartitionKey, expectedUserId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
 
   // Assert
 
@@ -92,7 +92,7 @@ test('baseDynamoRepository.getByPartitionKey :: Overall Happy Test :: Gets item 
   fakeDynamoClient.get.calledOnceWithExactly(expectedParams)
 })
 
-test('baseDynamoRepository.getAllByPartitionKey :: Overall Happy Test :: Gets and returns items ', async () => {
+test('baseDynamoRepository.getAllByParentKey :: Overall Happy Test :: Gets and returns items ', async () => {
   const testTableName = 'TESTTABLE'
 
   const expectedUserId = '456EXPECTEDUSERID'
@@ -120,7 +120,7 @@ test('baseDynamoRepository.getAllByPartitionKey :: Overall Happy Test :: Gets an
   const fakeDynamoClient = { scan: sinon.stub().returns({ promise: sinon.stub().resolves({ Items: mockItems }) }) }
 
   // Act
-  const result = await repository.getAllByPartitionKey(testTableName, expectedPartitionKey, expectedSortKey, expectedUserId, expectedExpressionAttributes, fakeDynamoClient as unknown as dynamodb.DocumentClient)
+  const result = await repository.getAllByParentKey(testTableName, expectedPartitionKey, expectedSortKey, expectedUserId, expectedExpressionAttributes, fakeDynamoClient as unknown as dynamodb.DocumentClient)
 
   // Assert
 
@@ -128,7 +128,7 @@ test('baseDynamoRepository.getAllByPartitionKey :: Overall Happy Test :: Gets an
   fakeDynamoClient.scan.calledOnceWithExactly(expectedParams)
 })
 
-test('baseDynamoRepository.getByPartitionAndSortKeys :: Overall Happy Test :: Gets item and returns it ', async () => {
+test('baseDynamoRepository.getByPrimaryAndParentKey :: Overall Happy Test :: Gets item and returns it ', async () => {
   const testTableName = 'TESTTABLE'
 
   const expectedId = '123TESTEXPECTEDID'
@@ -150,7 +150,7 @@ test('baseDynamoRepository.getByPartitionAndSortKeys :: Overall Happy Test :: Ge
   const fakeDynamoClient = { get: sinon.stub().returns({ promise: sinon.stub().resolves({ Item: mockItem }) }) }
 
   // Act
-  const result = await repository.getByPartitionAndSortKeys(testTableName, expectedPartitionKey, expectedUserId, expectedSortKey, expectedId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
+  const result = await repository.getByPrimaryAndParentKey(testTableName, expectedPartitionKey, expectedUserId, expectedSortKey, expectedId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
 
   // Assert
 
@@ -198,7 +198,7 @@ test('BaseDynamoRepository.delete :: Overall Happy Test :: deletes item ', async
   const fakeDynamoClient = { delete: sinon.stub().returns({ promise: sinon.stub().resolves() }) }
 
   // Act
-  await repository.deleteByPartitionKey(testTableName, expectedPartitionKey, expectedUserId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
+  await repository.deleteByPrimaryKey(testTableName, expectedPartitionKey, expectedUserId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
 
   // Assert
   fakeDynamoClient.delete.calledOnceWithExactly(expectedParams)
@@ -225,7 +225,7 @@ test('BaseDynamoRepository.delete :: Overall Happy Test :: deletes item ', async
 
   // Act
 
-  await repository.deleteByPartitionAndSortKey(testTableName, expectedPartitionKey, expectedUserId, expectedSortKey, expectedId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
+  await repository.deleteByPrimaryAndParentKey(testTableName, expectedPartitionKey, expectedUserId, expectedSortKey, expectedId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
 
   // Assert
   fakeDynamoClient.delete.calledOnceWithExactly(expectedParams)
