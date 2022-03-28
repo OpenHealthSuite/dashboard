@@ -11,7 +11,7 @@ interface LooseKeyObject {
 export async function getByPrimaryAndParentKey<T> (tableName: string, partitionKey: string, partitionKeyValue: string, sortKey: string, sortKeyValue: string, docClient: dynamodb.DocumentClient = _docClient): Promise<T> {
   const key: LooseKeyObject = {}
   key[partitionKey] = partitionKeyValue
-  key[sortKey as string] = sortKeyValue
+  key[sortKey] = sortKeyValue
 
   const params = {
     TableName: tableName,
@@ -44,7 +44,7 @@ export async function update<T> (tableName: string, itemUpdate: T, docClient: dy
 export async function deleteByPrimaryAndParentKey (tableName: string, partitionKey: string, paritionKeyValue: string, sortKey: string, sortKeyValue: string, docClient: dynamodb.DocumentClient = _docClient): Promise<void> {
   const key: LooseKeyObject = {}
   key[partitionKey] = paritionKeyValue
-  key[sortKey as string] = sortKeyValue
+  key[sortKey] = sortKeyValue
   const deleteParams = {
     TableName: tableName,
     Key: key
