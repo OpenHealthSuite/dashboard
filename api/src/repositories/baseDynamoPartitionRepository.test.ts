@@ -115,7 +115,12 @@ test('BaseDynamoRepository.delete :: Overall Happy Test :: deletes item ', async
 
   // Act
 
-  await repository.deleteByPrimaryAndParentKey(testTableName, expectedPartitionKey, expectedUserId, expectedSortKey, expectedId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
+  await repository.deleteByKey(testTableName, {
+    partitionKey: expectedPartitionKey,
+    partitionKeyValue: expectedUserId,
+    sortKey: expectedSortKey,
+    sortKeyValue: expectedId
+  }, fakeDynamoClient as unknown as dynamodb.DocumentClient)
 
   // Assert
   fakeDynamoClient.delete.calledOnceWithExactly(expectedParams)

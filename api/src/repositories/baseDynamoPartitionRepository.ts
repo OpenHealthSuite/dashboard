@@ -47,9 +47,9 @@ export async function update<T> (tableName: string, itemUpdate: T, docClient: dy
   await docClient.put(updateParams).promise()
 }
 
-export async function deleteByPrimaryAndParentKey (tableName: string, partitionKey: string, paritionKeyValue: string, sortKey: string, sortKeyValue: string, docClient: dynamodb.DocumentClient = _docClient): Promise<void> {
+export async function deleteByKey (tableName: string, { partitionKey, partitionKeyValue, sortKey, sortKeyValue }: IDynamoKey, docClient: dynamodb.DocumentClient = _docClient): Promise<void> {
   const key: LooseKeyObject = {}
-  key[partitionKey] = paritionKeyValue
+  key[partitionKey] = partitionKeyValue
   key[sortKey] = sortKeyValue
   const deleteParams = {
     TableName: tableName,
