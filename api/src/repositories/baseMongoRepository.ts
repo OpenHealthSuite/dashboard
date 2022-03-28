@@ -2,10 +2,7 @@ import { MongoClient, ObjectId } from 'mongodb'
 import { err, ok, Result } from 'neverthrow'
 
 export async function getByKey<T> (dbname: string, { collectionName, _id }: { collectionName: string, _id: string }, client: MongoClient): Promise<Result<T, string>> {
-  // Not a massive fan of this, but it'll do
-  try {
-    new ObjectId(_id).toString()
-  } catch {
+  if (!ObjectId.isValid(_id)) {
     return err('Invalid ObjectId')
   }
   try {
