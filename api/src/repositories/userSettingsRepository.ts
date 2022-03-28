@@ -18,7 +18,13 @@ export class UserSettingRepository {
     if (cachedValue) {
       return cachedValue.value
     }
-    const result = await baseDynamoRepo.getByPrimaryAndParentKey<IUserSetting>(process.env.USER_SETTING_TABLE ?? 'UserSetting', 'userId', userId, 'settingId', settingId)
+    const result = await baseDynamoRepo.getByKey<IUserSetting>(process.env.USER_SETTING_TABLE ?? 'UserSetting',
+      {
+        partitionKey: 'userId',
+        partitionKeyValue: userId,
+        sortKey: 'settingId',
+        sortKeyValue: settingId
+      })
     await GenericCache.SaveOnKey(`${this.CACHE_KEY}:${userId}:${settingId}`, result)
     return result
   }

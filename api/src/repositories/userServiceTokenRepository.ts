@@ -20,7 +20,13 @@ export class UserServiceTokenRepository<T> {
     if (cachedValue) {
       return cachedValue.value
     }
-    const result = await baseDynamoRepo.getByPrimaryAndParentKey<IUserServiceToken<T>>(process.env.USER_SERVICE_TOKEN_TABLE ?? 'UserServiceToken', 'userId', userId, 'serviceId', this.SERVICE_ID)
+    const result = await baseDynamoRepo.getByKey<IUserServiceToken<T>>(process.env.USER_SERVICE_TOKEN_TABLE ?? 'UserServiceToken',
+      {
+        partitionKey: 'userId',
+        partitionKeyValue: userId,
+        sortKey: 'serviceId',
+        sortKeyValue: this.SERVICE_ID
+      })
     await GenericCache.SaveOnKey(`${this.CACHE_KEY}:${userId}`, result.token)
     return result ? result.token : undefined
   }

@@ -7,8 +7,14 @@ const _docClient: dynamodb.DocumentClient = new dynamodb.DocumentClient({
 interface LooseKeyObject {
     [key: string]: string
 }
+interface IDynamoKey {
+  partitionKey: string,
+  partitionKeyValue: string,
+  sortKey: string,
+  sortKeyValue: string
+}
 
-export async function getByPrimaryAndParentKey<T> (tableName: string, partitionKey: string, partitionKeyValue: string, sortKey: string, sortKeyValue: string, docClient: dynamodb.DocumentClient = _docClient): Promise<T> {
+export async function getByKey<T> (tableName: string, { partitionKey, partitionKeyValue, sortKey, sortKeyValue }: IDynamoKey, docClient: dynamodb.DocumentClient = _docClient): Promise<T> {
   const key: LooseKeyObject = {}
   key[partitionKey] = partitionKeyValue
   key[sortKey] = sortKeyValue

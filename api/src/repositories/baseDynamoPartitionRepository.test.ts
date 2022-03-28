@@ -56,7 +56,14 @@ test('baseDynamoRepository.getByPrimaryAndParentKey :: Overall Happy Test :: Get
   const fakeDynamoClient = { get: sinon.stub().returns({ promise: sinon.stub().resolves({ Item: mockItem }) }) }
 
   // Act
-  const result = await repository.getByPrimaryAndParentKey(testTableName, expectedPartitionKey, expectedUserId, expectedSortKey, expectedId, fakeDynamoClient as unknown as dynamodb.DocumentClient)
+  const result = await repository.getByKey(testTableName,
+    {
+      partitionKey: expectedPartitionKey,
+      partitionKeyValue: expectedUserId,
+      sortKey: expectedSortKey,
+      sortKeyValue: expectedId
+    },
+    fakeDynamoClient as unknown as dynamodb.DocumentClient)
 
   // Assert
 
