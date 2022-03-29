@@ -15,3 +15,19 @@ export async function getByKey<T> (dbname: string, { collectionName, _id }: { co
   const result = await collection.findOne<T>({ _id })
   return result !== null ? ok(result) : err('Not found')
 }
+
+export async function create<T> (dbname: string, collectionName: string, inputItem: T, client: MongoClient): Promise<Result<T, string>> {
+  try {
+    await client.connect()
+  } catch {
+    return err('Failed to connect to mongo')
+  }
+  const db = client.db(dbname)
+  const collection = db.collection(collectionName)
+  try {
+    const result = await collection.insertOne(inputItem)
+    return ok({ _id: result.insertedId, ...inputItem })
+  } catch (error: any) {
+    return err(`Error writing to Mongo: ${error.errmsg}`)
+  }
+}
