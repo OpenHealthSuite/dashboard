@@ -39,6 +39,9 @@ interface IDocumentWithId {
 }
 
 export async function update (dbname: string, collectionName: string, inputItem: IDocumentWithId, client: MongoClient): Promise<Result<null, string>> {
+  if (!ObjectId.isValid(inputItem._id)) {
+    return err('Invalid ObjectId')
+  }
   try {
     await client.connect()
   } catch {
@@ -47,7 +50,10 @@ export async function update (dbname: string, collectionName: string, inputItem:
   const db = client.db(dbname)
   const collection = db.collection(collectionName)
   try {
-    await collection.updateOne({ _id: inputItem._id }, inputItem)
+    const result = await collection.updateOne({ _id: inputItem._id }, inputItem)
+    if (result.modifiedCount === 0 || result.matchedCount === 0) {
+      return err(`Error writing to Mongo: ${JSON.stringify(result)}`)
+    }
     return ok(null)
   } catch (error: any) {
     return err(`Error writing to Mongo: ${error.errmsg}`)
