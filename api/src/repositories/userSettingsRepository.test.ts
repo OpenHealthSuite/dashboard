@@ -46,5 +46,7 @@ describe('UserSettingsRepository', () => {
     expect(result).toBe(userSetting)
     expect(fakeCache.GetByKey).toBeCalledTimes(1)
     expect(fakeCache.GetByKey).toBeCalledWith(`${expectedCacheKey}:${userSetting.userId}:${userSetting.settingId}`)
+    expect(fakeMongoRepo.getOneByFilter).toBeCalledTimes(0)
+    expect(fakeCache.SaveOnKey).toBeCalledTimes(0)
   })
 })
