@@ -24,6 +24,7 @@ export async function create<T> (dbname: string, collectionName: string, inputIt
   }
   const db = client.db(dbname)
   const collection = db.collection(collectionName)
+  delete (inputItem as any)._id
   try {
     const result = await collection.insertOne(inputItem)
     return ok({ _id: result.insertedId, ...inputItem })

@@ -112,6 +112,32 @@ describe('BaseMongoRepository', () => {
       expect(result._unsafeUnwrap()).toEqual({ ...inputItem, _id: insertedId })
     })
 
+    test('given item with _id :: strips and creates new item, returns with new id', async () => {
+      const expectedDbName = 'SomeDbName'
+      const expectedCollectionName = 'SomeCollectionName'
+      const wantedInputItem = { whoami: 'inputItem' }
+      const inputItem = { _id: '6244ac21e1b731b1b967af92', ...wantedInputItem }
+      const insertedId = '542c2b97bac0595474108b48'
+      const fakeCollection = {
+        insertOne: jest.fn().mockResolvedValue({ insertedId })
+      }
+      const fakeDb = {
+        collection: jest.fn().mockReturnValue(fakeCollection)
+      }
+      const fakeClient = {
+        connect: jest.fn().mockResolvedValue(this),
+        db: jest.fn().mockReturnValue(fakeDb)
+      }
+      const result = await baseMongoRepo.create(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
+      expect(fakeClient.connect).toHaveBeenCalledTimes(1)
+      expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
+      expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
+      expect(fakeCollection.insertOne).toBeCalledTimes(1)
+      expect(fakeCollection.insertOne.mock.calls[0][0]).toEqual(wantedInputItem)
+      expect(result.isOk()).toBeTruthy()
+      expect(result._unsafeUnwrap()).toEqual({ ...inputItem, _id: insertedId })
+    })
+
     test('connection failed :: returns error', async () => {
       const fakeClient = {
         connect: jest.fn().mockRejectedValue(null)
