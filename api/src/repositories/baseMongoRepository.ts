@@ -31,3 +31,24 @@ export async function create<T> (dbname: string, collectionName: string, inputIt
     return err(`Error writing to Mongo: ${error.errmsg}`)
   }
 }
+
+interface IDocumentWithId {
+  _id: ObjectId | string
+  [key: string]: any
+}
+
+export async function update (dbname: string, collectionName: string, inputItem: IDocumentWithId, client: MongoClient): Promise<Result<null, string>> {
+  try {
+    await client.connect()
+  } catch {
+    return err('Failed to connect to mongo')
+  }
+  const db = client.db(dbname)
+  const collection = db.collection(collectionName)
+  try {
+    await collection.updateOne({ _id: inputItem._id }, inputItem)
+    return ok(null)
+  } catch (error: any) {
+    return err(`Error writing to Mongo: ${error.errmsg}`)
+  }
+}
