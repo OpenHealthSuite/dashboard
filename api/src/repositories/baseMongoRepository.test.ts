@@ -21,7 +21,7 @@ describe('BaseMongoRepository', () => {
       }
       const expectedDbName = 'dbname'
       const expectedCollectionName = 'collectionname'
-      const result = await baseMongoRepo.getByKey(expectedDbName, {
+      const result = await baseMongoRepo.getById(expectedDbName, {
         collectionName: expectedCollectionName,
         _id: expectedId
       }, fakeClient as unknown as MongoClient)
@@ -47,7 +47,7 @@ describe('BaseMongoRepository', () => {
       }
       const expectedDbName = 'dbname'
       const expectedCollectionName = 'collectionname'
-      const result = await baseMongoRepo.getByKey(expectedDbName, {
+      const result = await baseMongoRepo.getById(expectedDbName, {
         collectionName: expectedCollectionName,
         _id: expectedId
       }, fakeClient as unknown as MongoClient)
@@ -65,7 +65,7 @@ describe('BaseMongoRepository', () => {
       }
       const expectedDbName = 'dbname'
       const expectedCollectionName = 'collectionname'
-      const result = await baseMongoRepo.getByKey(expectedDbName, {
+      const result = await baseMongoRepo.getById(expectedDbName, {
         collectionName: expectedCollectionName,
         _id: expectedId
       }, fakeClient as unknown as MongoClient)
@@ -77,7 +77,7 @@ describe('BaseMongoRepository', () => {
       const inputID = 'notarealid'
       const expectedDbName = 'dbname'
       const expectedCollectionName = 'collectionname'
-      const result = await baseMongoRepo.getByKey(expectedDbName, {
+      const result = await baseMongoRepo.getById(expectedDbName, {
         collectionName: expectedCollectionName,
         _id: inputID
       }, {} as unknown as MongoClient)
@@ -192,7 +192,7 @@ describe('BaseMongoRepository', () => {
         connect: jest.fn().mockResolvedValue(this),
         db: jest.fn().mockReturnValue(fakeDb)
       }
-      const result = await baseMongoRepo.update(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
+      const result = await baseMongoRepo.updateById(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
       expect(fakeClient.connect).toHaveBeenCalledTimes(1)
       expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
       expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
@@ -210,7 +210,7 @@ describe('BaseMongoRepository', () => {
       const expectedCollectionName = 'SomeCollectionName'
       const updatedId = '542c2b97bac0595474108b48'
       const inputItem = { _id: updatedId, whoami: 'inputItem' }
-      const result = await baseMongoRepo.update(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
+      const result = await baseMongoRepo.updateById(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
 
       expect(fakeClient.connect).toHaveBeenCalledTimes(1)
       expect(result.isErr())
@@ -232,7 +232,7 @@ describe('BaseMongoRepository', () => {
         connect: jest.fn().mockResolvedValue(this),
         db: jest.fn().mockReturnValue(fakeDb)
       }
-      const result = await baseMongoRepo.update(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
+      const result = await baseMongoRepo.updateById(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
       expect(fakeClient.connect).toHaveBeenCalledTimes(1)
       expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
       expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
@@ -258,7 +258,7 @@ describe('BaseMongoRepository', () => {
         connect: jest.fn().mockResolvedValue(this),
         db: jest.fn().mockReturnValue(fakeDb)
       }
-      const result = await baseMongoRepo.update(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
+      const result = await baseMongoRepo.updateById(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
       expect(fakeClient.connect).toHaveBeenCalledTimes(1)
       expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
       expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
@@ -284,7 +284,7 @@ describe('BaseMongoRepository', () => {
         connect: jest.fn().mockResolvedValue(this),
         db: jest.fn().mockReturnValue(fakeDb)
       }
-      const result = await baseMongoRepo.update(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
+      const result = await baseMongoRepo.updateById(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
 
       expect(result.isErr()).toBeTruthy()
     })
@@ -308,7 +308,7 @@ describe('BaseMongoRepository', () => {
       }
       const expectedDbName = 'dbname'
       const expectedCollectionName = 'collectionname'
-      const result = await baseMongoRepo.deleteByKey(expectedDbName, {
+      const result = await baseMongoRepo.deleteById(expectedDbName, {
         collectionName: expectedCollectionName,
         _id: expectedId
       }, fakeClient as unknown as MongoClient)
@@ -337,7 +337,7 @@ describe('BaseMongoRepository', () => {
       }
       const expectedDbName = 'dbname'
       const expectedCollectionName = 'collectionname'
-      const result = await baseMongoRepo.deleteByKey(expectedDbName, {
+      const result = await baseMongoRepo.deleteById(expectedDbName, {
         collectionName: expectedCollectionName,
         _id: expectedId
       }, fakeClient as unknown as MongoClient)
@@ -356,7 +356,7 @@ describe('BaseMongoRepository', () => {
       }
       const expectedDbName = 'dbname'
       const expectedCollectionName = 'collectionname'
-      const result = await baseMongoRepo.deleteByKey(expectedDbName, {
+      const result = await baseMongoRepo.deleteById(expectedDbName, {
         collectionName: expectedCollectionName,
         _id: expectedId
       }, fakeClient as unknown as MongoClient)
@@ -368,7 +368,7 @@ describe('BaseMongoRepository', () => {
       const inputID = 'notarealid'
       const expectedDbName = 'dbname'
       const expectedCollectionName = 'collectionname'
-      const result = await baseMongoRepo.deleteByKey(expectedDbName, {
+      const result = await baseMongoRepo.deleteById(expectedDbName, {
         collectionName: expectedCollectionName,
         _id: inputID
       }, {} as unknown as MongoClient)
