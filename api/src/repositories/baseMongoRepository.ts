@@ -2,6 +2,17 @@ import { Document, MongoClient, ObjectId } from 'mongodb'
 import { err, ok, Result } from 'neverthrow'
 
 const mongoClient = new MongoClient(process.env.MONGO_CONNECTION_STRING || 'mongodb://user:pass@localhost:27017/')
+interface IDocumentWithId {
+  _id: ObjectId | string
+  [key: string]: any
+}
+export interface IBaseMongoRepository {
+  getById:<T> (dbname: string, { collectionName, _id }: { collectionName: string, _id: string }) => Promise<Result<T, string>>,
+  getOneByFilter:<T> (dbname: string, collectionName: string, filter: Document) => Promise<Result<T, string>>,
+  create:<T> (dbname: string, collectionName: string, inputItem: T) => Promise<Result<T, string>>,
+  updateById: (dbname: string, collectionName: string, inputItem: IDocumentWithId) => Promise<Result<null, string>>,
+  deleteById: (dbname: string, { collectionName, _id }: { collectionName: string, _id: string }) => Promise<Result<null, string>>
+}
 
 export async function getById<T> (dbname: string, { collectionName, _id }: { collectionName: string, _id: string }, client: MongoClient = mongoClient): Promise<Result<T, string>> {
   if (!ObjectId.isValid(_id)) {
@@ -49,11 +60,6 @@ export async function create<T> (dbname: string, collectionName: string, inputIt
   } catch (error: any) {
     return err(`Error writing to Mongo: ${error.errmsg}`)
   }
-}
-
-interface IDocumentWithId {
-  _id: ObjectId | string
-  [key: string]: any
 }
 
 export async function updateById (dbname: string, collectionName: string, inputItem: IDocumentWithId, client: MongoClient = mongoClient): Promise<Result<null, string>> {

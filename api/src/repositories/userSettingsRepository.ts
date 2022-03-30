@@ -1,5 +1,6 @@
 import * as GenericCache from '../caches/GenericCache'
 import * as baseDynamoRepo from './baseDynamoPartitionRepository'
+import * as baseMongoRepository from './baseMongoRepository'
 
 export interface IUserSetting {
     userId: string,
@@ -9,8 +10,10 @@ export interface IUserSetting {
 
 export class UserSettingRepository {
   private readonly CACHE_KEY: string;
-  constructor () {
+  private readonly _baseMongoRepo: baseMongoRepository.IBaseMongoRepository;
+  constructor (baseMongoRepo = baseMongoRepository) {
     this.CACHE_KEY = 'userSettingCache'
+    this._baseMongoRepo = baseMongoRepo
   }
 
   public async getSetting (userId: string, settingId: string): Promise<IUserSetting> {
