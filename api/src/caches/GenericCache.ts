@@ -10,6 +10,11 @@ export interface IBaseCachedValue {
   date: Date
 }
 
+export interface IGenericCache {
+  GetByKey: <T> (cacheKey: string) => Promise<GenericCacheValue<T> | undefined>,
+  SaveOnKey: <T> (cacheKey: string, value: T) => Promise<void>
+}
+
 const REDIS_CONNECTION = new IORedis(parseInt(process.env.REDIS_PORT ?? '6379'), process.env.REDIS_HOST ?? 'localhost')
 
 export async function GetByKey<T> (cacheKey: string, redisConnection: IORedis.Redis = REDIS_CONNECTION): Promise<GenericCacheValue<T> | undefined> {
