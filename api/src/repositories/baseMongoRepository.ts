@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId } from 'mongodb'
+import { Document, MongoClient, ObjectId } from 'mongodb'
 import { err, ok, Result } from 'neverthrow'
 
 export async function getById<T> (dbname: string, { collectionName, _id }: { collectionName: string, _id: string }, client: MongoClient): Promise<Result<T, string>> {
@@ -13,6 +13,22 @@ export async function getById<T> (dbname: string, { collectionName, _id }: { col
   const db = client.db(dbname)
   const collection = db.collection(collectionName)
   const result = await collection.findOne<T>({ _id })
+  return result !== null ? ok(result) : err('Not found')
+}
+
+export async function getOneByFilter<T> (dbname: string, collectionName: string, filter: Document, client: MongoClient): Promise<Result<T, string>> {
+  try {
+    await client.connect()
+  } catch {
+    return err('Failed to connect to mongo')
+  }
+  const db = client.db(dbname)
+  const collection = db.collection(collectionName)
+  const cursor = await collection.find<T>(filter)
+  const result = await cursor.next()
+  if (result !== null && await cursor.hasNext()) {
+    return err('Multiple objects')
+  }
   return result !== null ? ok(result) : err('Not found')
 }
 
