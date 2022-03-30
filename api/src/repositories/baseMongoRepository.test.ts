@@ -29,7 +29,7 @@ describe('BaseMongoRepository', () => {
       expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
       expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
       expect(fakeCollection.findOne).toBeCalledTimes(1)
-      expect(result.isOk())
+      expect(result.isOk()).toBeTruthy()
       expect(result._unsafeUnwrap()).toBe(expectedResponse)
     })
 
@@ -55,7 +55,7 @@ describe('BaseMongoRepository', () => {
       expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
       expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
       expect(fakeCollection.findOne).toBeCalledTimes(1)
-      expect(result.isErr())
+      expect(result.isErr()).toBeTruthy()
     })
 
     test('getById :: connection failed :: returns error', async () => {
@@ -70,7 +70,7 @@ describe('BaseMongoRepository', () => {
         _id: expectedId
       }, fakeClient as unknown as MongoClient)
       expect(fakeClient.connect).toHaveBeenCalledTimes(1)
-      expect(result.isErr())
+      expect(result.isErr()).toBeTruthy()
     })
 
     test('getById :: malformed id :: returns error', async () => {
@@ -81,7 +81,7 @@ describe('BaseMongoRepository', () => {
         collectionName: expectedCollectionName,
         _id: inputID
       }, {} as unknown as MongoClient)
-      expect(result.isErr())
+      expect(result.isErr()).toBeTruthy()
       expect(result._unsafeUnwrapErr()).toBe('Invalid ObjectId')
     })
   })
@@ -148,7 +148,7 @@ describe('BaseMongoRepository', () => {
       const result = await baseMongoRepo.create(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
 
       expect(fakeClient.connect).toHaveBeenCalledTimes(1)
-      expect(result.isErr())
+      expect(result.isErr()).toBeTruthy()
     })
 
     test('write error :: returns error', async () => {
@@ -287,6 +287,93 @@ describe('BaseMongoRepository', () => {
       const result = await baseMongoRepo.update(expectedDbName, expectedCollectionName, inputItem, fakeClient as unknown as MongoClient)
 
       expect(result.isErr()).toBeTruthy()
+    })
+  })
+
+  describe('deleteById', () => {
+    test('deletes item from mongo', async () => {
+      const expectedId = '542c2b97bac0595474108b48'
+      const expectedResponse = {
+        deletedCount: 1
+      }
+      const fakeCollection = {
+        deleteOne: jest.fn().mockResolvedValue(expectedResponse)
+      }
+      const fakeDb = {
+        collection: jest.fn().mockReturnValue(fakeCollection)
+      }
+      const fakeClient = {
+        connect: jest.fn().mockResolvedValue(this),
+        db: jest.fn().mockReturnValue(fakeDb)
+      }
+      const expectedDbName = 'dbname'
+      const expectedCollectionName = 'collectionname'
+      const result = await baseMongoRepo.deleteByKey(expectedDbName, {
+        collectionName: expectedCollectionName,
+        _id: expectedId
+      }, fakeClient as unknown as MongoClient)
+      expect(fakeClient.connect).toHaveBeenCalledTimes(1)
+      expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
+      expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
+      expect(fakeCollection.deleteOne).toBeCalledTimes(1)
+      expect(fakeCollection.deleteOne.mock.calls[0]).toEqual([{ _id: expectedId }])
+      expect(result.isOk()).toBeTruthy()
+    })
+
+    test('notihng to delete :: returns err', async () => {
+      const expectedId = '542c2b97bac0595474108b48'
+      const expectedResponse = {
+        deletedCount: 0
+      }
+      const fakeCollection = {
+        deleteOne: jest.fn().mockResolvedValue(expectedResponse)
+      }
+      const fakeDb = {
+        collection: jest.fn().mockReturnValue(fakeCollection)
+      }
+      const fakeClient = {
+        connect: jest.fn().mockResolvedValue(this),
+        db: jest.fn().mockReturnValue(fakeDb)
+      }
+      const expectedDbName = 'dbname'
+      const expectedCollectionName = 'collectionname'
+      const result = await baseMongoRepo.deleteByKey(expectedDbName, {
+        collectionName: expectedCollectionName,
+        _id: expectedId
+      }, fakeClient as unknown as MongoClient)
+      expect(fakeClient.connect).toHaveBeenCalledTimes(1)
+      expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
+      expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
+      expect(fakeCollection.deleteOne).toBeCalledTimes(1)
+      expect(fakeCollection.deleteOne.mock.calls[0]).toEqual([{ _id: expectedId }])
+      expect(result.isErr()).toBeTruthy()
+    })
+
+    test('connection failed :: returns error', async () => {
+      const expectedId = '542c2b97bac0595474108b48'
+      const fakeClient = {
+        connect: jest.fn().mockRejectedValue(null)
+      }
+      const expectedDbName = 'dbname'
+      const expectedCollectionName = 'collectionname'
+      const result = await baseMongoRepo.deleteByKey(expectedDbName, {
+        collectionName: expectedCollectionName,
+        _id: expectedId
+      }, fakeClient as unknown as MongoClient)
+      expect(fakeClient.connect).toHaveBeenCalledTimes(1)
+      expect(result.isErr()).toBeTruthy()
+    })
+
+    test('malformed id :: returns error', async () => {
+      const inputID = 'notarealid'
+      const expectedDbName = 'dbname'
+      const expectedCollectionName = 'collectionname'
+      const result = await baseMongoRepo.deleteByKey(expectedDbName, {
+        collectionName: expectedCollectionName,
+        _id: inputID
+      }, {} as unknown as MongoClient)
+      expect(result.isErr()).toBeTruthy()
+      expect(result._unsafeUnwrapErr()).toBe('Invalid ObjectId')
     })
   })
 })

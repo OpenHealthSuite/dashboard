@@ -59,3 +59,18 @@ export async function update (dbname: string, collectionName: string, inputItem:
     return err(`Error writing to Mongo: ${error.errmsg}`)
   }
 }
+
+export async function deleteByKey (dbname: string, { collectionName, _id }: { collectionName: string, _id: string }, client: MongoClient): Promise<Result<null, string>> {
+  if (!ObjectId.isValid(_id)) {
+    return err('Invalid ObjectId')
+  }
+  try {
+    await client.connect()
+  } catch {
+    return err('Failed to connect to mongo')
+  }
+  const db = client.db(dbname)
+  const collection = db.collection(collectionName)
+  const result = await collection.deleteOne({ _id })
+  return result.deletedCount === 1 ? ok(null) : err(`Deleted ${result.deletedCount} items`)
+}
