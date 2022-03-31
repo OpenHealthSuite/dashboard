@@ -1,7 +1,7 @@
 import { Document, MongoClient, ObjectId } from 'mongodb'
 import { err, ok, Result } from 'neverthrow'
 
-const mongoClient = new MongoClient(process.env.MONGO_CONNECTION_STRING || 'mongodb://user:pass@localhost:27017/')
+const mongoClient = new MongoClient(process.env.MONGO_CONNECTION_STRING || 'mongodb://localhost:27017/')
 interface IDocumentWithId {
   _id: ObjectId | string
   [key: string]: any
