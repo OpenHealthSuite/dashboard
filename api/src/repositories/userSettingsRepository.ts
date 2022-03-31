@@ -1,5 +1,4 @@
 import * as baseGenericCache from '../caches/GenericCache'
-import * as baseDynamoRepo from './baseDynamoPartitionRepository'
 import * as baseMongoRepository from './baseMongoRepository'
 
 export interface IUserSetting {
@@ -26,14 +25,14 @@ export class UserSettingRepository {
       return cachedValue.value
     }
     const result = await this._baseMongoRepo.getOneByFilter<IUserSetting>(this._dbName, this._collectionName, { userId, settingId })
-    // We should propogate promises up through the stack
+    // We should propogate neverthrow up through the stack
     const resultValue = result.unwrapOr<IUserSetting>({ userId, settingId, details: null })
     await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}:${settingId}`, resultValue)
     return resultValue
   }
 
   public async updateSetting (userId: string, settingId: string, details: any): Promise<void> {
-    await baseDynamoRepo.update(process.env.USER_SETTING_TABLE ?? 'UserSetting', { userId, settingId, details })
-    await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}:${settingId}`, { userId, settingId, details })
+    const result = await this._baseMongoRepo.replaceOneByFilter(this._dbName, this._collectionName, { userId, settingId }, { userId, settingId, details })
+    result.map(async savedValue => await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}:${settingId}`, savedValue))
   }
 }
