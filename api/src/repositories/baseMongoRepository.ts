@@ -9,7 +9,8 @@ interface IDocumentWithId {
 export interface IBaseMongoRepository {
   getById:<T> (dbname: string, { collectionName, _id }: { collectionName: string, _id: string }) => Promise<Result<T, string>>,
   getOneByFilter:<T> (dbname: string, collectionName: string, filter: Document) => Promise<Result<T, string>>,
-  create:<T> (dbname: string, collectionName: string, inputItem: T) => Promise<Result<T, string>>,
+  create:<T> (dbname: string, collectionName: string, inputItem: T) => Promise<Result<IDocumentWithId, string>>,
+  replaceOneByFilter:<T> (dbname: string, collectionName: string, filter: Document, item: T) => Promise<Result<IDocumentWithId, string>>
   updateById: (dbname: string, collectionName: string, inputItem: IDocumentWithId) => Promise<Result<null, string>>,
   deleteById: (dbname: string, { collectionName, _id }: { collectionName: string, _id: string }) => Promise<Result<null, string>>
 }
@@ -45,7 +46,7 @@ export async function getOneByFilter<T> (dbname: string, collectionName: string,
   return result !== null ? ok(result) : err('Not found')
 }
 
-export async function create<T> (dbname: string, collectionName: string, inputItem: T, client: MongoClient = mongoClient): Promise<Result<T, string>> {
+export async function create<T> (dbname: string, collectionName: string, inputItem: T, client: MongoClient = mongoClient): Promise<Result<IDocumentWithId, string>> {
   try {
     await client.connect()
   } catch {
@@ -59,6 +60,27 @@ export async function create<T> (dbname: string, collectionName: string, inputIt
     return ok({ _id: result.insertedId, ...inputItem })
   } catch (error: any) {
     return err(`Error writing to Mongo: ${error.errmsg}`)
+  }
+}
+
+export async function replaceOneByFilter<T> (dbname: string, collectionName: string, filter: Document, item: T, client: MongoClient = mongoClient): Promise<Result<IDocumentWithId, string>> {
+  try {
+    await client.connect()
+  } catch {
+    return err('Failed to connect to mongo')
+  }
+  const db = client.db(dbname)
+  const collection = db.collection(collectionName)
+  try {
+    const result = await collection.replaceOne(filter, item)
+    if (result.modifiedCount !== 1) {
+      return err('Upsert error: ' + JSON.stringify(result))
+    }
+    const returnvalue = item as Document as IDocumentWithId
+    returnvalue._id = result.upsertedId
+    return ok(returnvalue)
+  } catch (ex: any) {
+    return err(JSON.stringify(ex))
   }
 }
 

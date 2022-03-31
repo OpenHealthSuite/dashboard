@@ -294,6 +294,99 @@ describe('BaseMongoRepository', () => {
     })
   })
 
+  describe('replaceOneByFilter', () => {
+    test('happy path :: given item, passes to mongo', async () => {
+      const expectedDbName = 'SomeDbName'
+      const expectedCollectionName = 'SomeCollectionName'
+      const inputItem = { whoami: 'inputItem' }
+      const inputFilter = { filterOne: 'something', filterTwo: 'somethingElse' }
+      const upsertedId = '542c2b97bac0595474108b48'
+      const fakeCollection = {
+        replaceOne: jest.fn().mockResolvedValue({ upsertedId, modifiedCount: 1 })
+      }
+      const fakeDb = {
+        collection: jest.fn().mockReturnValue(fakeCollection)
+      }
+      const fakeClient = {
+        connect: jest.fn().mockResolvedValue(this),
+        db: jest.fn().mockReturnValue(fakeDb)
+      }
+      const result = await baseMongoRepo.replaceOneByFilter(expectedDbName, expectedCollectionName, inputFilter, inputItem, fakeClient as unknown as MongoClient)
+      expect(fakeClient.connect).toHaveBeenCalledTimes(1)
+      expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
+      expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
+      expect(fakeCollection.replaceOne).toBeCalledTimes(1)
+      expect(fakeCollection.replaceOne).toHaveBeenCalledWith(inputFilter, inputItem)
+      expect(result.isOk()).toBeTruthy()
+      expect(result._unsafeUnwrap()).toEqual({ ...inputItem, _id: upsertedId })
+    })
+
+    test('connection failed :: returns error', async () => {
+      const fakeClient = {
+        connect: jest.fn().mockRejectedValue(null)
+      }
+      const expectedDbName = 'SomeDbName'
+      const expectedCollectionName = 'SomeCollectionName'
+      const inputItem = { whoami: 'inputItem' }
+      const inputFilter = { filterOne: 'something', filterTwo: 'somethingElse' }
+      const result = await baseMongoRepo.replaceOneByFilter(expectedDbName, expectedCollectionName, inputFilter, inputItem, fakeClient as unknown as MongoClient)
+
+      expect(fakeClient.connect).toHaveBeenCalledTimes(1)
+      expect(result.isErr()).toBeTruthy()
+    })
+
+    test('write error :: returns error', async () => {
+      const expectedDbName = 'SomeDbName'
+      const expectedCollectionName = 'SomeCollectionName'
+      const inputItem = { whoami: 'inputItem' }
+      const inputFilter = { filterOne: 'something', filterTwo: 'somethingElse' }
+      const fakeCollection = {
+        replaceOne: jest.fn().mockRejectedValue({ errmsg: 'Error message' } as unknown as WriteError)
+      }
+      const fakeDb = {
+        collection: jest.fn().mockReturnValue(fakeCollection)
+      }
+      const fakeClient = {
+        connect: jest.fn().mockResolvedValue(this),
+        db: jest.fn().mockReturnValue(fakeDb)
+      }
+      const result = await baseMongoRepo.replaceOneByFilter(expectedDbName, expectedCollectionName, inputFilter, inputItem, fakeClient as unknown as MongoClient)
+      expect(fakeClient.connect).toHaveBeenCalledTimes(1)
+      expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
+      expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
+      expect(fakeCollection.replaceOne).toBeCalledTimes(1)
+      expect(fakeCollection.replaceOne).toHaveBeenCalledWith(inputFilter, inputItem)
+      expect(result.isErr()).toBeTruthy()
+    })
+
+    const modifiedCounts = [0, 2, 45]
+
+    test.each(modifiedCounts)('non 1 modified count :: return error', async (count) => {
+      const expectedDbName = 'SomeDbName'
+      const expectedCollectionName = 'SomeCollectionName'
+      const inputItem = { whoami: 'inputItem' }
+      const inputFilter = { filterOne: 'something', filterTwo: 'somethingElse' }
+      const upsertedId = '542c2b97bac0595474108b48'
+      const fakeCollection = {
+        replaceOne: jest.fn().mockResolvedValue({ upsertedId, modifiedCount: count })
+      }
+      const fakeDb = {
+        collection: jest.fn().mockReturnValue(fakeCollection)
+      }
+      const fakeClient = {
+        connect: jest.fn().mockResolvedValue(this),
+        db: jest.fn().mockReturnValue(fakeDb)
+      }
+      const result = await baseMongoRepo.replaceOneByFilter(expectedDbName, expectedCollectionName, inputFilter, inputItem, fakeClient as unknown as MongoClient)
+      expect(fakeClient.connect).toHaveBeenCalledTimes(1)
+      expect(fakeClient.db).toHaveBeenCalledWith(expectedDbName)
+      expect(fakeDb.collection).toHaveBeenCalledWith(expectedCollectionName)
+      expect(fakeCollection.replaceOne).toBeCalledTimes(1)
+      expect(fakeCollection.replaceOne).toHaveBeenCalledWith(inputFilter, inputItem)
+      expect(result.isErr()).toBeTruthy()
+    })
+  })
+
   describe('update', () => {
     test('happy path :: given item, updates in mongo', async () => {
       const expectedDbName = 'SomeDbName'
