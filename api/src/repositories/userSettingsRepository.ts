@@ -26,9 +26,8 @@ export class UserSettingRepository {
     }
     const result = await this._baseMongoRepo.getOneByFilter<IUserSetting>(this._dbName, this._collectionName, { userId, settingId })
     // We should propogate neverthrow up through the stack
-    const resultValue = result.unwrapOr<IUserSetting>({ userId, settingId, details: null })
-    await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}:${settingId}`, resultValue)
-    return resultValue
+    result.map(async userSetting => await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}:${settingId}`, userSetting))
+    return result.unwrapOr<IUserSetting>({ userId, settingId, details: null })
   }
 
   public async updateSetting (userId: string, settingId: string, details: any): Promise<void> {
