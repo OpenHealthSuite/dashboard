@@ -9,33 +9,31 @@ export interface IUserSetting {
 }
 
 export class UserSettingRepository {
-  private readonly CACHE_KEY: string;
+  private readonly _cacheKey: string;
   private readonly _baseMongoRepo: baseMongoRepository.IBaseMongoRepository;
   private readonly _baseGenericCache: baseGenericCache.IGenericCache
+  private readonly _dbName: string = 'user'
+  private readonly _collectionName: string = 'settings'
   constructor (baseMongoRepo = baseMongoRepository, baseCache = baseGenericCache) {
-    this.CACHE_KEY = 'userSettingCache'
+    this._cacheKey = `${this._dbName}:${this._collectionName}`
     this._baseMongoRepo = baseMongoRepo
     this._baseGenericCache = baseCache
   }
 
   public async getSetting (userId: string, settingId: string): Promise<IUserSetting> {
-    const cachedValue = await this._baseGenericCache.GetByKey<IUserSetting>(`${this.CACHE_KEY}:${userId}:${settingId}`)
+    const cachedValue = await this._baseGenericCache.GetByKey<IUserSetting>(`${this._cacheKey}:${userId}:${settingId}`)
     if (cachedValue) {
       return cachedValue.value
     }
-    const result = await baseDynamoRepo.getByKey<IUserSetting>(process.env.USER_SETTING_TABLE ?? 'UserSetting',
-      {
-        partitionKey: 'userId',
-        partitionKeyValue: userId,
-        sortKey: 'settingId',
-        sortKeyValue: settingId
-      })
-    await this._baseGenericCache.SaveOnKey(`${this.CACHE_KEY}:${userId}:${settingId}`, result)
-    return result
+    const result = await this._baseMongoRepo.getOneByFilter<IUserSetting>(this._dbName, this._collectionName, { userId, settingId })
+    // We should propogate promises up through the stack
+    const resultValue = result.unwrapOr<IUserSetting>({ userId, settingId, details: null })
+    await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}:${settingId}`, resultValue)
+    return resultValue
   }
 
   public async updateSetting (userId: string, settingId: string, details: any): Promise<void> {
     await baseDynamoRepo.update(process.env.USER_SETTING_TABLE ?? 'UserSetting', { userId, settingId, details })
-    await this._baseGenericCache.SaveOnKey(`${this.CACHE_KEY}:${userId}:${settingId}`, { userId, settingId, details })
+    await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}:${settingId}`, { userId, settingId, details })
   }
 }
