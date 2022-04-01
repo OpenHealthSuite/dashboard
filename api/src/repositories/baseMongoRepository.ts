@@ -72,7 +72,7 @@ export async function replaceOneByFilter<T> (dbname: string, collectionName: str
   const db = client.db(dbname)
   const collection = db.collection(collectionName)
   try {
-    const result = await collection.replaceOne(filter, item)
+    const result = await collection.replaceOne(filter, item, { upsert: true })
     if (result.modifiedCount !== 1) {
       return err('Upsert error: ' + JSON.stringify(result))
     }
