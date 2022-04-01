@@ -62,7 +62,7 @@ spec:
             - name: REDIS_PORT
               value: '6379'
             - name: REDIS_HOST
-              value: redis-service.paceme-api.svc.cluster.local
+              value: redis-service.paceme.svc
             - name: MONGO_CONNECTION_STRING
-              value: mongodb://mongo-service.paceme-api.svc.cluster.local:27017
+              value: mongodb://mongo-service.paceme.svc:27017
 
