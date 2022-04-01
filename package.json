@@ -1,6 +1,6 @@
 {
   "name": "pacemejs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A Run Planning application",
   "scripts": {
     "stack:install": "(cd .infrastructure && npm i) && (cd api && npm i) && (cd webapp && npm i)",

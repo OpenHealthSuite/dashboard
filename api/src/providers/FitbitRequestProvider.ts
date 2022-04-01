@@ -150,9 +150,6 @@ export async function makeFitbitRequest<T> (
     }
   })
   if (fitbitResponse.status !== 200) {
-    console.error('ErrorStatusFromFitbit', fitbitResponse.status)
-    console.error('ErrorStatusTextFromFitbit', fitbitResponse.statusText)
-    console.error('ErrorResponseFromFitbit', fitbitResponse.data)
     return undefined
   }
   SaveCache(`${SERVICE_CACHE_KEY}:${userId}:${requestUrl}`, fitbitResponse.data)

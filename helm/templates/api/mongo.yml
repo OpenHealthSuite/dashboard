@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+  namespace: {{ .Values.metadata.namespace }}
+spec:
+  ports:
+  - name: mongo
+    port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector:
+    infra: mongo
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    infra: mongo
+  namespace: {{ .Values.metadata.namespace }}
+  name: paceme-api-mongo
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      infra: mongo
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        infra: mongo
+      namespace: {{ .Values.metadata.namespace }}
+      name: paceme-api-mongo
+    spec:
+      containers:
+      - name: mongo
+        image: arm64v8/mongo:4
+        command: ["mongod", "--bind_ip_all"]
+        ports:
+        - containerPort: 27017
+        resources:
+          limits:
+            cpu: "0.5"
+        volumeMounts:
+        - mountPath: /data/db
+          name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ required "api.mongo.pvName is required" .Values.api.mongo.pvName }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    infra: mongo
+  namespace: {{ .Values.metadata.namespace }}
+  name: {{ required "api.mongo.pvName is required" .Values.api.mongo.pvName }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 250Mi
+  volumeName: paceme-api-mongo-storage

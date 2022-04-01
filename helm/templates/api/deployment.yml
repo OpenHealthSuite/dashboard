@@ -63,10 +63,6 @@ spec:
               value: '6379'
             - name: REDIS_HOST
               value: redis-service.paceme-api.svc.cluster.local
-            - name: USER_SERVICE_TOKEN_TABLE
-              value: {{ required "Dynamo.UserServiceToken is required" .Values.Dynamo.UserServiceToken }}
-            - name: USER_SETTING_TABLE
-              value: {{ required "Dynamo.UserSetting is required" .Values.Dynamo.UserSetting }}
-            - name: NODE_ENV
-              value: {{ required "nodeEnv is required" .Values.nodeEnv }}
+            - name: MONGO_CONNECTION_STRING
+              value: mongodb://mongo-service.paceme-api.svc.cluster.local:27017
 

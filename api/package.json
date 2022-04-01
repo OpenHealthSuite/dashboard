@@ -1,13 +1,12 @@
 {
     "name": "paceme-api",
-    "version": "0.0.11",
+    "version": "0.1.0",
     "description": "The API Behind PaceMe, for serving the web application",
     "main": "dist/index.js",
     "scripts": {
         "test": "jest",
         "test:watch": "jest --watch",
         "watch:ts": "npx tsc -w",
-        "prestart:watch": "docker rm paceme-redis || docker run --name paceme-redis -d -p 6379:6379 redis:6.2.6 || docker start paceme-redis",
         "start:watch": "concurrently 'npm run watch:ts' 'nodemon -r dotenv/config dist/index.js'",
         "start": "node -r dotenv/config dist/index.js",
         "lint": "npx eslint . --ext .ts",
@@ -16,6 +15,8 @@
         "dev:redis:create": "docker run --name paceme-redis -d -p 6379:6379 redis:6.2.6",
         "dev:redis:start": "docker start paceme-redis",
         "dev:redis:stop": "docker stop paceme-redis",
+        "dev:spinup": "scripts/dev_prestart.sh",
+        "dev:generateenv": "scripts/localenvgen.sh",
         "docker:buildandpush": "scripts/build-and-push-to-repo.sh"
     },
     "author": "Lee Martin <hello@leejohnmartin.co.uk>",
@@ -56,6 +57,8 @@
         "cors": "^2.8.5",
         "dotenv": "^10.0.0",
         "express": "^4.17.1",
-        "ioredis": "^4.28.3"
+        "ioredis": "^4.28.3",
+        "mongodb": "^4.4.1",
+        "neverthrow": "^4.3.1"
     }
 }

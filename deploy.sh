@@ -7,5 +7,5 @@ helm upgrade paceme ./helm \
   --set "CognitoPoolId=$(credstash get paceme/CognitoPoolId)" \
   --set "fitbit.clientId=$(credstash get paceme/fitbit-client-id)" \
   --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
-  --set "Dynamo.UserServiceToken=$(credstash get paceme/DynamoUserServiceToken)" \
-  --set "Dynamo.UserSetting=$(credstash get paceme/DynamoUserSetting)" 
+  --set "api.tag=$(cat api/package.json | jq -r '.version')" \
+  --set "webapp.tag=$(cat webapp/package.json | jq -r '.version')"

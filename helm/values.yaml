@@ -1,6 +1,8 @@
 api:
   image: leemartin77/paceme-api
   tag: latest
+  mongo:
+    pvName: paceme-api-mongo-storage
 webapp: 
   image: leemartin77/paceme-webapp
   tag: latest
