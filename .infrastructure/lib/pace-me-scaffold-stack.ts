@@ -13,42 +13,6 @@ export class PaceMeScaffoldStack extends Stack {
   constructor(scope: Construct, id: string, props: PaceMeScaffoldStackProps) {
     super(scope, id, props);
 
-    const dynamoTables : { name: string, partKey: string, sortKey: string }[] = [ 
-      {
-        name: 'UserSetting',
-        partKey: 'userId',
-        sortKey: 'settingId'
-      },
-      {
-        name: 'UserServiceToken',
-        partKey: 'userId',
-        sortKey: 'serviceId'
-      }
-    ]
-
-    const createdTables = dynamoTables.map(dt => {
-      return {
-        name: dt.name,
-        table: new dyn.Table(this, dt.name, {
-          partitionKey: { name: dt.partKey, type: dyn.AttributeType.STRING },
-          sortKey: { name: dt.sortKey, type: dyn.AttributeType.STRING },
-          billingMode: dyn.BillingMode.PAY_PER_REQUEST,
-          removalPolicy: RemovalPolicy.DESTROY
-        })
-      }
-    })
-
-    createdTables.map(ct => new cdk.CfnOutput(
-      this, 
-      `Dynamo-${ct.name}`, 
-      {
-        value: ct.table.tableName,
-        description:`Name of the ${ct.name} dynamo table`,
-        exportName: `dynamo${ct.name}`
-      }
-      )
-    )
-
     const userPool = new cognito.UserPool(this, 'PaceMeUserpool', {
       userPoolName: id,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -75,8 +39,6 @@ export class PaceMeScaffoldStack extends Stack {
     });
 
     const awsApiUser = new iam.User(this, 'ApiUser', { })
-
-    createdTables.map(x => x.table.grantFullAccess(awsApiUser))
 
     const accessKey = new iam.CfnAccessKey(this, 'PaceMeApiAWSAccessKey', {
       userName: awsApiUser.userName
