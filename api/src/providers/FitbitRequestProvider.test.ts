@@ -8,8 +8,8 @@ import {
 } from './FitbitRequestProvider'
 import { Axios } from 'axios'
 
-const CODE_CHALLENGE_CACHE = 'codechallengecache'
-const SERVICE_CACHE_KEY = 'servicecache'
+const CODE_CHALLENGE_CACHE = 'codechallengecache:fitbit'
+const SERVICE_CACHE_KEY = 'servicecache:fitbit'
 
 test('startAuthenticationFlow :: generates code, caches code, and returns authUrl', async () => {
   const testUserId = 'input-user-id-123'

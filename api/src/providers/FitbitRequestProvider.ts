@@ -57,8 +57,8 @@ export interface IFitbitTokenDetails extends IFitbitTokenResponse {
 }
 
 const FITBIT_TOKEN_REPO = new UserServiceTokenRepository<IFitbitTokenDetails>('fitbit')
-const SERVICE_CACHE_KEY = 'servicecache'
-const CODE_CHALLENGE_CACHE = 'codechallengecache'
+const SERVICE_CACHE_KEY = 'servicecache:fitbit'
+const CODE_CHALLENGE_CACHE = 'codechallengecache:fitbit'
 
 export function addFitbitHandlers (app: Application) {
   app.post('/users/:userId/providers/fitbit/start', (req, res) => userRestrictedHandler(req, res, startAuthenticationFlow))
@@ -139,7 +139,7 @@ export async function makeFitbitRequest<T> (
 ): Promise<T | undefined> {
   const requestUrl = fitbitSettings.rootApiUrl + url
   const cachedValue = await GetCache(`${SERVICE_CACHE_KEY}:${userId}:${requestUrl}`)
-  if (cachedValue && new Date(cachedValue.date).getTime() > ((new Date()).getTime() - fitbitSettings.cacheExpiryMilliseconds)) {
+  if (cachedValue && cachedValue.value && new Date(cachedValue.date).getTime() > ((new Date()).getTime() - fitbitSettings.cacheExpiryMilliseconds)) {
     return JSON.parse(cachedValue.value) as T
   }
   const token = await fnGetFitbitToken(userId)
