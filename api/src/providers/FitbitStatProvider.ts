@@ -119,7 +119,7 @@ export async function dailyCaloriesProvider (userId: string, date: Date): Promis
 
 export async function dailySleepProvider (userId: string, date: Date): Promise<ISleep | undefined> {
   const rawData = await getSleepSummary(userId, date)
-  if (!rawData) {
+  if (!rawData || !rawData.summary || !rawData.summary.stages) {
     return undefined
   }
   const stages = rawData.summary.stages
