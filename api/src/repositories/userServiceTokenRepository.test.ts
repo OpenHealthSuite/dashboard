@@ -1,6 +1,7 @@
 import { UserServiceTokenRepository } from './userServiceTokenRepository'
 import { IBaseMongoRepository } from './baseMongoRepository'
 import { ok } from 'neverthrow'
+import { Pool } from 'pg'
 
 const expectedDbName = 'user'
 const expectedCollectionName = 'token'
@@ -13,9 +14,14 @@ describe('UserSettingsRepository', () => {
     update: jest.fn()
   }
 
+  let fakePostgresPool = {
+    query: jest.fn()
+  }
+
   let userServiceTokenRepository = new UserServiceTokenRepository(
     expectedServiceId,
-    fakeMongoRepo as unknown as IBaseMongoRepository
+    fakeMongoRepo as unknown as IBaseMongoRepository,
+    fakePostgresPool as unknown as Pool
   )
 
   beforeEach(() => {
@@ -24,9 +30,13 @@ describe('UserSettingsRepository', () => {
       replaceOneByFilter: jest.fn(),
       update: jest.fn()
     }
+    fakePostgresPool = {
+      query: jest.fn()
+    }
     userServiceTokenRepository = new UserServiceTokenRepository(
       expectedServiceId,
-      fakeMongoRepo as unknown as IBaseMongoRepository
+      fakeMongoRepo as unknown as IBaseMongoRepository,
+      fakePostgresPool as unknown as Pool
     )
   })
   describe('getUserToken', () => {
