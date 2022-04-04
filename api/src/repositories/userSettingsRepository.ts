@@ -26,9 +26,9 @@ export class UserSettingRepository {
     }
   }
 
-  public async getSetting (user_id: string, setting_id: string): Promise<Result<IUserSetting, string>> {
+  public async getSetting (user_id: string, setting_id: string): Promise<Result<IUserSetting | null, string>> {
     const result = await this._postgresPool.query<IUserSetting>(`SELECT * FROM ${this._tableName} us WHERE us.user_id = $1 AND us.setting_id = $2`, [user_id, setting_id])
-    return result.rowCount > 0 ? ok(result.rows[0]) : err('Not Found')
+    return result.rowCount > 0 ? ok(result.rows[0]) : ok(null)
   }
 
   public async updateSetting (user_id: string, setting_id: string, details: any): Promise<Result<null, string>> {

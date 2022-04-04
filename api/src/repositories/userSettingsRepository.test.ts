@@ -55,7 +55,7 @@ describe('UserSettingsRepository', () => {
       expect(fakePostgresPool.query).toBeCalledTimes(1)
       expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
-    test('nothing found :: returns error', async () => {
+    test('nothing found :: returns null', async () => {
       const userSetting = {
         user_id: 'someUserId',
         setting_id: 'SomeSettingId',
@@ -65,7 +65,8 @@ describe('UserSettingsRepository', () => {
       const expectedArguments = [userSetting.user_id, userSetting.setting_id]
       fakePostgresPool.query.mockResolvedValue({ rowCount: 0, rows: [] })
       const result = await userSettingRepository.getSetting(userSetting.user_id, userSetting.setting_id)
-      expect(result.isErr()).toBeTruthy()
+      expect(result.isOk()).toBeTruthy()
+      expect(result._unsafeUnwrap()).toBe(null)
       expect(fakePostgresPool.query).toBeCalledTimes(1)
       expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
