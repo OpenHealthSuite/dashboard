@@ -8,12 +8,12 @@ export interface IUserSetting {
     details: any
 }
 
-const usesrDbPool = new Pool()
+const userDbPool = new Pool()
 
 export class UserSettingRepository {
   private readonly _postgresPool: Pool;
   private readonly _tableName: string = 'user_settings'
-  constructor (pgPool = usesrDbPool) {
+  constructor (pgPool = userDbPool) {
     this._postgresPool = pgPool
   }
 
