@@ -29,7 +29,7 @@ describe('UserSettingsRepository', () => {
         }
       }
       fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
-      const expectedQuery = 'INSERT INTO user_settings (user_id, setting_id, details) VALUES ($1, $2, $3)'
+      const expectedQuery = 'INSERT INTO user_setting (user_id, setting_id, details) VALUES ($1, $2, $3)'
       const expectedArguments = [userSetting.user_id, userSetting.setting_id, userSetting.details]
       await userSettingRepository.createSetting(userSetting.user_id, userSetting.setting_id, userSetting.details)
       expect(fakePostgresPool.query).toBeCalledTimes(1)
@@ -46,7 +46,7 @@ describe('UserSettingsRepository', () => {
           whoami: 'details'
         }
       }
-      const expectedQuery = 'SELECT * FROM user_settings us WHERE us.user_id = $1 AND us.setting_id = $2'
+      const expectedQuery = 'SELECT * FROM user_setting us WHERE us.user_id = $1 AND us.setting_id = $2'
       const expectedArguments = [userSetting.user_id, userSetting.setting_id]
       fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
       const result = await userSettingRepository.getSetting(userSetting.user_id, userSetting.setting_id)
@@ -61,7 +61,7 @@ describe('UserSettingsRepository', () => {
         setting_id: 'SomeSettingId',
         details: null
       }
-      const expectedQuery = 'SELECT * FROM user_settings us WHERE us.user_id = $1 AND us.setting_id = $2'
+      const expectedQuery = 'SELECT * FROM user_setting us WHERE us.user_id = $1 AND us.setting_id = $2'
       const expectedArguments = [userSetting.user_id, userSetting.setting_id]
       fakePostgresPool.query.mockResolvedValue({ rowCount: 0, rows: [] })
       const result = await userSettingRepository.getSetting(userSetting.user_id, userSetting.setting_id)
@@ -82,7 +82,7 @@ describe('UserSettingsRepository', () => {
         }
       }
       fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
-      const expectedQuery = 'UPDATE user_settings us SET us.details = $3 WHERE us.user_id = $1 AND us.setting_id = $2'
+      const expectedQuery = 'UPDATE user_setting us SET us.details = $3 WHERE us.user_id = $1 AND us.setting_id = $2'
       const expectedArguments = [userSetting.user_id, userSetting.setting_id, userSetting.details]
       await userSettingRepository.updateSetting(userSetting.user_id, userSetting.setting_id, userSetting.details)
       expect(fakePostgresPool.query).toBeCalledTimes(1)

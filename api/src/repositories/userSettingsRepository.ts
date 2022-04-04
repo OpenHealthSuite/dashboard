@@ -12,7 +12,7 @@ const userDbPool = new Pool()
 
 export class UserSettingRepository {
   private readonly _postgresPool: Pool;
-  private readonly _tableName: string = 'user_settings'
+  private readonly _tableName: string = 'user_setting'
   constructor (pgPool = userDbPool) {
     this._postgresPool = pgPool
   }
