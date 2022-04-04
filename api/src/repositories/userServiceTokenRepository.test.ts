@@ -62,6 +62,19 @@ describe('UserSettingsRepository', () => {
     })
   })
 
+  describe('deleteUserToken', () => {
+    test('gets from repo', async () => {
+      const userId = 'SomeUserjnsdf!"£123'
+      const expectedQuery = 'DELETE FROM user_service_token ust WHERE ust.service_id = $1 AND ust.user_id = $2'
+      const expectedArguments = [expectedServiceId, userId]
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [] })
+      const result = await userServiceTokenRepository.deleteUserToken(userId)
+      expect(result.isOk()).toBeTruthy()
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
+    })
+  })
+
   describe('updateUserToken', () => {
     test('saves to pg', async () => {
       const userId = 'SomeUserjnsdf!"£123'

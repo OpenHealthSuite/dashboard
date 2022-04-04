@@ -124,6 +124,7 @@ export async function redeemCode (
   if (response.status !== 200) { return res.send({ status: 'err' }).status(400) }
   const responseData: IFitbitTokenResponse = JSON.parse(response.data)
   const token: IFitbitTokenDetails = { ...responseData, date_retrieved: (new Date()).toISOString() }
+  await fitbitTokenRepo.deleteUserToken(userId)
   await fitbitTokenRepo.createUserToken(userId, token)
   res.send({ status: 'ok' })
 }

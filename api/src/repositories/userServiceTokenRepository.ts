@@ -28,6 +28,16 @@ export class UserServiceTokenRepository<T> {
     }
   }
 
+  async deleteUserToken (userId: string): Promise<Result<null, string>> {
+    const deleteQuery = `DELETE FROM ${this._tableName} ust WHERE ust.service_id = $1 AND ust.user_id = $2`
+    try {
+      await this._postgresPool.query(deleteQuery, [this._serviceId, userId])
+      return ok(null)
+    } catch (error: any) {
+      return err(error.message)
+    }
+  }
+
   async getUserToken (userId: string): Promise<Result<T | null, string>> {
     const selectQuery = `SELECT token FROM ${this._tableName} ust WHERE ust.service_id = $1 AND ust.user_id = $2`
     const result = await this._postgresPool.query<{ token: T}>(selectQuery, [this._serviceId, userId])
