@@ -18,6 +18,25 @@ describe('UserSettingsRepository', () => {
       fakePostgresPool as unknown as Pool
     )
   })
+
+  describe('createSetting', () => {
+    test('saves to pg', async () => {
+      const userSetting = {
+        user_id: 'someUserId',
+        setting_id: 'SomeSettingId',
+        details: {
+          whoami: 'details'
+        }
+      }
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
+      const expectedQuery = 'INSERT INTO user_settings (user_id, setting_id, details) VALUES ($1, $2, $3)'
+      const expectedArguments = [userSetting.user_id, userSetting.setting_id, userSetting.details]
+      await userSettingRepository.createSetting(userSetting.user_id, userSetting.setting_id, userSetting.details)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
+    })
+  })
+
   describe('getSettings', () => {
     test('gets from repo', async () => {
       const userSetting = {
@@ -53,7 +72,7 @@ describe('UserSettingsRepository', () => {
   })
 
   describe('updateSetting', () => {
-    test('saves to mongo', async () => {
+    test('saves to pg', async () => {
       const userSetting = {
         user_id: 'someUserId',
         setting_id: 'SomeSettingId',
