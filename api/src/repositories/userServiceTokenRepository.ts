@@ -1,7 +1,5 @@
 import { err, ok, Result } from 'neverthrow'
 import { Pool } from 'pg'
-import * as baseMongoRepository from './baseMongoRepository'
-
 export interface IUserServiceToken<T> {
     userId: string,
     serviceId: string,
@@ -12,15 +10,11 @@ const userDbPool = new Pool()
 export class UserServiceTokenRepository<T> {
   private readonly _serviceId: string;
   private readonly _tableName: string = 'user_service_token'
-  private readonly _cacheKey: string;
-  private readonly _baseMongoRepo: baseMongoRepository.IBaseMongoRepository;
   private readonly _postgresPool: Pool;
   private readonly _dbName: string = 'user'
   private readonly _collectionName: string = 'token'
-  constructor (serviceId: string, baseMongoRepo = baseMongoRepository, pool: Pool = userDbPool) {
+  constructor (serviceId: string, pool: Pool = userDbPool) {
     this._serviceId = serviceId
-    this._cacheKey = `${this._dbName}:${this._collectionName}:${this._serviceId}`
-    this._baseMongoRepo = baseMongoRepo
     this._postgresPool = pool
   }
 
@@ -40,7 +34,13 @@ export class UserServiceTokenRepository<T> {
     return result.rowCount > 0 ? ok(result.rows[0].token) : ok(null)
   }
 
-  async updateUserToken (userId: string, token: T) {
-    await this._baseMongoRepo.replaceOneByFilter(this._dbName, this._collectionName, { userId, serviceId: this._serviceId }, { userId, serviceId: this._serviceId, token })
+  async updateUserToken (userId: string, token: T): Promise<Result<T, string>> {
+    try {
+      const updateQuery = `UPDATE ${this._tableName} ust SET ust.token = $3 WHERE ust.service_id = $1 AND ust.user_id = $2`
+      await this._postgresPool.query(updateQuery, [this._serviceId, userId, token])
+      return ok(token)
+    } catch (error: any) {
+      return err(error.message)
+    }
   }
 }

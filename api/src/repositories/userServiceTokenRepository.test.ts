@@ -1,38 +1,24 @@
 import { UserServiceTokenRepository } from './userServiceTokenRepository'
-import { IBaseMongoRepository } from './baseMongoRepository'
 import { Pool } from 'pg'
 
 const expectedServiceId = 'someservicename'
 
 describe('UserSettingsRepository', () => {
-  let fakeMongoRepo = {
-    getOneByFilter: jest.fn(),
-    replaceOneByFilter: jest.fn(),
-    update: jest.fn()
-  }
-
   let fakePostgresPool = {
     query: jest.fn()
   }
 
   let userServiceTokenRepository = new UserServiceTokenRepository(
     expectedServiceId,
-    fakeMongoRepo as unknown as IBaseMongoRepository,
     fakePostgresPool as unknown as Pool
   )
 
   beforeEach(() => {
-    fakeMongoRepo = {
-      getOneByFilter: jest.fn(),
-      replaceOneByFilter: jest.fn(),
-      update: jest.fn()
-    }
     fakePostgresPool = {
       query: jest.fn()
     }
     userServiceTokenRepository = new UserServiceTokenRepository(
       expectedServiceId,
-      fakeMongoRepo as unknown as IBaseMongoRepository,
       fakePostgresPool as unknown as Pool
     )
   })
@@ -76,16 +62,16 @@ describe('UserSettingsRepository', () => {
     })
   })
 
-  // describe('updateUserToken', () => {
-  //   test('saves to pg', async () => {
-  //     const userId = 'SomeUserjnsdf!"£123'
-  //     const userToken = { whoamI: 'userToken' }
-  //     fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
-  //     const expectedQuery = 'UPDATE user_settings us SET us.details = $3 WHERE us.user_id = $1 AND us.setting_id = $2'
-  //     const expectedArguments = [userSetting.user_id, userSetting.setting_id, userSetting.details]
-  //     await userServiceTokenRepository.updateUserToken(userSetting.user_id, userSetting.setting_id, userSetting.details)
-  //     expect(fakePostgresPool.query).toBeCalledTimes(1)
-  //     expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
-  //   })
-  // })
+  describe('updateUserToken', () => {
+    test('saves to pg', async () => {
+      const userId = 'SomeUserjnsdf!"£123'
+      const userToken = { whoamI: 'userToken' }
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ token: userToken }] })
+      const expectedQuery = 'UPDATE user_service_token ust SET ust.token = $3 WHERE ust.service_id = $1 AND ust.user_id = $2'
+      const expectedArguments = [expectedServiceId, userId, userToken]
+      await userServiceTokenRepository.updateUserToken(userId, userToken)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
+    })
+  })
 })
