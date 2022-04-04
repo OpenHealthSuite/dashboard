@@ -19,13 +19,10 @@ const settingsGet = async (userId: string, req: Request, res: Response) => {
     return res.status(400).send(`Setting "${settingId}" Not Found`)
   }
 
-  const plan = await repository.getSetting(userId, settingId)
+  const planRes = await repository.getSetting(userId, settingId)
 
-  if (!plan || plan.user_id !== userId) {
-    return res.status(404).send(`No item for user ${userId} found under ${settingId}`)
-  }
-
-  return res.send(plan.details)
+  planRes.map(plan => res.send(plan.details))
+    .mapErr(() => res.status(404).send(`No item for user ${userId} found under ${settingId}`))
 }
 
 const settingsUpdate = async (userId: string, req: Request, res: Response) => {
