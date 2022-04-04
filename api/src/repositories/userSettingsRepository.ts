@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import { Pool } from 'pg'
 import { err, ok, Result } from 'neverthrow'
+import { configuredDbPool } from './configuredDbPool'
 
 export interface IUserSetting {
     user_id: string,
@@ -8,12 +9,10 @@ export interface IUserSetting {
     details: any
 }
 
-const userDbPool = new Pool()
-
 export class UserSettingRepository {
   private readonly _postgresPool: Pool;
   private readonly _tableName: string = 'user_setting'
-  constructor (pgPool = userDbPool) {
+  constructor (pgPool = configuredDbPool) {
     this._postgresPool = pgPool
   }
 

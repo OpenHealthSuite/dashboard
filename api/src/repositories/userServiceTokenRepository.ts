@@ -1,19 +1,19 @@
 import { err, ok, Result } from 'neverthrow'
 import { Pool } from 'pg'
+import { configuredDbPool } from './configuredDbPool'
 export interface IUserServiceToken<T> {
     userId: string,
     serviceId: string,
     token: T
 }
 
-const userDbPool = new Pool()
 export class UserServiceTokenRepository<T> {
   private readonly _serviceId: string;
   private readonly _tableName: string = 'user_service_token'
   private readonly _postgresPool: Pool;
   private readonly _dbName: string = 'user'
   private readonly _collectionName: string = 'token'
-  constructor (serviceId: string, pool: Pool = userDbPool) {
+  constructor (serviceId: string, pool: Pool = configuredDbPool) {
     this._serviceId = serviceId
     this._postgresPool = pool
   }
