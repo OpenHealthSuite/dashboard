@@ -19,7 +19,8 @@ export class UserSettingRepository {
 
   public async createSetting (user_id: string, setting_id: string, details: any): Promise<Result<IUserSetting, string>> {
     try {
-      const result = await this._postgresPool.query(`INSERT INTO ${this._tableName} (user_id, setting_id, details) VALUES ($1, $2, $3)`, [user_id, setting_id, details])
+      const insertQuery = `INSERT INTO ${this._tableName} (user_id, setting_id, details) VALUES ($1, $2, $3)`
+      const result = await this._postgresPool.query(insertQuery, [user_id, setting_id, details])
       return result.rowCount > 0 ? ok(result.rows[0]) : err('Nothing Inserted')
     } catch (error: any) {
       return err(error.message)
@@ -27,13 +28,15 @@ export class UserSettingRepository {
   }
 
   public async getSetting (user_id: string, setting_id: string): Promise<Result<IUserSetting | null, string>> {
-    const result = await this._postgresPool.query<IUserSetting>(`SELECT * FROM ${this._tableName} us WHERE us.user_id = $1 AND us.setting_id = $2`, [user_id, setting_id])
+    const selectQuery = `SELECT * FROM ${this._tableName} us WHERE us.user_id = $1 AND us.setting_id = $2`
+    const result = await this._postgresPool.query<IUserSetting>(selectQuery, [user_id, setting_id])
     return result.rowCount > 0 ? ok(result.rows[0]) : ok(null)
   }
 
   public async updateSetting (user_id: string, setting_id: string, details: any): Promise<Result<null, string>> {
     try {
-      await this._postgresPool.query(`UPDATE ${this._tableName} us SET us.details = $3 WHERE us.user_id = $1 AND us.setting_id = $2`, [user_id, setting_id, details])
+      const updateQuery = `UPDATE ${this._tableName} us SET us.details = $3 WHERE us.user_id = $1 AND us.setting_id = $2`
+      await this._postgresPool.query(updateQuery, [user_id, setting_id, details])
       return ok(null)
     } catch (error: any) {
       return err(error.message)
