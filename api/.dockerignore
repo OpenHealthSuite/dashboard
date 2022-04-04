@@ -5,3 +5,5 @@ node_modules
 helm
 scripts
 test
+.env
+*.log

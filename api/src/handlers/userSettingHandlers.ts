@@ -19,13 +19,10 @@ const settingsGet = async (userId: string, req: Request, res: Response) => {
     return res.status(400).send(`Setting "${settingId}" Not Found`)
   }
 
-  const plan = await repository.getSetting(userId, settingId)
+  const planRes = await repository.getSetting(userId, settingId)
 
-  if (!plan || plan.userId !== userId) {
-    return res.status(404).send(`No item for user ${userId} found under ${settingId}`)
-  }
-
-  return res.send(plan.details)
+  planRes.map(plan => plan ? res.send(plan.details) : res.status(404).send(`No item for user ${userId} found under ${settingId}`))
+    .mapErr(() => res.status(500).send('Internal Error'))
 }
 
 const settingsUpdate = async (userId: string, req: Request, res: Response) => {
@@ -36,7 +33,12 @@ const settingsUpdate = async (userId: string, req: Request, res: Response) => {
     return res.status(400).send(`Setting "${settingId}" Not Found`)
   }
 
-  await repository.updateSetting(userId, settingId, body)
-
-  return res.send('OK')
+  (await repository.getSetting(userId, settingId))
+    .map(async existing => {
+      if (existing) {
+        return (await repository.updateSetting(userId, settingId, body)).map(() => res.send('OK - Updated'))
+      }
+      return (await repository.createSetting(userId, settingId, body)).map(() => res.send('OK - Created'))
+    })
+    .mapErr(() => res.status(500).send('Internal Error'))
 }

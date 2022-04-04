@@ -1,6 +1,6 @@
-import * as baseGenericCache from '../caches/GenericCache'
-import * as baseMongoRepository from './baseMongoRepository'
-
+import { err, ok, Result } from 'neverthrow'
+import { Pool } from 'pg'
+import { configuredDbPool } from './configuredDbPool'
 export interface IUserServiceToken<T> {
     userId: string,
     serviceId: string,
@@ -9,30 +9,48 @@ export interface IUserServiceToken<T> {
 
 export class UserServiceTokenRepository<T> {
   private readonly _serviceId: string;
-  private readonly _cacheKey: string;
-  private readonly _baseMongoRepo: baseMongoRepository.IBaseMongoRepository;
-  private readonly _baseGenericCache: baseGenericCache.IGenericCache
+  private readonly _tableName: string = 'user_service_token'
+  private readonly _postgresPool: Pool;
   private readonly _dbName: string = 'user'
   private readonly _collectionName: string = 'token'
-  constructor (serviceId: string, baseMongoRepo = baseMongoRepository, baseCache = baseGenericCache) {
+  constructor (serviceId: string, pool: Pool = configuredDbPool) {
     this._serviceId = serviceId
-    this._cacheKey = `${this._dbName}:${this._collectionName}:${this._serviceId}`
-    this._baseMongoRepo = baseMongoRepo
-    this._baseGenericCache = baseCache
+    this._postgresPool = pool
   }
 
-  async getUserToken (userId: string): Promise<T | undefined> {
-    const cachedValue = await this._baseGenericCache.GetByKey<T>(`${this._cacheKey}:${userId}`)
-    if (cachedValue) {
-      return cachedValue.value
+  async createUserToken (userId: string, token: T): Promise<Result<T, string>> {
+    try {
+      const insertQuery = `INSERT INTO ${this._tableName} (service_id, user_id, token) VALUES ($1, $2, $3)`
+      const result = await this._postgresPool.query(insertQuery, [this._serviceId, userId, token])
+      return result.rowCount > 0 ? ok(result.rows[0].token) : err('Nothing Inserted')
+    } catch (error: any) {
+      return err(error.message)
     }
-    const result = await this._baseMongoRepo.getOneByFilter<IUserServiceToken<T>>(this._dbName, this._collectionName, { serviceId: this._serviceId, userId })
-    result.map(async ({ token }) => await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}`, token))
-    return result.unwrapOr({ token: undefined }).token
   }
 
-  async updateUserToken (userId: string, token: T) {
-    await this._baseMongoRepo.replaceOneByFilter(this._dbName, this._collectionName, { userId, serviceId: this._serviceId }, { userId, serviceId: this._serviceId, token })
-    await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}`, token)
+  async deleteUserToken (userId: string): Promise<Result<null, string>> {
+    const deleteQuery = `DELETE FROM ${this._tableName} ust WHERE ust.service_id = $1 AND ust.user_id = $2`
+    try {
+      await this._postgresPool.query(deleteQuery, [this._serviceId, userId])
+      return ok(null)
+    } catch (error: any) {
+      return err(error.message)
+    }
+  }
+
+  async getUserToken (userId: string): Promise<Result<T | null, string>> {
+    const selectQuery = `SELECT token FROM ${this._tableName} ust WHERE ust.service_id = $1 AND ust.user_id = $2`
+    const result = await this._postgresPool.query<{ token: T}>(selectQuery, [this._serviceId, userId])
+    return result.rowCount > 0 ? ok(result.rows[0].token) : ok(null)
+  }
+
+  async updateUserToken (userId: string, token: T): Promise<Result<T, string>> {
+    try {
+      const updateQuery = `UPDATE ${this._tableName} SET token = $3 WHERE service_id = $1 AND user_id = $2`
+      await this._postgresPool.query(updateQuery, [this._serviceId, userId, token])
+      return ok(token)
+    } catch (error: any) {
+      return err(error.message)
+    }
   }
 }

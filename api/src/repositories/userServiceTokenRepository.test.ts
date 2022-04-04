@@ -1,84 +1,90 @@
 import { UserServiceTokenRepository } from './userServiceTokenRepository'
-import { IBaseMongoRepository } from './baseMongoRepository'
-import { IGenericCache } from '../caches/GenericCache'
-import { ok } from 'neverthrow'
+import { Pool } from 'pg'
 
-const expectedDbName = 'user'
-const expectedCollectionName = 'token'
 const expectedServiceId = 'someservicename'
-const expectedCacheKey = `${expectedDbName}:${expectedCollectionName}:${expectedServiceId}`
 
 describe('UserSettingsRepository', () => {
-  let fakeMongoRepo = {
-    getOneByFilter: jest.fn(),
-    replaceOneByFilter: jest.fn(),
-    update: jest.fn()
-  }
-  let fakeCache = {
-    GetByKey: jest.fn(),
-    SaveOnKey: jest.fn()
+  let fakePostgresPool = {
+    query: jest.fn()
   }
 
   let userServiceTokenRepository = new UserServiceTokenRepository(
     expectedServiceId,
-    fakeMongoRepo as unknown as IBaseMongoRepository,
-    fakeCache as unknown as IGenericCache
+    fakePostgresPool as unknown as Pool
   )
 
   beforeEach(() => {
-    fakeMongoRepo = {
-      getOneByFilter: jest.fn(),
-      replaceOneByFilter: jest.fn(),
-      update: jest.fn()
-    }
-    fakeCache = {
-      GetByKey: jest.fn(),
-      SaveOnKey: jest.fn()
+    fakePostgresPool = {
+      query: jest.fn()
     }
     userServiceTokenRepository = new UserServiceTokenRepository(
       expectedServiceId,
-      fakeMongoRepo as unknown as IBaseMongoRepository,
-      fakeCache as unknown as IGenericCache
+      fakePostgresPool as unknown as Pool
     )
   })
-  describe('getUserToken', () => {
-    test('Has cache value :: returns cache value', async () => {
+
+  describe('createUserToken', () => {
+    test('saves to pg', async () => {
       const userId = 'SomeUserjnsdf!"£123'
       const userToken = { whoamI: 'userToken' }
-      fakeCache.GetByKey.mockResolvedValue({ value: userToken })
-      const result = await userServiceTokenRepository.getUserToken(userId)
-      expect(result).toBe(userToken)
-      expect(fakeCache.GetByKey).toBeCalledTimes(1)
-      expect(fakeCache.GetByKey).toBeCalledWith(`${expectedCacheKey}:${userId}`)
-      expect(fakeMongoRepo.getOneByFilter).toBeCalledTimes(0)
-      expect(fakeCache.SaveOnKey).toBeCalledTimes(0)
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userToken] })
+      const expectedQuery = 'INSERT INTO user_service_token (service_id, user_id, token) VALUES ($1, $2, $3)'
+      const expectedArguments = [expectedServiceId, userId, userToken]
+      await userServiceTokenRepository.createUserToken(userId, userToken)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
-    test('no cache value :: gets from repo, saves to cache', async () => {
+  })
+
+  describe('getUserToken', () => {
+    test('gets from repo', async () => {
       const userId = 'SomeUserjnsdf!"£123'
       const userToken = { whoamI: 'userToken' }
-      fakeCache.GetByKey.mockResolvedValue(undefined)
-      fakeMongoRepo.getOneByFilter.mockResolvedValue(ok({ token: userToken }))
+      const expectedQuery = 'SELECT token FROM user_service_token ust WHERE ust.service_id = $1 AND ust.user_id = $2'
+      const expectedArguments = [expectedServiceId, userId]
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ token: userToken }] })
       const result = await userServiceTokenRepository.getUserToken(userId)
-      expect(result).toBe(userToken)
-      expect(fakeCache.GetByKey).toBeCalledTimes(1)
-      expect(fakeCache.GetByKey).toBeCalledWith(`${expectedCacheKey}:${userId}`)
-      expect(fakeMongoRepo.getOneByFilter).toBeCalledTimes(1)
-      expect(fakeMongoRepo.getOneByFilter).toBeCalledWith(expectedDbName, expectedCollectionName, { serviceId: expectedServiceId, userId })
-      expect(fakeCache.SaveOnKey).toBeCalledTimes(1)
-      expect(fakeCache.SaveOnKey).toBeCalledWith(`${expectedCacheKey}:${userId}`, userToken)
+      expect(result.isOk()).toBeTruthy()
+      expect(result._unsafeUnwrap()).toBe(userToken)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
+    })
+    test('nothing found :: returns null', async () => {
+      const userId = 'SomeUserjnsdf!"£123'
+      const expectedQuery = 'SELECT token FROM user_service_token ust WHERE ust.service_id = $1 AND ust.user_id = $2'
+      const expectedArguments = [expectedServiceId, userId]
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 0, rows: [] })
+      const result = await userServiceTokenRepository.getUserToken(userId)
+      expect(result.isOk()).toBeTruthy()
+      expect(result._unsafeUnwrap()).toBe(null)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
+    })
+  })
+
+  describe('deleteUserToken', () => {
+    test('gets from repo', async () => {
+      const userId = 'SomeUserjnsdf!"£123'
+      const expectedQuery = 'DELETE FROM user_service_token ust WHERE ust.service_id = $1 AND ust.user_id = $2'
+      const expectedArguments = [expectedServiceId, userId]
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [] })
+      const result = await userServiceTokenRepository.deleteUserToken(userId)
+      expect(result.isOk()).toBeTruthy()
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
   })
 
   describe('updateUserToken', () => {
-    test('saves to mongo, then mongo value to cache', async () => {
+    test('saves to pg', async () => {
       const userId = 'SomeUserjnsdf!"£123'
       const userToken = { whoamI: 'userToken' }
-      fakeMongoRepo.replaceOneByFilter.mockResolvedValue(ok({ _id: '542c2b97bac0595474108b48', token: userToken }))
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ token: userToken }] })
+      const expectedQuery = 'UPDATE user_service_token SET token = $3 WHERE service_id = $1 AND user_id = $2'
+      const expectedArguments = [expectedServiceId, userId, userToken]
       await userServiceTokenRepository.updateUserToken(userId, userToken)
-      expect(fakeMongoRepo.replaceOneByFilter).toBeCalledTimes(1)
-      expect(fakeMongoRepo.replaceOneByFilter).toBeCalledWith(expectedDbName, expectedCollectionName, { serviceId: expectedServiceId, userId }, { userId, serviceId: expectedServiceId, token: userToken })
-      expect(fakeCache.SaveOnKey).toBeCalledTimes(1)
-      expect(fakeCache.SaveOnKey).toBeCalledWith(`${expectedCacheKey}:${userId}`, userToken)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
   })
 })

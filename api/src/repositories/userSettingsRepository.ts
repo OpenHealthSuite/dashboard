@@ -1,37 +1,46 @@
-import * as baseGenericCache from '../caches/GenericCache'
-import * as baseMongoRepository from './baseMongoRepository'
+/* eslint-disable camelcase */
+import { Pool } from 'pg'
+import { err, ok, Result } from 'neverthrow'
+import { configuredDbPool } from './configuredDbPool'
 
 export interface IUserSetting {
-    userId: string,
-    settingId: string,
+    user_id: string,
+    setting_id: string,
     details: any
 }
 
 export class UserSettingRepository {
-  private readonly _cacheKey: string;
-  private readonly _baseMongoRepo: baseMongoRepository.IBaseMongoRepository;
-  private readonly _baseGenericCache: baseGenericCache.IGenericCache
-  private readonly _dbName: string = 'user'
-  private readonly _collectionName: string = 'settings'
-  constructor (baseMongoRepo = baseMongoRepository, baseCache = baseGenericCache) {
-    this._cacheKey = `${this._dbName}:${this._collectionName}`
-    this._baseMongoRepo = baseMongoRepo
-    this._baseGenericCache = baseCache
+  private readonly _postgresPool: Pool;
+  private readonly _tableName: string = 'user_setting'
+  constructor (pgPool = configuredDbPool) {
+    this._postgresPool = pgPool
   }
 
-  public async getSetting (userId: string, settingId: string): Promise<IUserSetting> {
-    const cachedValue = await this._baseGenericCache.GetByKey<IUserSetting>(`${this._cacheKey}:${userId}:${settingId}`)
-    if (cachedValue) {
-      return cachedValue.value
+  public async createSetting (user_id: string, setting_id: string, details: any): Promise<Result<IUserSetting, string>> {
+    try {
+      const insertQuery = `INSERT INTO ${this._tableName} (user_id, setting_id, details) VALUES ($1, $2, $3)`
+      const result = await this._postgresPool.query(insertQuery, [user_id, setting_id, details])
+      return result.rowCount > 0 ? ok(result.rows[0]) : err('Nothing Inserted')
+    } catch (error: any) {
+      console.log(error)
+      return err(error.message)
     }
-    const result = await this._baseMongoRepo.getOneByFilter<IUserSetting>(this._dbName, this._collectionName, { userId, settingId })
-    // We should propogate neverthrow up through the stack
-    result.map(async userSetting => await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}:${settingId}`, userSetting))
-    return result.unwrapOr<IUserSetting>({ userId, settingId, details: null })
   }
 
-  public async updateSetting (userId: string, settingId: string, details: any): Promise<void> {
-    const result = await this._baseMongoRepo.replaceOneByFilter(this._dbName, this._collectionName, { userId, settingId }, { userId, settingId, details })
-    result.map(async savedValue => await this._baseGenericCache.SaveOnKey(`${this._cacheKey}:${userId}:${settingId}`, savedValue))
+  public async getSetting (user_id: string, setting_id: string): Promise<Result<IUserSetting | null, string>> {
+    const selectQuery = `SELECT * FROM ${this._tableName} us WHERE us.user_id = $1 AND us.setting_id = $2`
+    const result = await this._postgresPool.query<IUserSetting>(selectQuery, [user_id, setting_id])
+    return result.rowCount > 0 ? ok(result.rows[0]) : ok(null)
+  }
+
+  public async updateSetting (user_id: string, setting_id: string, details: any): Promise<Result<null, string>> {
+    try {
+      const updateQuery = `UPDATE ${this._tableName} SET details = $3 WHERE user_id = $1 AND setting_id = $2`
+      await this._postgresPool.query(updateQuery, [user_id, setting_id, details])
+      return ok(null)
+    } catch (error: any) {
+      console.log(error)
+      return err(error.message)
+    }
   }
 }

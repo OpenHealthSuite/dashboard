@@ -1,104 +1,92 @@
 import { UserSettingRepository } from './userSettingsRepository'
-import { IBaseMongoRepository } from './baseMongoRepository'
-import { IGenericCache } from '../caches/GenericCache'
-import { ok } from 'neverthrow'
-
-const expectedDbName = 'user'
-const expectedCollectionName = 'settings'
-const expectedCacheKey = `${expectedDbName}:${expectedCollectionName}`
+import { Pool } from 'pg'
 
 describe('UserSettingsRepository', () => {
-  let fakeMongoRepo = {
-    getOneByFilter: jest.fn(),
-    replaceOneByFilter: jest.fn(),
-    update: jest.fn()
-  }
-  let fakeCache = {
-    GetByKey: jest.fn(),
-    SaveOnKey: jest.fn()
+  let fakePostgresPool = {
+    query: jest.fn()
   }
 
   let userSettingRepository = new UserSettingRepository(
-    fakeMongoRepo as unknown as IBaseMongoRepository,
-    fakeCache as unknown as IGenericCache
+    fakePostgresPool as unknown as Pool
   )
 
   beforeEach(() => {
-    fakeMongoRepo = {
-      getOneByFilter: jest.fn(),
-      replaceOneByFilter: jest.fn(),
-      update: jest.fn()
-    }
-    fakeCache = {
-      GetByKey: jest.fn(),
-      SaveOnKey: jest.fn()
+    fakePostgresPool = {
+      query: jest.fn()
     }
     userSettingRepository = new UserSettingRepository(
-      fakeMongoRepo as unknown as IBaseMongoRepository,
-      fakeCache as unknown as IGenericCache
+      fakePostgresPool as unknown as Pool
     )
   })
-  describe('getSettings', () => {
-    test('Has cache value :: returns cache value', async () => {
+
+  describe('createSetting', () => {
+    test('saves to pg', async () => {
       const userSetting = {
-        userId: 'someUserId',
-        settingId: 'SomeSettingId',
+        user_id: 'someUserId',
+        setting_id: 'SomeSettingId',
         details: {
           whoami: 'details'
         }
       }
-      fakeCache.GetByKey.mockResolvedValue({ value: userSetting })
-      const result = await userSettingRepository.getSetting(userSetting.userId, userSetting.settingId)
-      expect(result).toBe(userSetting)
-      expect(fakeCache.GetByKey).toBeCalledTimes(1)
-      expect(fakeCache.GetByKey).toBeCalledWith(`${expectedCacheKey}:${userSetting.userId}:${userSetting.settingId}`)
-      expect(fakeMongoRepo.getOneByFilter).toBeCalledTimes(0)
-      expect(fakeCache.SaveOnKey).toBeCalledTimes(0)
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
+      const expectedQuery = 'INSERT INTO user_setting (user_id, setting_id, details) VALUES ($1, $2, $3)'
+      const expectedArguments = [userSetting.user_id, userSetting.setting_id, userSetting.details]
+      await userSettingRepository.createSetting(userSetting.user_id, userSetting.setting_id, userSetting.details)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
-    test('no cache value :: gets from repo, saves to cache', async () => {
+  })
+
+  describe('getSettings', () => {
+    test('gets from repo', async () => {
       const userSetting = {
-        userId: 'someUserId',
-        settingId: 'SomeSettingId',
+        user_id: 'someUserId',
+        setting_id: 'SomeSettingId',
         details: {
           whoami: 'details'
         }
       }
-      fakeCache.GetByKey.mockResolvedValue(undefined)
-      fakeMongoRepo.getOneByFilter.mockResolvedValue(ok(userSetting))
-      const result = await userSettingRepository.getSetting(userSetting.userId, userSetting.settingId)
-      expect(result).toBe(userSetting)
-      expect(fakeCache.GetByKey).toBeCalledTimes(1)
-      expect(fakeCache.GetByKey).toBeCalledWith(`${expectedCacheKey}:${userSetting.userId}:${userSetting.settingId}`)
-      expect(fakeMongoRepo.getOneByFilter).toBeCalledTimes(1)
-      expect(fakeMongoRepo.getOneByFilter).toBeCalledWith(expectedDbName, expectedCollectionName, { userId: userSetting.userId, settingId: userSetting.settingId })
-      expect(fakeCache.SaveOnKey).toBeCalledTimes(1)
-      expect(fakeCache.SaveOnKey).toBeCalledWith(`${expectedCacheKey}:${userSetting.userId}:${userSetting.settingId}`, userSetting)
+      const expectedQuery = 'SELECT * FROM user_setting us WHERE us.user_id = $1 AND us.setting_id = $2'
+      const expectedArguments = [userSetting.user_id, userSetting.setting_id]
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
+      const result = await userSettingRepository.getSetting(userSetting.user_id, userSetting.setting_id)
+      expect(result.isOk()).toBeTruthy()
+      expect(result._unsafeUnwrap()).toBe(userSetting)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
+    })
+    test('nothing found :: returns null', async () => {
+      const userSetting = {
+        user_id: 'someUserId',
+        setting_id: 'SomeSettingId',
+        details: null
+      }
+      const expectedQuery = 'SELECT * FROM user_setting us WHERE us.user_id = $1 AND us.setting_id = $2'
+      const expectedArguments = [userSetting.user_id, userSetting.setting_id]
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 0, rows: [] })
+      const result = await userSettingRepository.getSetting(userSetting.user_id, userSetting.setting_id)
+      expect(result.isOk()).toBeTruthy()
+      expect(result._unsafeUnwrap()).toBe(null)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
   })
 
   describe('updateSetting', () => {
-    test('saves to mongo, then mongo value to cache', async () => {
+    test('saves to pg', async () => {
       const userSetting = {
-        userId: 'someUserId',
-        settingId: 'SomeSettingId',
+        user_id: 'someUserId',
+        setting_id: 'SomeSettingId',
         details: {
           whoami: 'details'
         }
       }
-      const userSettingForCache = {
-        _id: '542c2b97bac0595474108b48',
-        userId: 'someUserId',
-        settingId: 'SomeSettingId',
-        details: {
-          whoami: 'details'
-        }
-      }
-      fakeMongoRepo.replaceOneByFilter.mockResolvedValue(ok(userSettingForCache))
-      await userSettingRepository.updateSetting(userSetting.userId, userSetting.settingId, userSetting.details)
-      expect(fakeMongoRepo.replaceOneByFilter).toBeCalledTimes(1)
-      expect(fakeMongoRepo.replaceOneByFilter).toBeCalledWith(expectedDbName, expectedCollectionName, { userId: userSetting.userId, settingId: userSetting.settingId }, userSetting)
-      expect(fakeCache.SaveOnKey).toBeCalledTimes(1)
-      expect(fakeCache.SaveOnKey).toBeCalledWith(`${expectedCacheKey}:${userSetting.userId}:${userSetting.settingId}`, userSettingForCache)
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
+      const expectedQuery = 'UPDATE user_setting SET details = $3 WHERE user_id = $1 AND setting_id = $2'
+      const expectedArguments = [userSetting.user_id, userSetting.setting_id, userSetting.details]
+      await userSettingRepository.updateSetting(userSetting.user_id, userSetting.setting_id, userSetting.details)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
   })
 })

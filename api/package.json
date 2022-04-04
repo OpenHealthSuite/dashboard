@@ -1,14 +1,15 @@
 {
     "name": "paceme-api",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "description": "The API Behind PaceMe, for serving the web application",
     "main": "dist/index.js",
     "scripts": {
         "test": "jest",
         "test:watch": "jest --watch",
-        "watch:ts": "npx tsc -w",
-        "start:watch": "concurrently 'npm run watch:ts' 'nodemon -r dotenv/config dist/index.js'",
+        "build": "tsc",
+        "migrations:validate": "pg-validate-migrations 'migrations'",
         "start": "node -r dotenv/config dist/index.js",
+        "start:watch": "concurrently 'npm run build -- --watch' 'nodemon -r dotenv/config dist/index.js'",
         "lint": "npx eslint . --ext .ts",
         "lint:fix": "npx eslint . --fix --ext .ts",
         "dev:redis:delete": "docker rm paceme-redis",
@@ -58,7 +59,8 @@
         "dotenv": "^10.0.0",
         "express": "^4.17.1",
         "ioredis": "^4.28.3",
-        "mongodb": "^4.4.1",
-        "neverthrow": "^4.3.1"
+        "neverthrow": "^4.3.1",
+        "pg": "^8.7.3",
+        "postgres-migrations": "^5.3.0"
     }
 }
