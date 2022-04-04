@@ -21,7 +21,7 @@ const settingsGet = async (userId: string, req: Request, res: Response) => {
 
   const plan = await repository.getSetting(userId, settingId)
 
-  if (!plan || plan.userId !== userId) {
+  if (!plan || plan.user_id !== userId) {
     return res.status(404).send(`No item for user ${userId} found under ${settingId}`)
   }
 
