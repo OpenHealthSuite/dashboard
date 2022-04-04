@@ -1,38 +1,20 @@
 import { UserSettingRepository } from './userSettingsRepository'
-import { IBaseMongoRepository } from './baseMongoRepository'
-import { ok } from 'neverthrow'
 import { Pool } from 'pg'
 
-const expectedDbName = 'user'
-const expectedCollectionName = 'settings'
-
 describe('UserSettingsRepository', () => {
-  let fakeMongoRepo = {
-    getOneByFilter: jest.fn(),
-    replaceOneByFilter: jest.fn(),
-    update: jest.fn()
-  }
-
   let fakePostgresPool = {
     query: jest.fn()
   }
 
   let userSettingRepository = new UserSettingRepository(
-    fakeMongoRepo as unknown as IBaseMongoRepository,
     fakePostgresPool as unknown as Pool
   )
 
   beforeEach(() => {
-    fakeMongoRepo = {
-      getOneByFilter: jest.fn(),
-      replaceOneByFilter: jest.fn(),
-      update: jest.fn()
-    }
     fakePostgresPool = {
       query: jest.fn()
     }
     userSettingRepository = new UserSettingRepository(
-      fakeMongoRepo as unknown as IBaseMongoRepository,
       fakePostgresPool as unknown as Pool
     )
   })
@@ -73,24 +55,18 @@ describe('UserSettingsRepository', () => {
   describe('updateSetting', () => {
     test('saves to mongo', async () => {
       const userSetting = {
-        userId: 'someUserId',
-        settingId: 'SomeSettingId',
+        user_id: 'someUserId',
+        setting_id: 'SomeSettingId',
         details: {
           whoami: 'details'
         }
       }
-      const userSettingForCache = {
-        _id: '542c2b97bac0595474108b48',
-        userId: 'someUserId',
-        settingId: 'SomeSettingId',
-        details: {
-          whoami: 'details'
-        }
-      }
-      fakeMongoRepo.replaceOneByFilter.mockResolvedValue(ok(userSettingForCache))
-      await userSettingRepository.updateSetting(userSetting.userId, userSetting.settingId, userSetting.details)
-      expect(fakeMongoRepo.replaceOneByFilter).toBeCalledTimes(1)
-      expect(fakeMongoRepo.replaceOneByFilter).toBeCalledWith(expectedDbName, expectedCollectionName, { userId: userSetting.userId, settingId: userSetting.settingId }, userSetting)
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
+      const expectedQuery = 'UPDATE user_settings us SET us.details = $3 WHERE us.user_id = $1 AND us.setting_id = $2'
+      const expectedArguments = [userSetting.user_id, userSetting.setting_id, userSetting.details]
+      await userSettingRepository.updateSetting(userSetting.user_id, userSetting.setting_id, userSetting.details)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
   })
 })

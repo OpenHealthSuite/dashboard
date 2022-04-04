@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import * as baseMongoRepository from './baseMongoRepository'
 import { Pool } from 'pg'
 import { err, ok, Result } from 'neverthrow'
 
@@ -12,21 +11,23 @@ export interface IUserSetting {
 const usesrDbPool = new Pool()
 
 export class UserSettingRepository {
-  private readonly _baseMongoRepo: baseMongoRepository.IBaseMongoRepository;
   private readonly _postgresPool: Pool;
-  private readonly _dbName: string = 'user'
-  private readonly _collectionName: string = 'settings'
-  constructor (baseMongoRepo = baseMongoRepository, pgPool = usesrDbPool) {
-    this._baseMongoRepo = baseMongoRepo
+  private readonly _tableName: string = 'user_settings'
+  constructor (pgPool = usesrDbPool) {
     this._postgresPool = pgPool
   }
 
   public async getSetting (user_id: string, setting_id: string): Promise<Result<IUserSetting, string>> {
-    const result = await this._postgresPool.query<IUserSetting>('SELECT * FROM user_settings us WHERE us.user_id = $1 AND us.setting_id = $2', [user_id, setting_id])
+    const result = await this._postgresPool.query<IUserSetting>(`SELECT * FROM ${this._tableName} us WHERE us.user_id = $1 AND us.setting_id = $2`, [user_id, setting_id])
     return result.rowCount > 0 ? ok(result.rows[0]) : err('Not Found')
   }
 
-  public async updateSetting (userId: string, settingId: string, details: any): Promise<void> {
-    await this._baseMongoRepo.replaceOneByFilter(this._dbName, this._collectionName, { userId, settingId }, { userId, settingId, details })
+  public async updateSetting (user_id: string, setting_id: string, details: any): Promise<Result<null, string>> {
+    try {
+      await this._postgresPool.query<IUserSetting>(`UPDATE ${this._tableName} us SET us.details = $3 WHERE us.user_id = $1 AND us.setting_id = $2`, [user_id, setting_id, details])
+      return ok(null)
+    } catch (error: any) {
+      return err(error.message)
+    }
   }
 }
