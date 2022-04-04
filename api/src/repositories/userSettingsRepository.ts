@@ -22,6 +22,7 @@ export class UserSettingRepository {
       const result = await this._postgresPool.query(insertQuery, [user_id, setting_id, details])
       return result.rowCount > 0 ? ok(result.rows[0]) : err('Nothing Inserted')
     } catch (error: any) {
+      console.log(error)
       return err(error.message)
     }
   }
@@ -34,10 +35,11 @@ export class UserSettingRepository {
 
   public async updateSetting (user_id: string, setting_id: string, details: any): Promise<Result<null, string>> {
     try {
-      const updateQuery = `UPDATE ${this._tableName} us SET us.details = $3 WHERE us.user_id = $1 AND us.setting_id = $2`
+      const updateQuery = `UPDATE ${this._tableName} SET details = $3 WHERE user_id = $1 AND setting_id = $2`
       await this._postgresPool.query(updateQuery, [user_id, setting_id, details])
       return ok(null)
     } catch (error: any) {
+      console.log(error)
       return err(error.message)
     }
   }

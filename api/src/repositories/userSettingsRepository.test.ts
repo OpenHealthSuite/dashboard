@@ -82,7 +82,7 @@ describe('UserSettingsRepository', () => {
         }
       }
       fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userSetting] })
-      const expectedQuery = 'UPDATE user_setting us SET us.details = $3 WHERE us.user_id = $1 AND us.setting_id = $2'
+      const expectedQuery = 'UPDATE user_setting SET details = $3 WHERE user_id = $1 AND setting_id = $2'
       const expectedArguments = [userSetting.user_id, userSetting.setting_id, userSetting.details]
       await userSettingRepository.updateSetting(userSetting.user_id, userSetting.setting_id, userSetting.details)
       expect(fakePostgresPool.query).toBeCalledTimes(1)

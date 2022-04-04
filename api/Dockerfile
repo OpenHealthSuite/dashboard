@@ -14,6 +14,7 @@ COPY --from=builder /application/package.json /application/package.json
 COPY --from=builder /application/package-lock.json /application/package-lock.json
 RUN npm install --only=prod
 COPY --from=builder /application/dist /application/dist
+COPY migrations migrations
 ENV RUNNING_IN_CONTAINER=true
 EXPOSE 8080
 CMD ["npm", "start"]

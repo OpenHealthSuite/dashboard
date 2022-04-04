@@ -7,6 +7,7 @@ import { addCaloriesHandlers } from './handlers/caloriesHandlers'
 import { addSleepHandlers } from './handlers/sleepHandlers'
 import { addUserSettingHandlers } from './handlers/userSettingHandlers'
 import { authenticationMiddleware } from './middlewares/authenticationMiddleware'
+import { runMigrations } from './repositories/_migrationRunner'
 import CognitoExpress from 'cognito-express'
 
 const app = express()
@@ -45,6 +46,7 @@ addStepHandlers(app)
 addCaloriesHandlers(app)
 
 // start the Express server
-app.listen(configuration.port, configuration.host, () => {
+// This assumes the node start script is used, which is fine, but it you have issues, look there.
+runMigrations('migrations').then(() => app.listen(configuration.port, configuration.host, () => {
   console.log(`server started at ${configuration.host}:${configuration.port}`)
-})
+}))

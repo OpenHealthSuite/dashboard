@@ -46,7 +46,7 @@ export class UserServiceTokenRepository<T> {
 
   async updateUserToken (userId: string, token: T): Promise<Result<T, string>> {
     try {
-      const updateQuery = `UPDATE ${this._tableName} ust SET ust.token = $3 WHERE ust.service_id = $1 AND ust.user_id = $2`
+      const updateQuery = `UPDATE ${this._tableName} SET token = $3 WHERE service_id = $1 AND user_id = $2`
       await this._postgresPool.query(updateQuery, [this._serviceId, userId, token])
       return ok(token)
     } catch (error: any) {
