@@ -177,6 +177,9 @@ metadata:
 spec:
   template:
     spec:
+      nodeSelector: 
+        # We should try running this on arm too, maybe a custom build
+        kubernetes.io/arch: amd64
       containers:
       - name: cluster-init
         image: cockroachdb/cockroach:v21.2.7
