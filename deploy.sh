@@ -5,6 +5,9 @@ helm upgrade paceme ./helm \
   --set "Aws.AccessKey=$(credstash get paceme/ApiAwsAccessKey)" \
   --set "Aws.SecretKey=$(credstash get paceme/ApiAwsSecretKey)" \
   --set "CognitoPoolId=$(credstash get paceme/CognitoPoolId)" \
+  --set "oauth2.clientid=$(credstash get paceme/oauth2.clientid)" \
+  --set "oauth2.secret=$(credstash get paceme/oauth2.secret)" \
+  --set "oauth2.cookiesecret=$(credstash get paceme/oauth2.cookiesecret)" \
   --set "fitbit.clientId=$(credstash get paceme/fitbit-client-id)" \
   --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
   --set "api.tag=$(cat api/package.json | jq -r '.version')" \

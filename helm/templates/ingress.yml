@@ -1,10 +1,38 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+  name: paceme-oauth2-proxy
+  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+spec:
+  # ingressClassName: nginx
+  rules:
+  - host: {{ required "hostname is required" .Values.hostname }}
+    http:
+      paths:
+        - path: /oauth2
+          pathType: Prefix
+          backend:
+            service:
+              name: paceme-oauth2-proxy
+              port:
+                number: 4180
+  tls:
+  - hosts:
+    - {{ required "hostname is required" .Values.hostname }}
+    secretName: paceme-le-certificate
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
     cert-manager.io/issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/rewrite-target: /$1
-  name: paceme-ingress
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth" #paceme-oauth2-proxy.paceme.svc.cluster.local:4180
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+  name: paceme-ingress-api
   namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
 spec:
   rules:
@@ -25,7 +53,26 @@ spec:
                 name:  paceme-api
                 port:
                   number: 8081
-          - path: /(.*)
+  tls:
+    - hosts:
+      - {{ required "hostname is required" .Values.hostname }}
+      secretName: paceme-le-certificate
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth" #paceme-oauth2-proxy.paceme.svc.cluster.local:4180
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+  name: paceme-ingress-client
+  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+spec:
+  rules:
+    - host: {{ required "hostname is required" .Values.hostname }}
+      http:
+        paths:
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -36,3 +83,62 @@ spec:
     - hosts:
       - {{ required "hostname is required" .Values.hostname }}
       secretName: paceme-le-certificate
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: paceme-oauth2-proxy
+  name: paceme-oauth2-proxy
+  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: paceme-oauth2-proxy
+  template:
+    metadata:
+      labels:
+        k8s-app: paceme-oauth2-proxy
+    spec:
+      containers:
+      - args:
+        - --provider=github
+        - --email-domain=*
+        - --upstream=file:///dev/null
+        - --http-address=0.0.0.0:4180
+        # Register a new application
+        # https://github.com/settings/applications/new
+        env:
+        - name: OAUTH2_PROXY_CLIENT_ID
+          value: {{ required "oauth2.clientid is required" .Values.oauth2.clientid  }}
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          value: {{ required "oauth2.secret is required" .Values.oauth2.secret }}
+        # docker run -ti --rm python:3-alpine python -c 'import secrets,base64; print(base64.b64encode(base64.b64encode(secrets.token_bytes(16))));'
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          value: {{ required "oauth2.cookiesecret is required" .Values.oauth2.cookiesecret }}
+        image: quay.io/oauth2-proxy/oauth2-proxy:latest
+        imagePullPolicy: Always
+        name: paceme-oauth2-proxy
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: paceme-oauth2-proxy
+  name: paceme-oauth2-proxy
+  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+spec:
+  ports:
+  - name: http
+    port: 4180
+    protocol: TCP
+    targetPort: 4180
+  selector:
+    k8s-app: paceme-oauth2-proxy
+  type: ClusterIP
