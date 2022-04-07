@@ -1,9 +1,12 @@
-import { Auth } from 'aws-amplify';
-
-async function getAuthDetails(): Promise<{ userId: string, authHeader: string }> {
-    let session = await Auth.currentSession()
-    const userId: string = session.getIdToken().decodePayload().sub
-    return { userId: userId, authHeader: `Bearer ${session.getIdToken().getJwtToken()}` }
+async function getAuthDetails(): Promise<{ userId: string }> {
+    if (process.env.REACT_APP_DEV_USER_ID) {
+        return { userId: process.env.REACT_APP_DEV_USER_ID }
+    }
+    // TODO: Not do this for every request
+    // TODO: This is based on github - change to oidc
+    const response = await fetch('/oauth2/userinfo')
+    const details = await response.json()
+    return { userId: details.user }
 }
 
 // This might need to be moved to parents soon, but this'll do for now.
@@ -16,7 +19,6 @@ export async function pacemeGetRequest<T>(path: string): Promise<T | undefined> 
         const response = await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
             method: "GET",
             headers: {
-                Authorization: authDetails.authHeader,
                 "Content-Type": "application/json"
             }
         })
@@ -33,7 +35,6 @@ export async function pacemePostRequest<T, R>(path: string, item: T): Promise<R 
         const response = await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
             method: "POST",
             headers: {
-                Authorization: authDetails.authHeader,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(item)
@@ -51,7 +52,6 @@ export async function pacemePutRequest<T>(path: string, item: T):  Promise<boole
         await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
             method: "PUT",
             headers: {
-                Authorization: authDetails.authHeader,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(item)
@@ -68,7 +68,6 @@ export async function pacemeDeleteRequest<T>(path: string, item: T):  Promise<bo
         await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
             method: "DELETE",
             headers: {
-                Authorization: authDetails.authHeader,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(item)
@@ -86,7 +85,6 @@ export async function pacemeBodylessDeleteRequest(path: string):  Promise<boolea
         await fetch(process.env.REACT_APP_API_ROOT+usersRoot+authDetails.userId+path, { 
             method: "DELETE",
             headers: {
-                Authorization: authDetails.authHeader,
                 "Content-Type": "application/json"
             }
         })        

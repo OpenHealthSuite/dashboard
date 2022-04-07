@@ -1,5 +1,4 @@
 import MenuIcon from '@mui/icons-material/Menu';
-import { AmplifySignOut } from '@aws-amplify/ui-react';
 import React from 'react';
 import Drawer from '@mui/material/Drawer';
 import ActivityDashboard from './dashboard/ActivityDashboard'
@@ -101,7 +100,6 @@ export function Root() {
                 <List>
                     {sidebarItems}
                 </List>
-                <AmplifySignOut></AmplifySignOut>
             </Drawer>
             <div className={classes.fabContainer}>
                 <Fab color="primary" aria-label="menu" onClick={toggleDrawer(true)} >
