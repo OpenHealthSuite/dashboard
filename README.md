@@ -5,8 +5,6 @@ The core idea is to be a nicely deployable run/training planning application, to
 ## Prerequisites
 
 - Node (ideally, use a version manager like `fnm` or `nvm`)
-- An AWS Account
-- AWS CLI and AWS CDK
 
 ## Getting Started
 
