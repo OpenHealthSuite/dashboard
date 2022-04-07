@@ -16,7 +16,8 @@ export async function authenticationMiddleware (req: Request, res: Response, nex
   if (process.env.DEV_USER_ID) {
     res.locals.userId = process.env.DEV_USER_ID
   } else {
-    res.locals.userId = req.header('X-Forwarded-User')
+    // TODO: This is github specific right now
+    res.locals.userId = req.header('x-auth-request-user')
   }
   next()
 }

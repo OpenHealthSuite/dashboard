@@ -30,8 +30,10 @@ metadata:
   annotations:
     cert-manager.io/issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/rewrite-target: /$1
-    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth" #paceme-oauth2-proxy.paceme.svc.cluster.local:4180
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+    nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user"
+    acme.cert-manager.io/http01-edit-in-place: "true"
   name: paceme-ingress-api
   namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
 spec:
@@ -107,6 +109,9 @@ spec:
         - --email-domain=*
         - --upstream=file:///dev/null
         - --http-address=0.0.0.0:4180
+        - --pass-user-headers=true
+        - --set-authorization-header=true
+        - --set-xauthrequest=true
         # Register a new application
         # https://github.com/settings/applications/new
         env:

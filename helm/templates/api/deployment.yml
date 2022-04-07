@@ -7,7 +7,7 @@ metadata:
   name: paceme-api
 spec:
   progressDeadlineSeconds: 600
-  replicas: 3
+  replicas: 5
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -32,23 +32,6 @@ spec:
             - name: web
               containerPort: 8080
           env:
-            - name: AWS_REGION
-              value: eu-west-2
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: paceme-api-secrets
-                  key: aws-access-key-id
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: paceme-api-secrets
-                  key: aws-secret-access-key
-            - name: COGNITO_USER_POOL_ID
-              valueFrom:
-                secretKeyRef:
-                  name: paceme-api-secrets
-                  key: cognito-user-pool-id
             - name: FITBIT_CLIENT_ID
               valueFrom:
                 secretKeyRef:

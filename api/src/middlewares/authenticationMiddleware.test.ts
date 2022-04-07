@@ -8,7 +8,8 @@ describe('authenticationMiddleware', () => {
       method: 'GET',
       headers: {
         authorization: `Bearer ${token}`
-      }
+      },
+      header: jest.fn().mockReturnValue('SomeUserId')
     }
 
     const fakeRes = {
@@ -22,14 +23,10 @@ describe('authenticationMiddleware', () => {
 
     const fakeNextFunction = jest.fn()
 
-    const fakeCognitoExpress = {
-      validate: jest.fn().mockResolvedValue({ sub: 'subresponse' })
-    }
     await authenticationMiddleware(
       fakeReq as unknown as Request,
       fakeRes as unknown as Response,
-      fakeNextFunction,
-      fakeCognitoExpress
+      fakeNextFunction
     )
 
     expect(fakeNextFunction).toBeCalledTimes(1)

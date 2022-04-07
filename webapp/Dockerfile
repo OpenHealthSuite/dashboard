@@ -15,7 +15,7 @@ COPY public public
 
 RUN npm run test:ci
 
-ARG APP_ENV=local
+ARG APP_ENV=production
 ENV APP_ENV ${APP_ENV}
 
 ARG REACT_APP_API_ROOT=/api
