@@ -4,19 +4,15 @@
 
 Along with the below requirements, you'll need to install good-old `docker`
 
+For building multi-arch images for pushing to docker
+
 ```bash
 apt-get install qemu qemu-user-static binfmt-support debootstrap jq -y
 ```
 
-You'll also want a local redis cache if you want to run locally
-
-```bash
-docker run --name paceme-redis -p 6379:6379 -d redis:6.2.6
-```
-
 ## Build your image
 
-There is a helper script to build and push up to your CDK ECR (assuming you saved an output json using the infrastructure script), you can run with `npm run docker:buildandpush`
+There is a helper script to build and push up to docker hub (assuming you are me deploying to `LeeMartin77`), you can run with `npm run docker:buildandpush`. If you're not me, this can show you the needed args.
 
 ## Some Kubernetes notes
 
