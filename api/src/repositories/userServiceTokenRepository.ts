@@ -69,4 +69,14 @@ export class UserServiceTokenRepository {
       return err(error.message)
     }
   }
+
+  async getTokensThatExpireBefore (date: Date): Promise<Result<{ raw_token: IRawToken, paceme_user_id: string }[], string>> {
+    const selectQuery = `SELECT paceme_user_id, raw_token FROM ${this._tableName} WHERE $1 = service_id AND $2 > last_updated + expires_in * interval '1 second'`
+    try {
+      const result = await this._postgresPool.query<{ paceme_user_id: string, raw_token: IRawToken }>(selectQuery, [this._serviceId, date])
+      return ok(result.rows)
+    } catch (ex: any) {
+      return err(ex.message)
+    }
+  }
 }

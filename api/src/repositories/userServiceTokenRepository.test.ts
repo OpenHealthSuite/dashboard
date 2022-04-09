@@ -96,4 +96,21 @@ describe('UserSettingsRepository', () => {
       expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
   })
+
+  describe('getTokensThatExpireBefore', () => {
+    test('gets tokens', async () => {
+      const date = new Date(1920, 12, 12)
+      const userTokens = [
+        { raw_token: { whoamI: 'userToken' }, paceme_user_id: 'SomeUserId' },
+        { raw_token: { whoamI: 'userToken2' }, paceme_user_id: 'SomeUserId2' }
+      ]
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 2, rows: userTokens })
+      const getExpiringQuery = 'SELECT paceme_user_id, raw_token FROM user_service_token WHERE $1 = service_id AND $2 > last_updated + expires_in * interval \'1 second\''
+      const getExpiringArguments = [expectedServiceId, date]
+      const result = await userServiceTokenRepository.getTokensThatExpireBefore(date)
+      expect(fakePostgresPool.query).toBeCalledTimes(1)
+      expect(fakePostgresPool.query).toBeCalledWith(getExpiringQuery, getExpiringArguments)
+      expect(result._unsafeUnwrap()).toBe(userTokens)
+    })
+  })
 })
