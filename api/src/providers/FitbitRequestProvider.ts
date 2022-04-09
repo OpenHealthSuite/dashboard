@@ -51,12 +51,7 @@ export interface IFitbitTokenResponse {
   user_id: string
 }
 
-export interface IFitbitTokenDetails extends IFitbitTokenResponse {
-  // eslint-disable-next-line camelcase
-  date_retrieved: string
-}
-
-const FITBIT_TOKEN_REPO = new UserServiceTokenRepository<IFitbitTokenDetails>('fitbit')
+const FITBIT_TOKEN_REPO = new UserServiceTokenRepository('fitbit')
 const SERVICE_CACHE_KEY = 'servicecache:fitbit'
 const CODE_CHALLENGE_CACHE = 'codechallengecache:fitbit'
 
@@ -100,7 +95,7 @@ export async function redeemCode (
   axios: Axios = AXIOS,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
   GetCache: (key: string) => Promise<GenericCache.GenericCacheValue<string> | undefined> = GenericCache.GetByKey,
-  fitbitTokenRepo: UserServiceTokenRepository<IFitbitTokenDetails> = FITBIT_TOKEN_REPO
+  fitbitTokenRepo: UserServiceTokenRepository = FITBIT_TOKEN_REPO
 ) {
   const { code } = req.body
   const codeVerifier = await GetCache(`${CODE_CHALLENGE_CACHE}:${userId}`)
@@ -122,8 +117,7 @@ export async function redeemCode (
     `grant_type=${tokenParameters.grant_type}`
   const response = await axios.post(queryiedTokenUrl, '', { headers })
   if (response.status !== 200) { return res.send({ status: 'err' }).status(400) }
-  const responseData: IFitbitTokenResponse = JSON.parse(response.data)
-  const token: IFitbitTokenDetails = { ...responseData, date_retrieved: (new Date()).toISOString() }
+  const token: IFitbitTokenResponse = JSON.parse(response.data) // date_retrieved: (new Date()).toISOString()
   await fitbitTokenRepo.deleteUserToken(userId)
   await fitbitTokenRepo.createUserToken(userId, token)
   res.send({ status: 'ok' })
@@ -136,7 +130,7 @@ export async function makeFitbitRequest<T> (
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
   GetCache: (key: string) => Promise<GenericCache.GenericCacheValue<string> | undefined> = GenericCache.GetByKey,
   SaveCache: (key: string, value: string) => Promise<void> = GenericCache.SaveOnKey,
-  fnGetFitbitToken: (userId: string) => Promise<IFitbitTokenDetails | null> = getFitbitToken
+  fnGetFitbitToken: (userId: string) => Promise<IFitbitTokenResponse | null> = getFitbitToken
 ): Promise<T | undefined> {
   const requestUrl = fitbitSettings.rootApiUrl + url
   const cachedValue = await GetCache(`${SERVICE_CACHE_KEY}:${userId}:${requestUrl}`)
@@ -159,25 +153,25 @@ export async function makeFitbitRequest<T> (
 
 export async function getFitbitToken (
   userId: string,
-  fitbitTokenRepo: UserServiceTokenRepository<IFitbitTokenDetails> = FITBIT_TOKEN_REPO
-): Promise<IFitbitTokenDetails | null> {
+  fitbitTokenRepo: UserServiceTokenRepository = FITBIT_TOKEN_REPO
+): Promise<IFitbitTokenResponse | null> {
   const storedToken = await (await fitbitTokenRepo.getUserToken(userId)).unwrapOr(null)
   if (!storedToken) {
     return null
   }
-  if ((new Date()).getTime() > (Date.parse(storedToken.date_retrieved) + (storedToken.expires_in * 950))) {
-    return await refreshedToken(userId, storedToken)
+  if ((new Date()).getTime() > (storedToken.last_updated.getTime() + (storedToken.raw_token.expires_in * 950))) {
+    return await refreshedToken(userId, storedToken.raw_token)
   }
-  return storedToken
+  return storedToken.raw_token
 }
 
 export async function refreshedToken (
   userId: string,
-  storedToken: IFitbitTokenDetails,
+  storedToken: IFitbitTokenResponse,
   axios: Axios = AXIOS,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
-  fitbitTokenRepo: UserServiceTokenRepository<IFitbitTokenDetails> = FITBIT_TOKEN_REPO
-): Promise<IFitbitTokenDetails | null> {
+  fitbitTokenRepo: UserServiceTokenRepository = FITBIT_TOKEN_REPO
+): Promise<IFitbitTokenResponse | null> {
   const tokenRequest = {
     client_id: fitbitSettings.clientId,
     grant_type: 'refresh_token',
@@ -199,10 +193,10 @@ export async function refreshedToken (
     // We are going to assume if this fails, it's because the token got refreshed by someone else.
     // So give it half a second
     await new Promise(resolve => setTimeout(resolve, 500))
-    return await (await fitbitTokenRepo.getUserToken(userId)).unwrapOr(null)
+    return await (await fitbitTokenRepo.getUserToken(userId)).map(tok => tok ? tok.raw_token : null).unwrapOr(null)
   }
   const responseData: IFitbitTokenResponse = JSON.parse(response.data)
-  const token: IFitbitTokenDetails = { ...responseData, date_retrieved: (new Date()).toISOString() }
+  const token: IFitbitTokenResponse = { ...responseData } // date_retrieved: (new Date()).toISOString()
   await fitbitTokenRepo.updateUserToken(userId, token)
   return token
 }

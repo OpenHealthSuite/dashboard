@@ -7,19 +7,23 @@ describe('UserSettingsRepository', () => {
   let fakePostgresPool = {
     query: jest.fn()
   }
+  let fakeDateGenerator = jest.fn()
 
   let userServiceTokenRepository = new UserServiceTokenRepository(
     expectedServiceId,
-    fakePostgresPool as unknown as Pool
+    fakePostgresPool as unknown as Pool,
+    fakeDateGenerator
   )
 
   beforeEach(() => {
     fakePostgresPool = {
       query: jest.fn()
     }
+    fakeDateGenerator = jest.fn()
     userServiceTokenRepository = new UserServiceTokenRepository(
       expectedServiceId,
-      fakePostgresPool as unknown as Pool
+      fakePostgresPool as unknown as Pool,
+      fakeDateGenerator
     )
   })
 
@@ -27,10 +31,12 @@ describe('UserSettingsRepository', () => {
     test('saves to pg', async () => {
       const userId = 'SomeUserjnsdf!"£123'
       const userToken = { whoamI: 'userToken' }
-      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [userToken] })
-      const expectedQuery = 'INSERT INTO user_service_token (service_id, user_id, token) VALUES ($1, $2, $3)'
-      const expectedArguments = [expectedServiceId, userId, userToken]
-      await userServiceTokenRepository.createUserToken(userId, userToken)
+      const date = new Date(1920, 12, 12)
+      fakeDateGenerator.mockReturnValue(date)
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ raw_token: userToken, last_updated: date }] })
+      const expectedQuery = 'INSERT INTO user_service_token (service_id, paceme_user_id, raw_token, last_updated) VALUES ($1, $2, $3, $4)'
+      const expectedArguments = [expectedServiceId, userId, userToken, date]
+      await userServiceTokenRepository.createUserToken(userId, userToken as any)
       expect(fakePostgresPool.query).toBeCalledTimes(1)
       expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
@@ -40,18 +46,19 @@ describe('UserSettingsRepository', () => {
     test('gets from repo', async () => {
       const userId = 'SomeUserjnsdf!"£123'
       const userToken = { whoamI: 'userToken' }
-      const expectedQuery = 'SELECT token FROM user_service_token ust WHERE ust.service_id = $1 AND ust.user_id = $2'
+      const date = new Date(1920, 12, 12)
+      const expectedQuery = 'SELECT raw_token, last_updated FROM user_service_token ust WHERE ust.service_id = $1 AND ust.paceme_user_id = $2'
       const expectedArguments = [expectedServiceId, userId]
-      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ token: userToken }] })
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ raw_token: userToken, last_updated: date }] })
       const result = await userServiceTokenRepository.getUserToken(userId)
       expect(result.isOk()).toBeTruthy()
-      expect(result._unsafeUnwrap()).toBe(userToken)
+      expect(result._unsafeUnwrap()).toStrictEqual({ raw_token: userToken, last_updated: date })
       expect(fakePostgresPool.query).toBeCalledTimes(1)
       expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
     test('nothing found :: returns null', async () => {
       const userId = 'SomeUserjnsdf!"£123'
-      const expectedQuery = 'SELECT token FROM user_service_token ust WHERE ust.service_id = $1 AND ust.user_id = $2'
+      const expectedQuery = 'SELECT raw_token, last_updated FROM user_service_token ust WHERE ust.service_id = $1 AND ust.paceme_user_id = $2'
       const expectedArguments = [expectedServiceId, userId]
       fakePostgresPool.query.mockResolvedValue({ rowCount: 0, rows: [] })
       const result = await userServiceTokenRepository.getUserToken(userId)
@@ -63,9 +70,9 @@ describe('UserSettingsRepository', () => {
   })
 
   describe('deleteUserToken', () => {
-    test('gets from repo', async () => {
+    test('deletes from repo', async () => {
       const userId = 'SomeUserjnsdf!"£123'
-      const expectedQuery = 'DELETE FROM user_service_token ust WHERE ust.service_id = $1 AND ust.user_id = $2'
+      const expectedQuery = 'DELETE FROM user_service_token ust WHERE ust.service_id = $1 AND ust.paceme_user_id = $2'
       const expectedArguments = [expectedServiceId, userId]
       fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [] })
       const result = await userServiceTokenRepository.deleteUserToken(userId)
@@ -79,10 +86,12 @@ describe('UserSettingsRepository', () => {
     test('saves to pg', async () => {
       const userId = 'SomeUserjnsdf!"£123'
       const userToken = { whoamI: 'userToken' }
-      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ token: userToken }] })
-      const expectedQuery = 'UPDATE user_service_token SET token = $3 WHERE service_id = $1 AND user_id = $2'
-      const expectedArguments = [expectedServiceId, userId, userToken]
-      await userServiceTokenRepository.updateUserToken(userId, userToken)
+      const date = new Date(1920, 12, 12)
+      fakeDateGenerator.mockReturnValue(date)
+      fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ raw_token: userToken }] })
+      const expectedQuery = 'UPDATE user_service_token SET raw_token = $3, last_updated = $4 WHERE service_id = $1 AND paceme_user_id = $2'
+      const expectedArguments = [expectedServiceId, userId, userToken, date]
+      await userServiceTokenRepository.updateUserToken(userId, userToken as any)
       expect(fakePostgresPool.query).toBeCalledTimes(1)
       expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
     })
