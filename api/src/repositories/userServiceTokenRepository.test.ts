@@ -30,12 +30,12 @@ describe('UserSettingsRepository', () => {
   describe('createUserToken', () => {
     test('saves to pg', async () => {
       const userId = 'SomeUserjnsdf!"£123'
-      const userToken = { whoamI: 'userToken' }
+      const userToken = { whoamI: 'userToken', expires_in: 456 }
       const date = new Date(1920, 12, 12)
       fakeDateGenerator.mockReturnValue(date)
       fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ raw_token: userToken, last_updated: date }] })
-      const expectedQuery = 'INSERT INTO user_service_token (service_id, paceme_user_id, raw_token, last_updated) VALUES ($1, $2, $3, $4)'
-      const expectedArguments = [expectedServiceId, userId, userToken, date]
+      const expectedQuery = 'INSERT INTO user_service_token (service_id, paceme_user_id, raw_token, last_updated, expires_in) VALUES ($1, $2, $3, $4, $5)'
+      const expectedArguments = [expectedServiceId, userId, userToken, date, userToken.expires_in]
       await userServiceTokenRepository.createUserToken(userId, userToken as any)
       expect(fakePostgresPool.query).toBeCalledTimes(1)
       expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)
@@ -85,12 +85,12 @@ describe('UserSettingsRepository', () => {
   describe('updateUserToken', () => {
     test('saves to pg', async () => {
       const userId = 'SomeUserjnsdf!"£123'
-      const userToken = { whoamI: 'userToken' }
+      const userToken = { whoamI: 'userToken', expires_in: 456 }
       const date = new Date(1920, 12, 12)
       fakeDateGenerator.mockReturnValue(date)
       fakePostgresPool.query.mockResolvedValue({ rowCount: 1, rows: [{ raw_token: userToken }] })
-      const expectedQuery = 'UPDATE user_service_token SET raw_token = $3, last_updated = $4 WHERE service_id = $1 AND paceme_user_id = $2'
-      const expectedArguments = [expectedServiceId, userId, userToken, date]
+      const expectedQuery = 'UPDATE user_service_token SET raw_token = $3, last_updated = $4, expires_in = $5 WHERE service_id = $1 AND paceme_user_id = $2'
+      const expectedArguments = [expectedServiceId, userId, userToken, date, userToken.expires_in]
       await userServiceTokenRepository.updateUserToken(userId, userToken as any)
       expect(fakePostgresPool.query).toBeCalledTimes(1)
       expect(fakePostgresPool.query).toBeCalledWith(expectedQuery, expectedArguments)

@@ -36,8 +36,8 @@ export class UserServiceTokenRepository {
 
   async createUserToken (userId: string, token: IRawToken): Promise<Result<IRawToken, string>> {
     try {
-      const insertQuery = `INSERT INTO ${this._tableName} (service_id, paceme_user_id, raw_token, last_updated) VALUES ($1, $2, $3, $4)`
-      const result = await this._postgresPool.query(insertQuery, [this._serviceId, userId, token, this._nowGenerator()])
+      const insertQuery = `INSERT INTO ${this._tableName} (service_id, paceme_user_id, raw_token, last_updated, expires_in) VALUES ($1, $2, $3, $4, $5)`
+      const result = await this._postgresPool.query(insertQuery, [this._serviceId, userId, token, this._nowGenerator(), token.expires_in])
       return result.rowCount > 0 ? ok(result.rows[0].raw_token) : err('Nothing Inserted')
     } catch (error: any) {
       return err(error.message)
@@ -62,8 +62,8 @@ export class UserServiceTokenRepository {
 
   async updateUserToken (userId: string, token: IRawToken): Promise<Result<IRawToken, string>> {
     try {
-      const updateQuery = `UPDATE ${this._tableName} SET raw_token = $3, last_updated = $4 WHERE service_id = $1 AND paceme_user_id = $2`
-      await this._postgresPool.query(updateQuery, [this._serviceId, userId, token, this._nowGenerator()])
+      const updateQuery = `UPDATE ${this._tableName} SET raw_token = $3, last_updated = $4, expires_in = $5 WHERE service_id = $1 AND paceme_user_id = $2`
+      await this._postgresPool.query(updateQuery, [this._serviceId, userId, token, this._nowGenerator(), token.expires_in])
       return ok(token)
     } catch (error: any) {
       return err(error.message)
