@@ -4,6 +4,7 @@ import { Request, Response } from 'express'
 import {
   IFitbitSettings,
   makeFitbitRequest,
+  refreshTokens,
   startAuthenticationFlow
 } from './FitbitRequestProvider'
 import { Axios } from 'axios'
@@ -284,4 +285,24 @@ test('makeFitbitRequest :: error from fitbit, returns undefined', async () => {
   sinon.assert.notCalled(setCache)
 
   expect(result).toBeUndefined()
+})
+
+describe('refreshTokesn', () => {
+  it('happy path :: sends refresh requests for single token, and updates', async () => {
+    const fakeSettings = {
+      clientId: 'SomeClientId',
+      clientSecret: 'SomeClientSecret'
+    }
+    const fakeTokenRepo = {
+      getTokensThatExpireBefore: jest.fn(),
+      updateUserToken: jest.fn()
+    }
+
+    const fakeAxios = {
+      post: jest.fn()
+    }
+    const fakeNowGenerator = jest.fn()
+
+    await refreshTokens(fakeSettings as any, fakeTokenRepo as any, fakeAxios as any, fakeNowGenerator)
+  })
 })
