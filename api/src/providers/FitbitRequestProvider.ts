@@ -176,7 +176,7 @@ export async function refreshTokens (
   const tokensNeedingRefreshing = await fitbitTokenRepo.getTokensThatExpireBefore(tokenExpiryTime)
 
   await tokensNeedingRefreshing.asyncMap(async tokens => {
-    tokens.forEach(async token => {
+    await Promise.allSettled(tokens.map(async token => {
       try {
         const response = await axios.post(fitbitSettings.tokenUrl, '', {
           params: {
@@ -198,6 +198,6 @@ export async function refreshTokens (
       // TODO: Handle this
         console.log(ex)
       }
-    })
+    }))
   })
 }
