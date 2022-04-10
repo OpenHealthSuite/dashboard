@@ -171,35 +171,33 @@ export async function refreshTokens (
   axios: Axios = AXIOS,
   nowGenerator: () => Date = defaultNowGenerator
 ): Promise<void> {
-  // if ((new Date()).getTime() > (storedToken.last_updated.getTime() + (storedToken.raw_token.expires_in * 950))) {
-  //   return await refreshedToken(userId, storedToken.raw_token)
-  // }
   const tokenExpiryTime = nowGenerator()
   tokenExpiryTime.setMilliseconds(tokenExpiryTime.getMilliseconds() + expiryOffestMs)
   const tokensNeedingRefreshing = await fitbitTokenRepo.getTokensThatExpireBefore(tokenExpiryTime)
 
   await tokensNeedingRefreshing.asyncMap(async tokens => {
-    const token = tokens[0]
-    try {
-      const response = await axios.post(fitbitSettings.tokenUrl, '', {
-        params: {
-          client_id: fitbitSettings.clientId,
-          refresh_token: token.raw_token.refresh_token,
-          grant_type: 'refresh_token'
-        },
-        headers: {
-          authorization: `Basic ${Buffer.from(`${fitbitSettings.clientId}:${fitbitSettings.clientSecret}`).toString('base64')}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
+    tokens.forEach(async token => {
+      try {
+        const response = await axios.post(fitbitSettings.tokenUrl, '', {
+          params: {
+            client_id: fitbitSettings.clientId,
+            refresh_token: token.raw_token.refresh_token,
+            grant_type: 'refresh_token'
+          },
+          headers: {
+            authorization: `Basic ${Buffer.from(`${fitbitSettings.clientId}:${fitbitSettings.clientSecret}`).toString('base64')}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        })
+        if (response.status === 200) {
+          const responseData: IFitbitTokenResponse = JSON.parse(response.data)
+          await fitbitTokenRepo.updateUserToken(token.paceme_user_id, responseData)
         }
-      })
-      if (response.status === 200) {
-        const responseData: IFitbitTokenResponse = JSON.parse(response.data)
-        await fitbitTokenRepo.updateUserToken(token.paceme_user_id, responseData)
-      }
       // TODO: What do we do when it's not a 200?
-    } catch (ex: any) {
+      } catch (ex: any) {
       // TODO: Handle this
-      console.log(ex)
-    }
+        console.log(ex)
+      }
+    })
   })
 }
