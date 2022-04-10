@@ -8,6 +8,7 @@ import {
   startAuthenticationFlow
 } from './FitbitRequestProvider'
 import { Axios } from 'axios'
+import { ok } from 'neverthrow'
 
 const CODE_CHALLENGE_CACHE = 'codechallengecache:fitbit'
 const SERVICE_CACHE_KEY = 'servicecache:fitbit'
@@ -289,20 +290,40 @@ test('makeFitbitRequest :: error from fitbit, returns undefined', async () => {
 
 describe('refreshTokesn', () => {
   it('happy path :: sends refresh requests for single token, and updates', async () => {
+    const storedToken = {
+      paceme_user_id: 'PacemeUserId',
+      raw_token: { refresh_token: 'RefreshToken' }
+    }
+
+    const refreshedToken = {
+      whoami: 'RefreshedToken'
+    }
+
+    const inputExpiryOffsetMs = 3210
+
+    const expectedDate = new Date(1930, 12, 12)
+
+    const expectedAdjustedDate = new Date(1930, 12, 12)
+
+    expectedAdjustedDate.setMilliseconds(expectedAdjustedDate.getMilliseconds() + inputExpiryOffsetMs)
+
     const fakeSettings = {
       clientId: 'SomeClientId',
       clientSecret: 'SomeClientSecret'
     }
+
     const fakeTokenRepo = {
-      getTokensThatExpireBefore: jest.fn(),
+      getTokensThatExpireBefore: jest.fn().mockResolvedValue(ok([storedToken])),
       updateUserToken: jest.fn()
     }
 
     const fakeAxios = {
-      post: jest.fn()
+      post: jest.fn().mockResolvedValue(refreshedToken)
     }
-    const fakeNowGenerator = jest.fn()
+    const fakeNowGenerator = jest.fn().mockReturnValue(expectedDate)
 
-    await refreshTokens(fakeSettings as any, fakeTokenRepo as any, fakeAxios as any, fakeNowGenerator)
+    await refreshTokens(inputExpiryOffsetMs, fakeSettings as any, fakeTokenRepo as any, fakeAxios as any, fakeNowGenerator)
+    expect(fakeTokenRepo.getTokensThatExpireBefore).toBeCalledTimes(1)
+    expect(fakeTokenRepo.getTokensThatExpireBefore).toBeCalledWith(expectedAdjustedDate)
   })
 })

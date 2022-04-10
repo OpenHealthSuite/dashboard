@@ -165,6 +165,7 @@ export async function getFitbitToken (
 const defaultNowGenerator = () => new Date()
 
 export async function refreshTokens (
+  expiryOffestMs: number = 60 * 1000,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
   fitbitTokenRepo: UserServiceTokenRepository = FITBIT_TOKEN_REPO,
   axios: Axios = AXIOS,
@@ -173,6 +174,9 @@ export async function refreshTokens (
   // if ((new Date()).getTime() > (storedToken.last_updated.getTime() + (storedToken.raw_token.expires_in * 950))) {
   //   return await refreshedToken(userId, storedToken.raw_token)
   // }
+  const tokenExpiryTime = nowGenerator()
+  tokenExpiryTime.setMilliseconds(tokenExpiryTime.getMilliseconds() + expiryOffestMs)
+  const tokensNeedingRefreshing = fitbitTokenRepo.getTokensThatExpireBefore(tokenExpiryTime)
   // const tokenRequest = {
   //   client_id: fitbitSettings.clientId,
   //   grant_type: 'refresh_token',
