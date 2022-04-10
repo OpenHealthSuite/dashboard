@@ -1,4 +1,4 @@
-
+-- postgres-migrations disable-transaction
 
 -- Add column raw_token json
 ALTER TABLE user_service_token
