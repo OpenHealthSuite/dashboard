@@ -92,11 +92,11 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            cpu: "0.2"
-            memory: "250Mi"
+            cpu: "0.5"
+            memory: "500Mi"
           limits:
-            cpu: "0.2"
-            memory: "250Mi" 
+            cpu: "0.5"
+            memory: "500Mi" 
         ports:
         - containerPort: 26257
           name: grpc
@@ -165,7 +165,7 @@ spec:
         - "ReadWriteOnce"
       resources:
         requests:
-          storage: 2Gi
+          storage: 5Gi
 ---
 apiVersion: batch/v1
 kind: Job

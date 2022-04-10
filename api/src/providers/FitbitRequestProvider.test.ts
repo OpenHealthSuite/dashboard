@@ -4,9 +4,11 @@ import { Request, Response } from 'express'
 import {
   IFitbitSettings,
   makeFitbitRequest,
+  refreshTokens,
   startAuthenticationFlow
 } from './FitbitRequestProvider'
 import { Axios } from 'axios'
+import { ok } from 'neverthrow'
 
 const CODE_CHALLENGE_CACHE = 'codechallengecache:fitbit'
 const SERVICE_CACHE_KEY = 'servicecache:fitbit'
@@ -284,4 +286,125 @@ test('makeFitbitRequest :: error from fitbit, returns undefined', async () => {
   sinon.assert.notCalled(setCache)
 
   expect(result).toBeUndefined()
+})
+
+describe('refreshToken', () => {
+  it('happy path :: sends refresh requests for single token, and updates', async () => {
+    const storedToken = {
+      paceme_user_id: 'PacemeUserId',
+      raw_token: { refresh_token: 'RefreshToken' }
+    }
+
+    const refreshedToken = {
+      refresh_token: 'NewRefreshToken'
+    }
+
+    const inputExpiryOffsetMs = 3210
+
+    const expectedDate = new Date(1930, 12, 12)
+
+    const expectedAdjustedDate = new Date(1930, 12, 12)
+
+    expectedAdjustedDate.setMilliseconds(expectedAdjustedDate.getMilliseconds() + inputExpiryOffsetMs)
+
+    const fakeSettings = {
+      clientId: 'SomeClientId',
+      clientSecret: 'SomeClientSecret',
+      tokenUrl: 'http://localhost/token'
+    }
+
+    const expectedQueryParameters = {
+      client_id: fakeSettings.clientId,
+      refresh_token: storedToken.raw_token.refresh_token,
+      grant_type: 'refresh_token'
+    }
+
+    const expectedHeaders = {
+      authorization: `Basic ${Buffer.from(`${fakeSettings.clientId}:${fakeSettings.clientSecret}`).toString('base64')}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    const expectedUrl = fakeSettings.tokenUrl
+
+    const fakeTokenRepo = {
+      getTokensThatExpireBefore: jest.fn().mockResolvedValue(ok([storedToken])),
+      updateUserToken: jest.fn().mockResolvedValue(ok({}))
+    }
+
+    const fakeAxios = {
+      post: jest.fn().mockResolvedValue({ status: 200, data: JSON.stringify(refreshedToken) })
+    }
+    const fakeNowGenerator = jest.fn().mockReturnValue(expectedDate)
+
+    await refreshTokens(inputExpiryOffsetMs, fakeSettings as any, fakeTokenRepo as any, fakeAxios as any, fakeNowGenerator)
+    expect(fakeTokenRepo.getTokensThatExpireBefore).toBeCalledTimes(1)
+    expect(fakeTokenRepo.getTokensThatExpireBefore).toBeCalledWith(expectedAdjustedDate)
+    expect(fakeAxios.post).toBeCalledTimes(1)
+    expect(fakeAxios.post).toBeCalledWith(expectedUrl, '', { params: expectedQueryParameters, headers: expectedHeaders })
+    expect(fakeTokenRepo.updateUserToken).toBeCalledTimes(1)
+    expect(fakeTokenRepo.updateUserToken).toBeCalledWith(storedToken.paceme_user_id, refreshedToken)
+  })
+  it('happy path :: sends refresh requests for multiple tokens, and updates appropriately', async () => {
+    const storedTokens = [{
+      paceme_user_id: 'PacemeUserId',
+      raw_token: { refresh_token: 'RefreshToken' }
+    }, {
+      paceme_user_id: 'PacemeUserId2',
+      raw_token: { refresh_token: 'RefreshToken2' }
+    }, {
+      paceme_user_id: 'PacemeUserId3',
+      raw_token: { refresh_token: 'RefreshToken3' }
+    }]
+
+    const inputExpiryOffsetMs = 3210
+
+    const expectedDate = new Date(1930, 12, 12)
+
+    const expectedAdjustedDate = new Date(1930, 12, 12)
+
+    expectedAdjustedDate.setMilliseconds(expectedAdjustedDate.getMilliseconds() + inputExpiryOffsetMs)
+
+    const fakeSettings = {
+      clientId: 'SomeClientId',
+      clientSecret: 'SomeClientSecret',
+      tokenUrl: 'http://localhost/token'
+    }
+
+    const expectedQueryParameters = storedTokens.map(st => {
+      return {
+        client_id: fakeSettings.clientId,
+        refresh_token: st.raw_token.refresh_token,
+        grant_type: 'refresh_token'
+      }
+    })
+
+    const expectedHeaders = {
+      authorization: `Basic ${Buffer.from(`${fakeSettings.clientId}:${fakeSettings.clientSecret}`).toString('base64')}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    const expectedUrl = fakeSettings.tokenUrl
+
+    const fakeTokenRepo = {
+      getTokensThatExpireBefore: jest.fn().mockResolvedValue(ok(storedTokens)),
+      updateUserToken: jest.fn().mockResolvedValue(ok({}))
+    }
+
+    const fakeAxios = {
+      post: jest.fn().mockImplementation((url, body, opts) => { return { status: 200, data: JSON.stringify({ refresh_token: 'New' + opts.params.refresh_token }) } })
+    }
+    const fakeNowGenerator = jest.fn().mockReturnValue(expectedDate)
+
+    await refreshTokens(inputExpiryOffsetMs, fakeSettings as any, fakeTokenRepo as any, fakeAxios as any, fakeNowGenerator)
+    expect(fakeTokenRepo.getTokensThatExpireBefore).toBeCalledTimes(1)
+    expect(fakeTokenRepo.getTokensThatExpireBefore).toBeCalledWith(expectedAdjustedDate)
+    expect(fakeAxios.post).toBeCalledTimes(3)
+    expectedQueryParameters.forEach(eqp => {
+      expect(fakeAxios.post).toBeCalledWith(expectedUrl, '', { params: eqp, headers: expectedHeaders })
+    })
+    expect(fakeTokenRepo.updateUserToken).toBeCalledTimes(3)
+    storedTokens.forEach(st => {
+      expect(fakeTokenRepo.updateUserToken).toBeCalledWith(st.paceme_user_id, { refresh_token: 'New' + st.raw_token.refresh_token })
+    })
+  })
 })

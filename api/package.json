@@ -1,6 +1,6 @@
 {
     "name": "paceme-api",
-    "version": "0.2.0",
+    "version": "0.4.0",
     "description": "The API Behind PaceMe, for serving the web application",
     "main": "dist/index.js",
     "scripts": {
@@ -8,8 +8,9 @@
         "build": "tsc",
         "migrations:validate": "pg-validate-migrations 'migrations'",
         "start": "node .",
-        "start:dev": "node -r dotenv/config dist/index.js",
-        "start:watch": "concurrently 'npm run build -- --watch' 'nodemon -r dotenv/config dist/index.js'",
+        "start:headless": "node dist/headless.js",
+        "start:dev": "concurrently 'node -r dotenv/config dist/index.js' 'node -r dotenv/config dist/headless.js'",
+        "start:watch": "concurrently 'npm run build -- --watch' 'nodemon -r dotenv/config dist/index.js' 'nodemon -r dotenv/config dist/headless.js'",
         "lint": "npx eslint . --ext .ts",
         "dev:spinup": "scripts/dev_prestart.sh",
         "dev:teardown": "scripts/dev_teardown.sh",

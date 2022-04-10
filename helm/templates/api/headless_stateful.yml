@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: paceme-api-headless
+  namespace: {{ .Values.metadata.namespace }}
+  labels:
+    app: paceme-api-headless
+spec:
+  ports:
+  - name: http
+    port: 8081
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: paceme-api-headless
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: paceme-api-headless
+  namespace: {{ .Values.metadata.namespace }}
+  name: paceme-api-headless
+spec:
+  serviceName: paceme-api-headless
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: paceme-api-headless
+  template:
+    metadata:
+      labels:
+        app: paceme-api-headless
+      namespace: {{ .Values.metadata.namespace }}
+      name: paceme-api-headless
+    spec:
+      containers:
+        - name: paceme-api-headless
+          image: {{ required "api.image is required" .Values.api.image }}:{{  required "api.tag is required" .Values.api.tag }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - npm
+            - run
+            - start:headless
+          env:
+            - name: FITBIT_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: paceme-api-secrets
+                  key: fitbit-client-id
+            - name: FITBIT_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: paceme-api-secrets
+                  key: fitbit-client-secret
+            - name: REDIS_PORT
+              value: '6379'
+            - name: REDIS_HOST
+              value: redis-service.paceme.svc
+            - name: PG_CONNECTION_STRING
+              # Because we're only having the one DB, we'll use defaultdb
+              value: postgresql://root@cockroachdb-public.paceme.svc:26257/defaultdb
