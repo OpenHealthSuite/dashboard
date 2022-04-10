@@ -288,7 +288,7 @@ test('makeFitbitRequest :: error from fitbit, returns undefined', async () => {
   expect(result).toBeUndefined()
 })
 
-describe('refreshTokesn', () => {
+describe('refreshToken', () => {
   it('happy path :: sends refresh requests for single token, and updates', async () => {
     const storedToken = {
       paceme_user_id: 'PacemeUserId',
@@ -296,7 +296,7 @@ describe('refreshTokesn', () => {
     }
 
     const refreshedToken = {
-      whoami: 'RefreshedToken'
+      refresh_token: 'NewRefreshToken'
     }
 
     const inputExpiryOffsetMs = 3210
@@ -309,21 +309,39 @@ describe('refreshTokesn', () => {
 
     const fakeSettings = {
       clientId: 'SomeClientId',
-      clientSecret: 'SomeClientSecret'
+      clientSecret: 'SomeClientSecret',
+      tokenUrl: 'http://localhost/token'
     }
+
+    const expectedQueryParameters = {
+      client_id: fakeSettings.clientId,
+      refresh_token: storedToken.raw_token.refresh_token,
+      grant_type: 'refresh_token'
+    }
+
+    const expectedHeaders = {
+      authorization: `Basic ${Buffer.from(`${fakeSettings.clientId}:${fakeSettings.clientSecret}`).toString('base64')}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    const expectedUrl = fakeSettings.tokenUrl
 
     const fakeTokenRepo = {
       getTokensThatExpireBefore: jest.fn().mockResolvedValue(ok([storedToken])),
-      updateUserToken: jest.fn()
+      updateUserToken: jest.fn().mockResolvedValue(ok({}))
     }
 
     const fakeAxios = {
-      post: jest.fn().mockResolvedValue(refreshedToken)
+      post: jest.fn().mockResolvedValue({ status: 200, data: JSON.stringify(refreshedToken) })
     }
     const fakeNowGenerator = jest.fn().mockReturnValue(expectedDate)
 
     await refreshTokens(inputExpiryOffsetMs, fakeSettings as any, fakeTokenRepo as any, fakeAxios as any, fakeNowGenerator)
     expect(fakeTokenRepo.getTokensThatExpireBefore).toBeCalledTimes(1)
     expect(fakeTokenRepo.getTokensThatExpireBefore).toBeCalledWith(expectedAdjustedDate)
+    expect(fakeAxios.post).toBeCalledTimes(1)
+    expect(fakeAxios.post).toBeCalledWith(expectedUrl, '', { params: expectedQueryParameters, headers: expectedHeaders })
+    expect(fakeTokenRepo.updateUserToken).toBeCalledTimes(1)
+    expect(fakeTokenRepo.updateUserToken).toBeCalledWith(storedToken.paceme_user_id, refreshedToken)
   })
 })

@@ -83,8 +83,8 @@ export async function startAuthenticationFlow (
   // https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/
   const challengeHash = encodeURIComponent(fnCreatesha256String(codeVerifier).replace('=', '').replace(/\+/g, '-'))
   const authUrl = `${fitbitSettings.authUrl}?client_id=${fitbitSettings.clientId}&response_type=code` +
-  `&code_challenge=${challengeHash}&code_challenge_method=S256` +
-  `&scope=${fitbitSettings.neededScopes.join('%20')}`
+    `&code_challenge=${challengeHash}&code_challenge_method=S256` +
+    `&scope=${fitbitSettings.neededScopes.join('%20')}`
   return res.send({ authUrl })
 }
 
@@ -176,31 +176,30 @@ export async function refreshTokens (
   // }
   const tokenExpiryTime = nowGenerator()
   tokenExpiryTime.setMilliseconds(tokenExpiryTime.getMilliseconds() + expiryOffestMs)
-  const tokensNeedingRefreshing = fitbitTokenRepo.getTokensThatExpireBefore(tokenExpiryTime)
-  // const tokenRequest = {
-  //   client_id: fitbitSettings.clientId,
-  //   grant_type: 'refresh_token',
-  //   refresh_token: storedToken.refresh_token
-  // }
-  // This is a bit trashy...
-  // const queryiedTokenUrl = fitbitSettings.tokenUrl + '?' +
-  //   `client_id=${tokenRequest.client_id}&` +
-  //   `refresh_token=${tokenRequest.refresh_token}&` +
-  //   `grant_type=${tokenRequest.grant_type}`
-  // const response = await axios.post(queryiedTokenUrl, '', {
-  //   headers: {
-  //     authorization: `Basic ${Buffer.from(`${fitbitSettings.clientId}:${fitbitSettings.clientSecret}`).toString('base64')}`,
-  //     'Content-Type': 'application/x-www-form-urlencoded'
-  //   }
-  // })
-  // TODO: need some proper erroring here...
-  // if (response.status !== 200) {
-  //   // We are going to assume if this fails, it's because the token got refreshed by someone else.
-  //   // So give it half a second
-  //   await new Promise(resolve => setTimeout(resolve, 500))
-  //   return await (await fitbitTokenRepo.getUserToken(userId)).map(tok => tok ? tok.raw_token : null).unwrapOr(null)
-  // }
-  // const responseData: IFitbitTokenResponse = JSON.parse(response.data)
-  // const token: IFitbitTokenResponse = { ...responseData } // date_retrieved: (new Date()).toISOString()
-  // await fitbitTokenRepo.updateUserToken(userId, token)
+  const tokensNeedingRefreshing = await fitbitTokenRepo.getTokensThatExpireBefore(tokenExpiryTime)
+
+  await tokensNeedingRefreshing.asyncMap(async tokens => {
+    const token = tokens[0]
+    try {
+      const response = await axios.post(fitbitSettings.tokenUrl, '', {
+        params: {
+          client_id: fitbitSettings.clientId,
+          refresh_token: token.raw_token.refresh_token,
+          grant_type: 'refresh_token'
+        },
+        headers: {
+          authorization: `Basic ${Buffer.from(`${fitbitSettings.clientId}:${fitbitSettings.clientSecret}`).toString('base64')}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+      if (response.status === 200) {
+        const responseData: IFitbitTokenResponse = JSON.parse(response.data)
+        await fitbitTokenRepo.updateUserToken(token.paceme_user_id, responseData)
+      }
+      // TODO: What do we do when it's not a 200?
+    } catch (ex: any) {
+      // TODO: Handle this
+      console.log(ex)
+    }
+  })
 }
