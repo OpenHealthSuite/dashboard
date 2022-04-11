@@ -28,22 +28,15 @@ function CallbackRouteChild() {
     const searchParams = new URLSearchParams(useLocation().search);
     const navigate = useHistory();
     
-    // TODO: This could do with some love
-    const redeemCodeSync = async (navigate: any, serviceIdFn: string, searchParams: URLSearchParams) => {
-        switch (serviceIdFn) {
-            case "fitbitauth":
-                await redeemCode('fitbit', searchParams.get('code') ?? '')
-                break;
-            default:
-                //error message
-        }
-
-        navigate.push('/settings')
+    switch (serviceId) {
+        case "fitbitauth":
+            redeemCode('fitbit', searchParams.get('code') ?? '').finally(() => navigate.push('/settings'))
+            return <>Redeeming Fitbit Authentication Token...</>;
+        default:
+            // TODO: Error into a snackbar
+            navigate.push('/settings')
+            return <>Error redeeming token</>;
     }
-
-
-
-    return <button onClick={() => redeemCodeSync(navigate, serviceId, searchParams)}>Redeem Code</button>
 }
 
 const useStyles = makeStyles((theme: any) => ({
