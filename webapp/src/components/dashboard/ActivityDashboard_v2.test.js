@@ -1,15 +1,60 @@
-import { render, screen } from "@testing-library/react";
-import { DEFAULT_DASHBOARD_SETTINGS } from "../../services/SettingsService";
+import React from "react";
+import { render, unmountComponentAtNode } from "react-dom";
+import { act } from "react-dom/test-utils";
 import {
   ActivityDashboard,
   getDashboardSettings,
 } from "./ActivityDashboard_v2";
 
 describe("ActivityDashboard", () => {
-  test("renders", () => {
-    render(<ActivityDashboard />);
-    const helloElement = screen.getByText(/Hello/i);
-    expect(helloElement).toBeInTheDocument();
+  let container = null;
+  beforeEach(() => {
+    // setup a DOM element as a render target
+    container = document.createElement("div");
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    // cleanup on exiting
+    unmountComponentAtNode(container);
+    container.remove();
+    container = null;
+  });
+
+  test("Loading Renders", async () => {
+    const fakeDashSettings = jest.fn();
+    fakeDashSettings.mockRejectedValue({});
+    await act(async () => {
+      render(<ActivityDashboard fnGetSettings={fakeDashSettings} />, container);
+      expect(container.textContent).toBe("Loading");
+    });
+  });
+  test("Error Renders", async () => {
+    const fakeDashSettings = jest.fn();
+    fakeDashSettings.mockRejectedValue({});
+    await act(async () => {
+      render(<ActivityDashboard fnGetSettings={fakeDashSettings} />, container);
+    });
+    expect(container.textContent).toBe("Error");
+  });
+  test("Temp :: Component List Renders", async () => {
+    const fakeDashSettings = jest.fn();
+    const componentNames = [
+      "SomeComponentName",
+      "SomeOtherComponentName",
+      "LastComponentName",
+    ];
+    fakeDashSettings.mockResolvedValue({
+      tileSettings: componentNames.map((componentName) => {
+        return { componentName };
+      }),
+    });
+    await act(async () => {
+      render(<ActivityDashboard fnGetSettings={fakeDashSettings} />, container);
+    });
+    componentNames.forEach((componentName) => {
+      expect(container).toHaveTextContent(componentName);
+    });
   });
 });
 

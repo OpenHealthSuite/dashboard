@@ -5,6 +5,7 @@ import {
 } from "../../services/SettingsService";
 import { API_ROOT } from "../../secrets";
 import "./ActivityDashboard_v2.scss";
+import { useEffect, useState } from "react";
 
 export async function getDashboardSettings(
   fnGetAuthDetails = getAuthDetails,
@@ -33,5 +34,26 @@ interface IDashboardProps {
 export function ActivityDashboard({
   fnGetSettings = getDashboardSettings,
 }: IDashboardProps) {
-  return <div className="test">Hello</div>;
+  const [dashboardSettings, setDashboardSettings] = useState<
+    IDashboardSettings | undefined
+  >(undefined);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  useEffect(() => {
+    fnGetSettings()
+      .then(setDashboardSettings)
+      .catch(() => setDashboardSettings(undefined))
+      .finally(() => setSettingsLoaded(true));
+  }, [fnGetSettings, setDashboardSettings, setSettingsLoaded]);
+
+  return settingsLoaded && dashboardSettings ? (
+    <ul>
+      {dashboardSettings.tileSettings.map((setting, i) => (
+        <li key={"tile" + i}>{setting.componentName}</li>
+      ))}
+    </ul>
+  ) : settingsLoaded ? (
+    <>Error</>
+  ) : (
+    <>Loading</>
+  );
 }
