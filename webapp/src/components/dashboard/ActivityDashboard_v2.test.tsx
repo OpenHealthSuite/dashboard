@@ -7,7 +7,7 @@ import {
 } from "./ActivityDashboard_v2";
 
 describe("ActivityDashboard", () => {
-  let container = null;
+  let container: HTMLDivElement;
   beforeEach(() => {
     // setup a DOM element as a render target
     container = document.createElement("div");
@@ -18,7 +18,6 @@ describe("ActivityDashboard", () => {
     // cleanup on exiting
     unmountComponentAtNode(container);
     container.remove();
-    container = null;
   });
 
   test("Loading Renders", async () => {
@@ -74,7 +73,7 @@ describe("ActivityDashboard functions", () => {
         fakeAuthDetails,
         fakeFetch,
         fakeApiRoot,
-        {}
+        {} as any
       );
 
       expect(result).toBe(response);
@@ -97,7 +96,7 @@ describe("ActivityDashboard functions", () => {
         fakeAuthDetails,
         fakeFetch,
         fakeApiRoot,
-        defaults
+        defaults as any
       );
 
       expect(result).toBe(defaults);
@@ -117,7 +116,7 @@ describe("ActivityDashboard functions", () => {
         fakeAuthDetails,
         fakeFetch,
         fakeApiRoot,
-        defaults
+        defaults as any
       );
 
       expect(result).toBe(defaults);
@@ -134,7 +133,7 @@ describe("ActivityDashboard functions", () => {
         fakeAuthDetails,
         fakeFetch,
         fakeApiRoot,
-        defaults
+        defaults as any
       );
 
       expect(result).toBe(defaults);
