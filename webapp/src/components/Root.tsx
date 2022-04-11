@@ -1,8 +1,9 @@
 import MenuIcon from '@mui/icons-material/Menu';
 import React from 'react';
 import Drawer from '@mui/material/Drawer';
-import ActivityDashboard from './dashboard/ActivityDashboard'
-import SettingsDashboard from './settings/SettingsDashboard'
+import ActivityDashboard from './dashboard/ActivityDashboard';
+import { ActivityDashboard as ActivityDashboardV2 } from './dashboard/ActivityDashboard_v2';
+import SettingsDashboard from './settings/SettingsDashboard';
 
 import { makeStyles } from '@mui/styles';
 import List from '@mui/material/List';
@@ -102,6 +103,7 @@ export function Root() {
             <Switch>
                 <Route path="/callback/:serviceId" children={<CallbackRouteChild />}/>
                 <Route path="/settings" children={<SettingsDashboard />} />
+                <Route path="/v2" children={<ActivityDashboardV2 />} />
                 <Route path="/" children={<ActivityDashboard />} />
             </Switch>
         </>
