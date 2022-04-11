@@ -6,12 +6,12 @@ import {
 import { API_ROOT } from "../../secrets";
 import "./ActivityDashboard_v2.scss";
 
-export async function getDashboardSettings({
+export async function getDashboardSettings(
   fnGetAuthDetails = getAuthDetails,
   fnFetch = fetch,
   apiRoot = API_ROOT,
-  defaults = DEFAULT_DASHBOARD_SETTINGS,
-}) {
+  defaults = DEFAULT_DASHBOARD_SETTINGS
+): Promise<IDashboardSettings> {
   try {
     const authDetails = await fnGetAuthDetails();
     const response = await fnFetch(
@@ -26,11 +26,12 @@ export async function getDashboardSettings({
 }
 
 interface IDashboardProps {
-  //fnGetSettings: () => IDashboardSettings;
+  fnGetSettings?: () => Promise<IDashboardSettings>;
 }
 
 // eslint-disable-next-line no-empty-pattern
-export function ActivityDashboard({}: //fnGetSettings = getDashboardSettings,
-IDashboardProps) {
+export function ActivityDashboard({
+  fnGetSettings = getDashboardSettings,
+}: IDashboardProps) {
   return <div className="test">Hello</div>;
 }

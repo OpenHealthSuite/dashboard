@@ -25,12 +25,12 @@ describe("ActivityDashboard functions", () => {
       });
       const fakeApiRoot = "/fakeApiRoot";
 
-      const result = await getDashboardSettings({
-        fnGetAuthDetails: fakeAuthDetails,
-        fnFetch: fakeFetch,
-        apiRoot: fakeApiRoot,
-        defaults: {},
-      });
+      const result = await getDashboardSettings(
+        fakeAuthDetails,
+        fakeFetch,
+        fakeApiRoot,
+        {}
+      );
 
       expect(result).toBe(response);
       expect(fakeFetch).toBeCalledWith(
@@ -48,12 +48,12 @@ describe("ActivityDashboard functions", () => {
       const fakeApiRoot = "/fakeApiRoot";
       const defaults = { whoami: "DefaultSettings" };
 
-      const result = await getDashboardSettings({
-        fnGetAuthDetails: fakeAuthDetails,
-        fnFetch: fakeFetch,
-        apiRoot: fakeApiRoot,
-        defaults: defaults,
-      });
+      const result = await getDashboardSettings(
+        fakeAuthDetails,
+        fakeFetch,
+        fakeApiRoot,
+        defaults
+      );
 
       expect(result).toBe(defaults);
       expect(fakeFetch).toBeCalledTimes(1);
@@ -68,12 +68,12 @@ describe("ActivityDashboard functions", () => {
       const fakeApiRoot = "/fakeApiRoot";
       const defaults = { whoami: "DefaultSettings" };
 
-      const result = await getDashboardSettings({
-        fnGetAuthDetails: fakeAuthDetails,
-        fnFetch: fakeFetch,
-        apiRoot: fakeApiRoot,
-        defaults: defaults,
-      });
+      const result = await getDashboardSettings(
+        fakeAuthDetails,
+        fakeFetch,
+        fakeApiRoot,
+        defaults
+      );
 
       expect(result).toBe(defaults);
       expect(fakeFetch).toBeCalledTimes(0);
@@ -85,12 +85,12 @@ describe("ActivityDashboard functions", () => {
       const fakeApiRoot = "/fakeApiRoot";
       const defaults = { whoami: "DefaultSettings" };
 
-      const result = await getDashboardSettings({
-        fnGetAuthDetails: fakeAuthDetails,
-        fnFetch: fakeFetch,
-        apiRoot: fakeApiRoot,
-        defaults: defaults,
-      });
+      const result = await getDashboardSettings(
+        fakeAuthDetails,
+        fakeFetch,
+        fakeApiRoot,
+        defaults
+      );
 
       expect(result).toBe(defaults);
       expect(fakeFetch).toBeCalledTimes(1);
