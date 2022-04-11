@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getProviderStatuses, startChallenge, IProviderStatus } from '../../../services/ProvidersService'
-import { LoadingIndicator } from '../../shared/LoadingIndicator';
+import { LoadingCard } from '../../shared/LoadingCard';
 
 async function GetChallenge(key: string) {
   // Send post to api.address/users/:userId/providers/:key/start to get URL w/ challenge
@@ -28,10 +28,10 @@ export default function ProviderSettings() {
   return (<Card>
       <CardHeader title={"Data Providers"} />
       <CardContent>
-          <LoadingIndicator loading={loading}>
+          <LoadingCard loading={loading}>
               <ul>
                   {statuses.map(s => <li key={s.key}>{s.name} - {s.authenticated ? 'Authed' : 'Unauthed'}: <button onClick={() => GetChallenge(s.key)}>Authenticate</button></li>)}
               </ul>
-          </LoadingIndicator></CardContent>
+          </LoadingCard></CardContent>
   </Card>)
 }

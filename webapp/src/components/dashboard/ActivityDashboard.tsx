@@ -5,7 +5,7 @@ import { SleepDailyTile } from './tiles/SleepDailyTile'
 import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, updateSettings } from '../../services/SettingsService'
 import { Grid } from '@mui/material';
 import { useEffect, useState } from 'react'
-import { LoadingIndicator } from '../shared/LoadingIndicator'
+import { LoadingCard } from '../shared/LoadingCard'
 
 
 export interface IComponentLookup {
@@ -52,8 +52,8 @@ export default function ActivityDashboard({ fnGetSettings = getSettings, fnUpdat
         getSettings()
       }, [fnGetSettings, fnUpdateSettings, setIsLoading, setDashboardSettings])
     return (
-        <LoadingIndicator loading={isLoading}>
+        <LoadingCard loading={isLoading}>
             {generateContent(dashboardSettings)}
-        </LoadingIndicator>
+        </LoadingCard>
     )
 }
