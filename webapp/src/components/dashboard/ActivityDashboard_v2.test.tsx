@@ -1,5 +1,6 @@
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
+import { waitFor } from "@testing-library/react";
 import {
   ActivityDashboard,
   getDashboardSettings,
@@ -22,17 +23,14 @@ describe("ActivityDashboard", () => {
   test("Loading Renders", async () => {
     const fakeDashSettings = jest.fn();
     fakeDashSettings.mockRejectedValue({});
-    await act(async () => {
-      render(<ActivityDashboard fnGetSettings={fakeDashSettings} />, container);
-      expect(container.textContent).toBe("Loading");
-    });
+    render(<ActivityDashboard fnGetSettings={fakeDashSettings} />, container);
+    expect(container.textContent).toBe("Loading");
   });
   test("Error Renders", async () => {
     const fakeDashSettings = jest.fn();
     fakeDashSettings.mockRejectedValue({});
-    await act(async () => {
-      render(<ActivityDashboard fnGetSettings={fakeDashSettings} />, container);
-    });
+    render(<ActivityDashboard fnGetSettings={fakeDashSettings} />, container);
+    await waitFor(() => expect(fakeDashSettings).toHaveBeenCalledTimes(1));
     expect(container.textContent).toBe("Error");
   });
   test("Temp :: Component List Renders", async () => {
@@ -47,9 +45,8 @@ describe("ActivityDashboard", () => {
         return { componentName };
       }),
     });
-    await act(async () => {
-      render(<ActivityDashboard fnGetSettings={fakeDashSettings} />, container);
-    });
+    render(<ActivityDashboard fnGetSettings={fakeDashSettings} />, container);
+    await waitFor(() => expect(fakeDashSettings).toHaveBeenCalledTimes(1));
     componentNames.forEach((componentName) => {
       expect(container).toHaveTextContent(componentName);
     });
