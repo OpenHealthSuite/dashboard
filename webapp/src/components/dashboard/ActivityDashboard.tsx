@@ -1,59 +1,79 @@
-import { StepsGraphTile } from './tiles/StepsGraphTile'
-import { CaloriesGraphTile } from './tiles/CaloriesGraphTile'
-import { CaloriesStepsDailyTile } from './tiles/CaloriesStepsDailyTile'
-import { SleepDailyTile } from './tiles/SleepDailyTile'
-import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, updateSettings } from '../../services/SettingsService'
-import { Grid } from '@mui/material';
-import { useEffect, useState } from 'react'
-import { LoadingCard } from '../shared/LoadingCard'
+import { getAuthDetails } from "../../services/AuthenticationDetails";
+import {
+  DEFAULT_DASHBOARD_SETTINGS,
+  IDashboardSettings,
+} from "../../services/SettingsService";
+import { API_ROOT } from "../../secrets";
+import "./ActivityDashboard.scss";
+import { useEffect, useState } from "react";
+import { AvailableTiles, IAvailableTiles } from "./tiles";
+import { Grid } from "@mui/material";
 
-
-export interface IComponentLookup {
-    [x: string]: (props: any) => JSX.Element
-}
-
-const ComponentLookup: IComponentLookup = {
-    'CaloriesStepsDailyTile': CaloriesStepsDailyTile,
-    'SleepDailyTile': SleepDailyTile,
-    'StepsGraphTile': StepsGraphTile,
-    'CaloriesGraphTile': CaloriesGraphTile
-}
-
-interface DashboardProps {
-    fnGetSettings?: <T>(settingId: string) => Promise<T | undefined>,
-    fnUpdateSettings?: <T>(settingId: string, settings: T) => Promise<void>,
+export async function getDashboardSettings(
+  fnGetAuthDetails = getAuthDetails,
+  fnFetch = fetch,
+  apiRoot = API_ROOT,
+  defaults = DEFAULT_DASHBOARD_SETTINGS
+): Promise<IDashboardSettings> {
+  try {
+    const authDetails = await fnGetAuthDetails();
+    const response = await fnFetch(
+      apiRoot + "/users/" + authDetails.userId + "/userSettings/dashboard"
+    );
+    return response.status === 200
+      ? ((await response.json()) as IDashboardSettings)
+      : defaults;
+  } catch {
+    return defaults;
   }
-
-function generateContent(settings: IDashboardSettings | undefined): JSX.Element {
-    if (!settings) { return <></> }
-    return <Grid container spacing={settings.spacing}>
-        {settings.tileSettings.filter(ts => Object.keys(ComponentLookup).includes(ts.componentName)).map(ts => { return { tileFunction: ComponentLookup[ts.componentName] } } ).map((tile, i) => { 
-            return <Grid key={`gridkey-${i}`} item xs={settings.tileSizes.xs} sm={settings.tileSizes.sm} md={settings.tileSizes.md}>
-                    <tile.tileFunction />
-                </Grid>})
-        }
-    </Grid>
 }
 
-export default function ActivityDashboard({ fnGetSettings = getSettings, fnUpdateSettings = updateSettings }: DashboardProps) {
-    const [dashboardSettings, setDashboardSettings] = useState<IDashboardSettings | undefined>(undefined)
-    const [isLoading, setIsLoading] = useState<boolean>(true)
+interface IDashboardProps {
+  fnGetSettings?: () => Promise<IDashboardSettings>;
+  availableTiles?: IAvailableTiles;
+}
 
-    useEffect(() => {
-        const getSettings = async () => {
-          const userSettings = await fnGetSettings<IDashboardSettings>("dashboard")
-          if (!userSettings){
-            fnUpdateSettings("dashboard", DEFAULT_DASHBOARD_SETTINGS)
-          }
-          const currentSettings = (userSettings || DEFAULT_DASHBOARD_SETTINGS)
-          setDashboardSettings(currentSettings)
-          setIsLoading(false)
-        }
-        getSettings()
-      }, [fnGetSettings, fnUpdateSettings, setIsLoading, setDashboardSettings])
+// eslint-disable-next-line no-empty-pattern
+export function ActivityDashboard({
+  fnGetSettings = getDashboardSettings,
+  availableTiles = AvailableTiles,
+}: IDashboardProps) {
+  const [dashboardSettings, setDashboardSettings] = useState<
+    IDashboardSettings | undefined
+  >(undefined);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  useEffect(() => {
+    fnGetSettings()
+      .then(setDashboardSettings)
+      .catch(() => setDashboardSettings(undefined))
+      .finally(() => setSettingsLoaded(true));
+  }, [fnGetSettings, setDashboardSettings, setSettingsLoaded]);
+  if (settingsLoaded && dashboardSettings) {
     return (
-        <LoadingCard loading={isLoading}>
-            {generateContent(dashboardSettings)}
-        </LoadingCard>
-    )
+      <Grid container spacing={dashboardSettings.spacing}>
+        {dashboardSettings.tileSettings
+          .filter((ts) =>
+            Object.keys(availableTiles).includes(ts.componentName)
+          )
+          .map((ts) => availableTiles[ts.componentName])
+          .map((tile, i) => {
+            return (
+              <Grid
+                key={`gridkey-${i}`}
+                item
+                xs={dashboardSettings.tileSizes.xs}
+                sm={dashboardSettings.tileSizes.sm}
+                md={dashboardSettings.tileSizes.md}
+              >
+                <tile.component />
+              </Grid>
+            );
+          })}
+      </Grid>
+    );
+  }
+  if (settingsLoaded) {
+    return <>Error</>;
+  }
+  return <>Loading</>;
 }
