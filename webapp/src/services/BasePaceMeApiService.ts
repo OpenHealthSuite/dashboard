@@ -1,13 +1,4 @@
-async function getAuthDetails(): Promise<{ userId: string }> {
-    if (process.env.REACT_APP_DEV_USER_ID) {
-        return { userId: process.env.REACT_APP_DEV_USER_ID }
-    }
-    // TODO: Not do this for every request
-    // TODO: This is based on github - change to oidc
-    const response = await fetch('/oauth2/userinfo')
-    const details = await response.json()
-    return { userId: details.user }
-}
+import { getAuthDetails } from "./AuthenticationDetails"
 
 // This might need to be moved to parents soon, but this'll do for now.
 const usersRoot = '/users/'

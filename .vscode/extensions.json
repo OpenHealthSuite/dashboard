@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "skyran.js-jsx-snippets",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
   ]
 }

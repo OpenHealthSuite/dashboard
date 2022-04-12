@@ -9,7 +9,7 @@ interface ILoadingProps {
     loading: boolean
 }
 
-export function LoadingIndicator(props: ILoadingProps) {
+export function LoadingCard(props: ILoadingProps) {
     if (props.loading) {
         return <div className="loading-fill">
             <Card>

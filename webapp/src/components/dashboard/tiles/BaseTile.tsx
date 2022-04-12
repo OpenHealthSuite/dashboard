@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { CardHeader, Card, CardContent } from '@mui/material';
-import { LoadingIndicator } from '../../shared/LoadingIndicator';
+import { LoadingCard } from '../../shared/LoadingCard';
 
 interface IDashboardTileProps {
   headerText?: string,
@@ -19,9 +19,9 @@ export function DashboardTile({ headerText, children, loading = false, errored =
   return (<Card>
     {cardHeader}
     <CardContent>
-      <LoadingIndicator loading={loading}>
+      <LoadingCard loading={loading}>
         {errored ? <>Something has gone wrong...</> : children}
-      </LoadingIndicator>
+      </LoadingCard>
     </CardContent>
     {refreshBar}
   </Card>)

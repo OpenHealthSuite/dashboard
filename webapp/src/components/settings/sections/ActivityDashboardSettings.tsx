@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, ListItemButton } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { LoadingIndicator } from '../../shared/LoadingIndicator';
+import { LoadingCard } from '../../shared/LoadingCard';
 import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, updateSettings } from '../../../services/SettingsService'
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
@@ -50,9 +50,9 @@ export default function ActivityDashboardSettings({fnGetSettings = getSettings, 
   return (<Card>
       <CardHeader title={"Activity Dashboard Settings"} />
       <CardContent>
-          <LoadingIndicator loading={isLoading}>
+          <LoadingCard loading={isLoading}>
               <TransferList dashboardSettings={dashboardSettings}/>
-          </LoadingIndicator>
+          </LoadingCard>
       </CardContent>
   </Card>)
 }
