@@ -60,5 +60,7 @@ spec:
             - name: REDIS_HOST
               value: redis-service.paceme.svc
             - name: PG_CONNECTION_STRING
-              # Because we're only having the one DB, we'll use defaultdb
-              value: postgresql://root@cockroachdb-public.paceme.svc:26257/defaultdb
+              valueFrom:
+                secretKeyRef:
+                  name: paceme-api-secrets
+                  key: postgresconnectionstring
