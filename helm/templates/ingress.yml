@@ -4,6 +4,7 @@ kind: Ingress
 metadata:
   annotations:
     cert-manager.io/issuer: letsencrypt-prod
+    acme.cert-manager.io/http01-edit-in-place: "true"
   name: paceme-oauth2-proxy
   namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
 spec:
@@ -67,6 +68,7 @@ metadata:
     cert-manager.io/issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth" #paceme-oauth2-proxy.paceme.svc.cluster.local:4180
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+    acme.cert-manager.io/http01-edit-in-place: "true"
   name: paceme-ingress-client
   namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
 spec:
