@@ -11,8 +11,7 @@ import { runMigrations } from './repositories/_migrationRunner'
 
 const app = express()
 const configuration = {
-  port: 8080,
-  host: 'localhost'
+  port: 8080
 }
 
 app.use(cors())
@@ -25,10 +24,6 @@ app.get('/', (req, res) => {
 
 app.use((req, res, next) => authenticationMiddleware(req, res, next))
 
-if (process.env.RUNNING_IN_CONTAINER) {
-  configuration.host = '0.0.0.0' // Mapping to container host
-}
-
 // Add our Handlers
 addUserSettingHandlers(app)
 addProviderRoutes(app)
@@ -39,6 +34,6 @@ addCaloriesHandlers(app)
 
 // start the Express server
 // This assumes the node start script is used, which is fine, but it you have issues, look there.
-runMigrations('migrations').then(() => app.listen(configuration.port, configuration.host, () => {
-  console.log(`server started at ${configuration.host}:${configuration.port}`)
+runMigrations('migrations').then(() => app.listen(configuration.port, () => {
+  console.log(`server started on port ${configuration.port}`)
 }))
