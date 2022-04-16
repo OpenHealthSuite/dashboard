@@ -14,7 +14,11 @@ describe("DashboardTile", () => {
   })
   test("Header Not Displayed When No Text Passed", async () => {
     render(<DashboardTile></DashboardTile>)
-    expect(screen.queryByTestId("card-header")).toBeNull()
+    expect(screen.queryByTestId("card-header")).not.toBeInTheDocument()
+  })
+  test("Header Not Displayed When Empty Text Passed", async () => {
+    render(<DashboardTile headerText=""></DashboardTile>)
+    expect(screen.queryByTestId("card-header")).not.toBeInTheDocument()
   })
   // Content
   test("Renders content into card content", async () => {

@@ -8,9 +8,8 @@ interface IDashboardTileProps {
 }
 
 export function DashboardTile({ headerText, children, loading, error }: IDashboardTileProps): JSX.Element {
-  const header = headerText ? <CardHeader data-testid="card-header" title={headerText} /> : null
   return <Card>
-    {header}
+    {headerText && <CardHeader data-testid="card-header" title={headerText} />}
     <CardContent data-testid="card-content">
       {children}
     </CardContent>
