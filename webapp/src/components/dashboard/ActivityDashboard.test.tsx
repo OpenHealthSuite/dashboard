@@ -1,29 +1,12 @@
-import { unmountComponentAtNode } from "react-dom";
-import { act } from "react-dom/test-utils";
 import {
-  findByText,
   waitFor,
   screen,
-  waitForElementToBeRemoved,
   render,
 } from "@testing-library/react";
 import { ActivityDashboard, getDashboardSettings } from "./ActivityDashboard";
 import { IAvailableTiles } from "./tiles";
 
 describe("ActivityDashboard", () => {
-  // let container: HTMLDivElement;
-  // beforeEach(() => {
-  //   // setup a DOM element as a render target
-  //   container = document.createElement("div");
-  //   document.body.appendChild(container);
-  // });
-
-  // afterEach(() => {
-  //   // cleanup on exiting
-  //   unmountComponentAtNode(container);
-  //   container.remove();
-  // });
-
   test("Loading Renders", async () => {
     const fakeDashSettings = jest.fn();
     fakeDashSettings.mockRejectedValue({});
