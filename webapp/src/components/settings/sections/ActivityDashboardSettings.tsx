@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, ListItemButton } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { LoadingCard } from '../../shared/LoadingCard';
 import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, updateSettings } from '../../../services/SettingsService'
+import { AvailableTiles } from '../../dashboard/tiles';
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
@@ -18,17 +19,17 @@ interface ActivityDashboardSettingsProps {
   fnUpdateSettings?: <T>(settingId: string, settings: T) => Promise<void>
 }
 
-interface IAvailableTile {
+interface IAvailableTileSetting {
   componentName: string,
   componentNiceName: string
 }
 
-const ALL_AVAILABLE_TILES: IAvailableTile[] = [
-  { componentName: 'CaloriesStepsDailyTile', componentNiceName: 'Calories/Steps Daily Summary' },
-  { componentName: 'SleepDailyTile', componentNiceName: 'Sleep Daily Summary' },
-  { componentName: 'StepsGraphTile', componentNiceName: 'Steps Graph' },
-  { componentName: 'CaloriesGraphTile', componentNiceName: 'Calories Graph' }
-]
+const ALL_AVAILABLE_TILES: IAvailableTileSetting[] = Object.keys(AvailableTiles).map(key => {
+  return {
+    componentName: key,
+    componentNiceName: AvailableTiles[key].displayName
+  }
+})
 
 export default function ActivityDashboardSettings({fnGetSettings = getSettings, fnUpdateSettings = updateSettings}: ActivityDashboardSettingsProps) {
   const [dashboardSettings, setDashboardSettings] = useState<IDashboardSettings>(DEFAULT_DASHBOARD_SETTINGS)
@@ -57,24 +58,24 @@ export default function ActivityDashboardSettings({fnGetSettings = getSettings, 
   </Card>)
 }
 
-function not(a: readonly IAvailableTile[], b: readonly IAvailableTile[]) {
+function not(a: readonly IAvailableTileSetting[], b: readonly IAvailableTileSetting[]) {
   return a.filter((value) => b.indexOf(value) === -1);
 }
 
-function intersection(a: readonly IAvailableTile[], b: readonly IAvailableTile[]) {
+function intersection(a: readonly IAvailableTileSetting[], b: readonly IAvailableTileSetting[]) {
   return a.filter((value) => b.indexOf(value) !== -1);
 }
 
 export function TransferList({ dashboardSettings, fnUpdateSettings = updateSettings }: { dashboardSettings: IDashboardSettings, fnUpdateSettings?: <T>(settingId: string, details: T) => Promise<void>  }) {
   const { tileSettings } = dashboardSettings
-  const [checked, setChecked] = React.useState<IAvailableTile[]>([]);
-  const [enabled, setEnabled] = React.useState<IAvailableTile[]>(ALL_AVAILABLE_TILES.filter(x => tileSettings.map(y => y.componentName).includes(x.componentName)));
-  const [disabled, setDisabled] = React.useState<IAvailableTile[]>(ALL_AVAILABLE_TILES.filter(x => !tileSettings.map(y => y.componentName).includes(x.componentName)));
+  const [checked, setChecked] = React.useState<IAvailableTileSetting[]>([]);
+  const [enabled, setEnabled] = React.useState<IAvailableTileSetting[]>(ALL_AVAILABLE_TILES.filter(x => tileSettings.map(y => y.componentName).includes(x.componentName)));
+  const [disabled, setDisabled] = React.useState<IAvailableTileSetting[]>(ALL_AVAILABLE_TILES.filter(x => !tileSettings.map(y => y.componentName).includes(x.componentName)));
 
   const enabledChecked = intersection(checked, enabled);
   const disabledChecked = intersection(checked, disabled);
 
-  const handleToggle = (value: IAvailableTile) => () => {
+  const handleToggle = (value: IAvailableTileSetting) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
 
@@ -134,10 +135,10 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
   }
 
   // Definitely should take this to a component...
-  const customList = (items: readonly IAvailableTile[], isEnabledList: boolean = false) => (
+  const customList = (items: readonly IAvailableTileSetting[], isEnabledList: boolean = false) => (
     <Paper sx={{ height: 230, overflow: 'auto' }}>
       <List dense component="div" role="list">
-        {items.map((value: IAvailableTile, index: number) => {
+        {items.map((value: IAvailableTileSetting, index: number) => {
           const labelId = `transfer-list-item-${value}-label`;
           let buttons = <></>
           if (isEnabledList && items.length > 1) {

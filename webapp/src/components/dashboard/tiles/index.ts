@@ -3,11 +3,13 @@ import { CaloriesStepsDailyTile } from "./CaloriesStepsDailyTile";
 import { SleepDailyTile } from "./SleepDailyTile";
 import { StepsGraphTile } from "./StepsGraphTile";
 
+export interface IAvailableTile {
+  displayName: string;
+  component: (props: any) => JSX.Element;
+}
+
 export interface IAvailableTiles {
-  [key: string]: {
-    displayName: string;
-    component: (props: any) => JSX.Element;
-  };
+  [key: string]: IAvailableTile;
 }
 
 export const AvailableTiles: IAvailableTiles = {
