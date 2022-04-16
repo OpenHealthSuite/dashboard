@@ -1,6 +1,6 @@
 import { CardHeader, Card, CardContent } from '@mui/material';
 
-interface IDashboardTileProps {
+export interface IDashboardTileProps {
   headerText?: string
   children?: JSX.Element
   loading?: boolean
