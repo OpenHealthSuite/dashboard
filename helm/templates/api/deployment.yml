@@ -6,17 +6,10 @@ metadata:
   namespace: {{ .Values.metadata.namespace }}
   name: paceme-api
 spec:
-  progressDeadlineSeconds: 600
-  replicas: 5
-  revisionHistoryLimit: 10
+  replicas: 3
   selector:
     matchLabels:
       app: paceme-api
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
       labels:

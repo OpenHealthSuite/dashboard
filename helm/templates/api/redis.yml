@@ -24,24 +24,18 @@ spec:
   type: ClusterIP
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     infra: redis
   namespace: {{ .Values.metadata.namespace }}
   name: paceme-api-redis
 spec:
-  progressDeadlineSeconds: 600
+  serviceName: redis-service
   replicas: 1
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
       infra: redis
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
       labels:
