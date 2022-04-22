@@ -3,10 +3,10 @@ kind: Deployment
 metadata:
   labels:
     app: paceme-api
-  namespace: {{ .Values.metadata.namespace }}
+  namespace: {{ .Release.Namespace }}
   name: paceme-api
 spec:
-  replicas: 3
+  replicas: {{ required "api.replicas is required" .Values.api.replicas }}
   selector:
     matchLabels:
       app: paceme-api
@@ -14,7 +14,7 @@ spec:
     metadata:
       labels:
         app: paceme-api
-      namespace: {{ .Values.metadata.namespace }}
+      namespace: {{ .Release.Namespace }}
       name: paceme-api
     spec:
       containers:

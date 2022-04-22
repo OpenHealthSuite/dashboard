@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-config-map
-  namespace: {{ .Values.metadata.namespace }}
+  namespace: {{ .Release.Namespace }}
 data:
   redis-config: |
     maxmemory 50mb
@@ -12,7 +12,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis-service
-  namespace: {{ .Values.metadata.namespace }}
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: redis
@@ -28,7 +28,7 @@ kind: StatefulSet
 metadata:
   labels:
     infra: redis
-  namespace: {{ .Values.metadata.namespace }}
+  namespace: {{ .Release.Namespace }}
   name: paceme-api-redis
 spec:
   serviceName: redis-service
@@ -40,7 +40,7 @@ spec:
     metadata:
       labels:
         infra: redis
-      namespace: {{ .Values.metadata.namespace }}
+      namespace: {{ .Release.Namespace }}
       name: paceme-api-redis
     spec:
       containers:
@@ -54,9 +54,6 @@ spec:
           value: "true"
         ports:
         - containerPort: 6379
-        resources:
-          limits:
-            cpu: "0.5"
         volumeMounts:
         - mountPath: /redis-master-data
           name: data

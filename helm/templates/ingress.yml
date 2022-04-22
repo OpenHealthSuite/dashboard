@@ -6,9 +6,8 @@ metadata:
     cert-manager.io/issuer: letsencrypt-prod
     acme.cert-manager.io/http01-edit-in-place: "true"
   name: paceme-oauth2-proxy
-  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
-  # ingressClassName: nginx
   rules:
   - host: {{ required "hostname is required" .Values.hostname }}
     http:
@@ -36,7 +35,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user"
     acme.cert-manager.io/http01-edit-in-place: "true"
   name: paceme-ingress-api
-  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   rules:
     - host: {{ required "hostname is required" .Values.hostname }}
@@ -70,7 +69,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
     acme.cert-manager.io/http01-edit-in-place: "true"
   name: paceme-ingress-client
-  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   rules:
     - host: {{ required "hostname is required" .Values.hostname }}
@@ -94,7 +93,7 @@ metadata:
   labels:
     k8s-app: paceme-oauth2-proxy
   name: paceme-oauth2-proxy
-  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -139,7 +138,7 @@ metadata:
   labels:
     k8s-app: paceme-oauth2-proxy
   name: paceme-oauth2-proxy
-  namespace: {{ required "metadata.namespace is required" .Values.metadata.namespace }}
+  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   ports:
   - name: http

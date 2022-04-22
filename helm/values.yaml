@@ -1,19 +1,10 @@
 api:
   image: leemartin77/paceme-api
   tag: latest
-  mongo:
-    pvName: paceme-api-mongo-storage
+  replicas: 3
 webapp: 
   image: leemartin77/paceme-webapp
   tag: latest
+  replicas: 3
 
 hostname: app.paceme.info
-
-ingress:
-  enabled: true
-
-metadata: 
-  namespace: paceme
-
-autosecretjob: true
-nodeEnv: production

@@ -3,25 +3,18 @@ kind: Deployment
 metadata:
   labels:
     app: paceme-webapp
-  namespace: {{ .Values.metadata.namespace }}
+  namespace: {{ .Release.Namespace }}
   name: paceme-webapp
 spec:
-  progressDeadlineSeconds: 600
-  replicas: 5
-  revisionHistoryLimit: 10
+  replicas: {{ required "webapp.replicas is required" .Values.webapp.replicas }}
   selector:
     matchLabels:
       app: paceme-webapp
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
       labels:
         app: paceme-webapp
-      namespace: {{ .Values.metadata.namespace }}
+      namespace: {{ .Release.Namespace }}
       name: paceme-webapp
     spec:
       containers:
