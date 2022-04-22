@@ -1,4 +1,4 @@
-FROM node:16.13.1 as builder
+FROM --platform=$BUILDPLATFORM node:16.13.1 as builder
 
 # Note: This dockerfile is basically just for bringing it up in a stack.
 # In reality, just serve the damn static files
