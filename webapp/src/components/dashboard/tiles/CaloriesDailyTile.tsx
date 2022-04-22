@@ -49,38 +49,36 @@ export function CaloriesDailyTile({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isErrored, setIsErrored] = useState<boolean>(false);
 
-  useEffect(() => {
-    FnGetCaloriesForDay(new Date())
-      .then((calories) => {
+  const getCalories = (
+    setIsErrored: React.Dispatch<React.SetStateAction<boolean>>,
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setCalories: React.Dispatch<React.SetStateAction<ICalories | undefined>>,
+    FnGetCaloriesForDay: (day: Date) => Promise<ICalories>
+  ) => {
+    return FnGetCaloriesForDay(new Date())
+      .then((calories: ICalories) => {
         setCalories(calories);
         setIsErrored(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setIsErrored(true);
       })
       .finally(() => {
         setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    getCalories(setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay);
   }, [setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay]);
 
   useEffect(() => {
-    const getCalories = () => {
-      FnGetCaloriesForDay(new Date())
-        .then((calories) => {
-          setCalories(calories);
-          setIsErrored(false);
-        })
-        .catch((err) => {
-          setIsErrored(true);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    };
-    setInterval(() => {
-      getCalories();
+    getCalories(setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay);
+    const interval = setInterval(() => {
+      getCalories(setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay);
     }, 5 * 60 * 1000);
-  }, [calories, setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay]);
+    return () => clearInterval(interval);
+  }, [setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay]);
 
   const todayCalorieDelta = calories
     ? calories.caloriesIn - calories.caloriesOut
