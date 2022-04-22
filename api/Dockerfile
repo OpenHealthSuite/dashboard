@@ -1,8 +1,8 @@
-FROM node:16.13.1-bullseye-slim AS builder
+FROM --platform=$BUILDPLATFORM node:16.13.1-bullseye-slim AS builder
 WORKDIR /application
 COPY package.json package.json
 COPY package-lock.json package-lock.json
-RUN npm i
+RUN npm ci
 COPY tsconfig.json tsconfig.json
 COPY src src
 COPY types types
@@ -10,9 +10,9 @@ RUN npx tsc
 
 FROM node:16.13.1-bullseye-slim AS runner
 WORKDIR /application
-COPY --from=builder /application/package.json /application/package.json 
-COPY --from=builder /application/package-lock.json /application/package-lock.json
-RUN npm install --only=prod
+COPY package.json package.json
+COPY package-lock.json package-lock.json
+RUN npm ci --only=prod
 COPY --from=builder /application/dist /application/dist
 COPY migrations migrations
 EXPOSE 8080
