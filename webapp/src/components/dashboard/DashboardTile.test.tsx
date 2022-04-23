@@ -1,5 +1,5 @@
 import { baseDataGetterFunction, DashboardTile } from "./DashboardTile";
-import { screen, render } from "@testing-library/react";
+import { screen, render, waitFor } from "@testing-library/react";
 
 describe("DashboardTile", () => {
   // Header
@@ -63,20 +63,20 @@ describe("DashboardTile", () => {
 
   test("Uses provided data setter", async () => {
     const dataSetter = jest.fn();
-    const loadingGetter = jest.fn();
-
+    const testData = { whoami: "Test Data" }
     render(
       <DashboardTile
         setData={dataSetter}
         refreshIntervalms={5000}
-        dataGetterFunction={loadingGetter}
-        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
+        dataRetreivalFunction={jest.fn().mockResolvedValue(testData)}
       >
         <></>
       </DashboardTile>
     );
-    expect(loadingGetter.mock.calls[0][2]).toBe(dataSetter);
+    await waitFor(() => expect(dataSetter).toHaveBeenCalledTimes(1));
+    expect(dataSetter).toBeCalledWith(testData);
   });
+
 
   // Loading Icon
   test("Loading Visible", async () => {
