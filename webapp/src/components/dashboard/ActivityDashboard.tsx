@@ -50,7 +50,7 @@ export function ActivityDashboard({
   }, [fnGetSettings, setDashboardSettings, setSettingsLoaded]);
   if (settingsLoaded && dashboardSettings) {
     return (
-      <Grid container spacing={dashboardSettings.spacing}>
+      <Grid container spacing={dashboardSettings.spacing} alignItems="stretch">
         {dashboardSettings.tileSettings
           .filter((ts) =>
             Object.keys(availableTiles).includes(ts.componentName)

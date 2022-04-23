@@ -58,7 +58,7 @@ export function DashboardTile<T>({
   }, [setIsErrored, setIsLoading, setData, dataGetterFunction, dataRetreivalFunction, refreshIntervalms]);
 
   return (
-    <Card>
+    <Card className="dashboard-tile">
       {headerText && <CardHeader data-testid="card-header" title={headerText} />}
       <CardContent data-testid="card-content">{children}</CardContent>
       <div className="status-bar">
