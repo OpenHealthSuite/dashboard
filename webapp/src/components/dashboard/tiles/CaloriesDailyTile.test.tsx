@@ -10,7 +10,6 @@ describe("CaloriesDailyTile", () => {
     render(
       <CaloriesDailyTile
         FnDashboardTile={fakeDashboardTile}
-        data={undefined}
       ></CaloriesDailyTile>
     );
     const wrapper = screen.getByTestId(dashboardtiletestid);

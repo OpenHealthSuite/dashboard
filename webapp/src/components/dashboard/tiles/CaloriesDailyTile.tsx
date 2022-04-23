@@ -23,7 +23,6 @@ async function getCaloriesForDay(
 }
 
 interface ICaloriesDailyTileProps {
-  data: undefined | ICalories;
   FnDashboardTile?: (props: IDashboardTileProps<ICalories>) => JSX.Element;
   FnGetCalories?: () => Promise<ICalories>;
 }
