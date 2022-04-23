@@ -14,11 +14,11 @@ export interface ICalories {
 }
 
 async function getCaloriesForDay(
-  day: Date = new Date(),
+  day: () => Date = () => new Date(),
   fnFetch = pacemeUserRouteGetRequest
 ): Promise<ICalories> {
   return fnFetch(
-    "/activities/" + day.toISOString().split("T")[0] + "/calories"
+    "/activities/" + day().toISOString().split("T")[0] + "/calories"
   );
 }
 
