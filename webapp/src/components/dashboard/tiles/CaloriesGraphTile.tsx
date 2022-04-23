@@ -3,6 +3,7 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { pacemeUserRouteGetRequest } from "../../../services/PaceMeApiService";
 
 import { IDashboardTileProps, DashboardTile } from "../DashboardTile";
+import { fnLastWeekDate, fnYesterDate } from "./utilities/DateFunctions";
 
 const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -13,9 +14,9 @@ const colors = {
 };
 
 export interface IDatedCaloriesInOut {
-  caloriesIn: number,
-  caloriesOut: number,
-  date: Date
+  caloriesIn: number;
+  caloriesOut: number;
+  date: Date;
 }
 
 interface CaloriesGraphTileProps {
@@ -25,30 +26,18 @@ interface CaloriesGraphTileProps {
   ) => JSX.Element;
 }
 
-const fnYesterDate = () => {
-  const yesterDate = new Date()
-  yesterDate.setDate(yesterDate.getDate() - 1)
-  return yesterDate;
-}
-
-
-const fnLastWeekDate = () => {
-  const lastWeekDate = new Date()
-  lastWeekDate.setDate(lastWeekDate.getDate() - 7)
-  return lastWeekDate;
-}
-
 export async function getLastWeekOfCalories(
   dateStart: () => Date = fnYesterDate,
   dateEnd: () => Date = fnLastWeekDate
 ): Promise<IDatedCaloriesInOut[]> {
-  return pacemeUserRouteGetRequest<IDatedCaloriesInOut[]>("/" + 
-    [
-      "activities",
-      dateStart().toISOString().split("T")[0],
-      dateEnd().toISOString().split("T")[0],
-      "calories",
-    ].join("/")
+  return pacemeUserRouteGetRequest<IDatedCaloriesInOut[]>(
+    "/" +
+      [
+        "activities",
+        dateStart().toISOString().split("T")[0],
+        dateEnd().toISOString().split("T")[0],
+        "calories",
+      ].join("/")
   );
 }
 
@@ -79,35 +68,38 @@ export function CaloriesGraphTile({
         {!caloriesArrayData && (
           <div style={{ textAlign: "center" }}>No Calorie Data Available</div>
         )}
-        {caloriesArrayData && <><ResponsiveContainer width="100%" height={250}>
-          <BarChart
-            data={caloriesArray.map((x) => {
-              return {
-                dateLabel: dayLabels[new Date(x.date).getDay()],
-                caloriesIn: x.caloriesIn,
-                caloriesOut: x.caloriesOut,
-              };
-            })}
-            margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-          >
-            <XAxis dataKey="dateLabel" />
-            <YAxis orientation="right" />
-            <Bar
-              type="monotone"
-              dataKey="caloriesIn"
-              fill={colors.caloriesIn}
-              yAxisId={0}
-            />
-            <Bar
-              type="monotone"
-              dataKey="caloriesOut"
-              fill={colors.caloriesOut}
-              yAxisId={0}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-        <p style={{ textAlign: "center" }}>{caloriesString}</p>
-      </>}
+        {caloriesArrayData && (
+          <>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart
+                data={caloriesArray.map((x) => {
+                  return {
+                    dateLabel: dayLabels[new Date(x.date).getDay()],
+                    caloriesIn: x.caloriesIn,
+                    caloriesOut: x.caloriesOut,
+                  };
+                })}
+                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+              >
+                <XAxis dataKey="dateLabel" />
+                <YAxis orientation="right" />
+                <Bar
+                  type="monotone"
+                  dataKey="caloriesIn"
+                  fill={colors.caloriesIn}
+                  yAxisId={0}
+                />
+                <Bar
+                  type="monotone"
+                  dataKey="caloriesOut"
+                  fill={colors.caloriesOut}
+                  yAxisId={0}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+            <p style={{ textAlign: "center" }}>{caloriesString}</p>
+          </>
+        )}
       </>
     </FnDashboardTile>
   );
