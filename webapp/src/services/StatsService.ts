@@ -26,12 +26,6 @@ export interface IDatedSteps {
   date: Date
 }
 
-export interface IDatedCaloriesInOut {
-  caloriesIn: number,
-  caloriesOut: number,
-  date: Date
-}
-
 export async function getTodaysSteps(): Promise<IStepCount | undefined> {
   return await pacemeGetRequest<IStepCount>([activitiesRoot, (new Date()).toISOString().split('T')[0], 'steps'].join('/'))
 }
@@ -46,8 +40,4 @@ export async function getTodaySleep(): Promise<ISleep | undefined> {
 
 export async function getDateRangeSteps(dateStart: Date, dateEnd: Date): Promise<IDatedSteps[] | undefined> {
   return await pacemeGetRequest<IDatedSteps[]>([activitiesRoot, dateStart.toISOString().split('T')[0], dateEnd.toISOString().split('T')[0], 'steps'].join('/'))
-}
-
-export async function getDateRangeCalories(dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesInOut[] | undefined> {
-  return await pacemeGetRequest<IDatedCaloriesInOut[]>([activitiesRoot, dateStart.toISOString().split('T')[0], dateEnd.toISOString().split('T')[0], 'calories'].join('/'))
 }
