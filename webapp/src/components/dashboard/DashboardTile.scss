@@ -1,6 +1,27 @@
 .dashboard-tile {
   min-height: 100%;
-  position: relative;
+  position: relative;    
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .dashtile-header {
+    width: 100%;
+    text-align: center;
+    div {
+      span {
+        font-size: 1rem;
+      }
+    }
+    position: absolute;
+    bottom: 0;
+  }
+
+  .dashtile-content {
+    margin-top: 1rem;
+    margin-bottom: 3rem;
+  }
+
   .status-bar {
     position: absolute;
     bottom: 0;

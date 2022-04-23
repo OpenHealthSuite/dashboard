@@ -59,8 +59,8 @@ export function DashboardTile<T>({
 
   return (
     <Card className="dashboard-tile">
-      {headerText && <CardHeader data-testid="card-header" title={headerText} />}
-      <CardContent data-testid="card-content">{children}</CardContent>
+      {headerText && <CardHeader data-testid="card-header" className="dashtile-header" title={headerText} />}
+      <CardContent className="dashtile-content" data-testid="card-content">{children}</CardContent>
       <div className="status-bar">
         {isLoading && <Pending data-testid="card-loading" />}
         {isErrored && <Error data-testid="card-error"/>}

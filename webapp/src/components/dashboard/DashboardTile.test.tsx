@@ -1,5 +1,5 @@
 import { baseDataGetterFunction, DashboardTile } from "./DashboardTile";
-import { screen, render, waitFor } from "@testing-library/react";
+import { screen, render } from "@testing-library/react";
 
 describe("DashboardTile", () => {
   // Header
