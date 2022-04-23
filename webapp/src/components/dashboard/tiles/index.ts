@@ -1,6 +1,5 @@
 import { CaloriesDailyTile } from "./CaloriesDailyTile";
 import { CaloriesGraphTile } from "./CaloriesGraphTile";
-import { CaloriesStepsDailyTile } from "./CaloriesStepsDailyTile";
 import { SleepDailyTile } from "./SleepDailyTile";
 import { StepsGraphTile } from "./StepsGraphTile";
 
@@ -14,10 +13,6 @@ export interface IAvailableTiles {
 }
 
 export const AvailableTiles: IAvailableTiles = {
-  CaloriesStepsDailyTile: {
-    displayName: "Calories/Steps Daily Summary",
-    component: CaloriesStepsDailyTile,
-  },
   CaloriesDailyTile: {
     displayName: "Calories Daily Summary",
     component: CaloriesDailyTile,
