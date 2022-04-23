@@ -4,32 +4,55 @@ import { useEffect, useState } from "react";
 export interface IDashboardTileProps<T> {
   headerText?: string;
   children?: JSX.Element;
+  dataGetterFunction?: (
+    setIsErrored: (err: boolean) => void,
+    setIsLoading: (lod: boolean) => void,
+    setData: (data: T | undefined) => void,
+    dataRetreivalFunction: () => Promise<T>
+  ) => Promise<void>,
   setData: (data: T | undefined) => void;
-  dataGet: (
-    setErr: (err: boolean) => void,
-    setLoading: (lod: boolean) => void,
-    setData: (data: T | undefined) => void
-  ) => void;
+  dataRetreivalFunction: () => Promise<T>;
   refreshIntervalms: number;
 }
+
+
+function baseDataGetterFunction<T>(
+  setIsErrored: (err: boolean) => void,
+  setIsLoading: (lod: boolean) => void,
+  setData: (data: T | undefined) => void,
+  dataRetreivalFunction: () => Promise<T>
+): Promise<void>{
+  return dataRetreivalFunction()
+    .then((data: T) => {
+      setData(data);
+      setIsErrored(false);
+    })
+    .catch(() => {
+      setIsErrored(true);
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
+};
+
 
 export function DashboardTile<T>({
   headerText,
   children,
-  dataGet,
+  dataGetterFunction = baseDataGetterFunction,
   setData,
+  dataRetreivalFunction,
   refreshIntervalms,
 }: IDashboardTileProps<T>): JSX.Element {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isErrored, setIsErrored] = useState<boolean>(false);
-
   useEffect(() => {
-    dataGet(setIsErrored, setIsLoading, setData);
+    dataGetterFunction(setIsErrored, setIsLoading, setData, dataRetreivalFunction);
     const interval = setInterval(() => {
-      dataGet(setIsErrored, setIsLoading, setData);
+      dataGetterFunction(setIsErrored, setIsLoading, setData, dataRetreivalFunction);
     }, refreshIntervalms);
     return () => clearInterval(interval);
-  }, [setIsErrored, setIsLoading, setData, dataGet, refreshIntervalms]);
+  }, [setIsErrored, setIsLoading, setData, dataGetterFunction, dataRetreivalFunction, refreshIntervalms]);
 
   return (
     <Card>

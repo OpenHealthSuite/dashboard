@@ -14,7 +14,7 @@ export interface ICalories {
 }
 
 async function getCaloriesForDay(
-  day: Date,
+  day: Date = new Date(),
   fnFetch = pacemeUserRouteGetRequest
 ): Promise<ICalories> {
   return fnFetch(
@@ -25,35 +25,12 @@ async function getCaloriesForDay(
 interface ICaloriesDailyTileProps {
   data: undefined | ICalories;
   FnDashboardTile?: (props: IDashboardTileProps<ICalories>) => JSX.Element;
-  FnGetCalories?: (
-    setIsErrored: (err: boolean) => void,
-    setIsLoading: (lod: boolean) => void,
-    setCalories: (data: ICalories | undefined) => void
-  ) => Promise<void>;
+  FnGetCalories?: () => Promise<ICalories>;
 }
-
-const getCaloriesDataGetter = (
-  setIsErrored: (err: boolean) => void,
-  setIsLoading: (lod: boolean) => void,
-  setCalories: (data: ICalories | undefined) => void,
-  FnGetCaloriesForDay: (day: Date) => Promise<ICalories> = getCaloriesForDay
-) => {
-  return FnGetCaloriesForDay(new Date())
-    .then((calories: ICalories) => {
-      setCalories(calories);
-      setIsErrored(false);
-    })
-    .catch(() => {
-      setIsErrored(true);
-    })
-    .finally(() => {
-      setIsLoading(false);
-    });
-};
 
 export function CaloriesDailyTile({
   FnDashboardTile = DashboardTile,
-  FnGetCalories = getCaloriesDataGetter,
+  FnGetCalories = getCaloriesForDay,
 }: ICaloriesDailyTileProps) {
   const [calories, setCalories] = useState<ICalories>();
 
@@ -63,7 +40,7 @@ export function CaloriesDailyTile({
 
   return (
     <FnDashboardTile
-      dataGet={FnGetCalories}
+      dataRetreivalFunction={FnGetCalories}
       setData={setCalories}
       refreshIntervalms={5 * 60 * 1000}
       headerText="Today's Calories"

@@ -1,5 +1,5 @@
 import { DashboardTile } from "./DashboardTile";
-import { screen, render } from "@testing-library/react";
+import { screen, render, waitFor } from "@testing-library/react";
 
 describe("DashboardTile", () => {
   // Header
@@ -8,7 +8,8 @@ describe("DashboardTile", () => {
     render(
       <DashboardTile
         headerText={headerText}
-        dataGet={jest.fn()}
+        dataGetterFunction={jest.fn()}
+        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
         setData={jest.fn()}
         refreshIntervalms={5000}
       ></DashboardTile>
@@ -19,7 +20,8 @@ describe("DashboardTile", () => {
   test("Header Not Displayed When No Text Passed", async () => {
     render(
       <DashboardTile
-        dataGet={jest.fn()}
+        dataGetterFunction={jest.fn()}
+        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
         setData={jest.fn()}
         refreshIntervalms={5000}
       ></DashboardTile>
@@ -30,7 +32,8 @@ describe("DashboardTile", () => {
     render(
       <DashboardTile
         headerText=""
-        dataGet={jest.fn()}
+        dataGetterFunction={jest.fn()}
+        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
         setData={jest.fn()}
         refreshIntervalms={5000}
       ></DashboardTile>
@@ -44,7 +47,8 @@ describe("DashboardTile", () => {
     const content = <div data-testid={contentTestId}>My Content</div>;
     render(
       <DashboardTile
-        dataGet={jest.fn()}
+        dataGetterFunction={jest.fn()}
+        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
         setData={jest.fn()}
         refreshIntervalms={5000}
       >
@@ -59,13 +63,14 @@ describe("DashboardTile", () => {
 
   test("Uses provided data setter", async () => {
     const dataSetter = jest.fn();
-    const loadingGetter = jest.fn()
+    const loadingGetter = jest.fn();
 
     render(
       <DashboardTile
         setData={dataSetter}
         refreshIntervalms={5000}
-        dataGet={loadingGetter}
+        dataGetterFunction={loadingGetter}
+        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
       >
         <></>
       </DashboardTile>
@@ -82,7 +87,8 @@ describe("DashboardTile", () => {
     render(
       <DashboardTile
         setData={jest.fn()}
-        dataGet={loadingGetter}
+        dataGetterFunction={loadingGetter}
+        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -96,7 +102,8 @@ describe("DashboardTile", () => {
     render(
       <DashboardTile
         setData={jest.fn()}
-        dataGet={loadingGetter}
+        dataGetterFunction={loadingGetter}
+        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -112,7 +119,8 @@ describe("DashboardTile", () => {
     render(
       <DashboardTile
         setData={jest.fn()}
-        dataGet={loadingGetter}
+        dataGetterFunction={loadingGetter}
+        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -126,7 +134,8 @@ describe("DashboardTile", () => {
     render(
       <DashboardTile
         setData={jest.fn()}
-        dataGet={loadingGetter}
+        dataGetterFunction={loadingGetter}
+        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
