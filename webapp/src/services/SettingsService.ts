@@ -28,7 +28,7 @@ export const DEFAULT_DASHBOARD_SETTINGS: IDashboardSettings = {
         md: 4
     },
     tileSettings: [
-        { componentName: 'CaloriesStepsDailyTile' },
+        { componentName: 'CaloriesDailyTile' },
         { componentName: 'SleepDailyTile' },
         { componentName: 'StepsGraphTile' },
         { componentName: 'CaloriesGraphTile' }
