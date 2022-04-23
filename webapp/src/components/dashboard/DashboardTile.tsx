@@ -25,9 +25,6 @@ export function DashboardTile<T>({
 
   useEffect(() => {
     dataGet(setIsErrored, setIsLoading, setData);
-  }, [setIsErrored, setIsLoading, setData, dataGet]);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       dataGet(setIsErrored, setIsLoading, setData);
     }, refreshIntervalms);
