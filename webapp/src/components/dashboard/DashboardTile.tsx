@@ -58,7 +58,7 @@ export function DashboardTile<T>({
   }, [setIsErrored, setIsLoading, setData, dataGetterFunction, dataRetreivalFunction, refreshIntervalms]);
 
   return (
-    <Card className="dashboard-tile">
+    <Card className="dashboard-tile" data-testid="card" onClick={() => dataGetterFunction(setIsErrored, setIsLoading, setData, dataRetreivalFunction)}>
       {headerText && <CardHeader data-testid="card-header" className="dashtile-header" title={headerText} />}
       <CardContent className="dashtile-content" data-testid="card-content">{children}</CardContent>
       <div className="status-bar">

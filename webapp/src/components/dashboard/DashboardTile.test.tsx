@@ -1,5 +1,6 @@
 import { baseDataGetterFunction, DashboardTile } from "./DashboardTile";
 import { screen, render, waitFor } from "@testing-library/react";
+import { Simulate } from "react-dom/test-utils";
 
 describe("DashboardTile", () => {
   // Header
@@ -77,6 +78,25 @@ describe("DashboardTile", () => {
     expect(dataSetter).toBeCalledWith(testData);
   });
 
+  test("On Click :: Reloads data", async () => {
+    const dataSetter = jest.fn();
+    const testData = { whoami: "Test Data" }
+    const testDataTwo = { whoami: "Test Data Two" }
+    render(
+      <DashboardTile
+        setData={dataSetter}
+        refreshIntervalms={5000}
+        dataRetreivalFunction={jest.fn().mockResolvedValueOnce(testData).mockResolvedValueOnce(testDataTwo)}
+      >
+        <></>
+      </DashboardTile>
+    );
+    await waitFor(() => expect(dataSetter).toHaveBeenCalledTimes(1));
+    expect(dataSetter).toBeCalledWith(testData);
+    Simulate.click(screen.getByTestId("card"))
+    await waitFor(() => expect(dataSetter).toHaveBeenCalledTimes(2));
+    expect(dataSetter).toBeCalledWith(testDataTwo);
+  });
 
   // Loading Icon
   test("Loading Visible", async () => {
