@@ -16,12 +16,13 @@ export interface IDashboardTileProps<T> {
 }
 
 
-function baseDataGetterFunction<T>(
+export function baseDataGetterFunction<T>(
   setIsErrored: (err: boolean) => void,
   setIsLoading: (lod: boolean) => void,
   setData: (data: T | undefined) => void,
   dataRetreivalFunction: () => Promise<T>
 ): Promise<void>{
+  setIsLoading(true);
   return dataRetreivalFunction()
     .then((data: T) => {
       setData(data);

@@ -1,5 +1,5 @@
-import { DashboardTile } from "./DashboardTile";
-import { screen, render, waitFor } from "@testing-library/react";
+import { baseDataGetterFunction, DashboardTile } from "./DashboardTile";
+import { screen, render } from "@testing-library/react";
 
 describe("DashboardTile", () => {
   // Header
@@ -142,3 +142,43 @@ describe("DashboardTile", () => {
     expect(screen.queryByTestId(loadingTestId)).not.toBeInTheDocument();
   });
 });
+
+describe("baseDataGetterFunction", () => {
+  const setErrored = jest.fn();
+  const setLoading = jest.fn();
+  const setData = jest.fn();
+  const dataRetreival = jest.fn();
+
+  beforeEach(() => {
+    setErrored.mockReset()
+    setLoading.mockReset()
+    setData.mockReset()
+    dataRetreival.mockReset()
+  })
+
+  test("Gets Data :: Sets Values appropriately", async () => {
+    const fakeData = { whoami: "FakeData" }
+    dataRetreival.mockResolvedValue(fakeData)
+    await baseDataGetterFunction(setErrored, setLoading, setData, dataRetreival)
+    expect(setLoading.mock.calls[0][0]).toBe(true)
+    expect(dataRetreival).toBeCalledTimes(1)
+    expect(setLoading.mock.invocationCallOrder[0]).toBeLessThan(dataRetreival.mock.invocationCallOrder[0])
+    expect(setData).toBeCalledWith(fakeData)
+    expect(setErrored).toBeCalledWith(false)
+    expect(setLoading.mock.calls[1][0]).toBe(false)
+    expect(setData.mock.invocationCallOrder[0]).toBeLessThan(setLoading.mock.invocationCallOrder[1])
+  })
+
+  test("Gets Error :: Sets Values appropriately", async () => {
+    const fakeData = { whoami: "FakeError" }
+    dataRetreival.mockRejectedValue(fakeData)
+    await baseDataGetterFunction(setErrored, setLoading, setData, dataRetreival)
+    expect(setLoading.mock.calls[0][0]).toBe(true)
+    expect(dataRetreival).toBeCalledTimes(1)
+    expect(setLoading.mock.invocationCallOrder[0]).toBeLessThan(dataRetreival.mock.invocationCallOrder[0])
+    expect(setData).not.toBeCalled()
+    expect(setErrored).toBeCalledWith(true)
+    expect(setLoading.mock.calls[1][0]).toBe(false)
+    expect(setErrored.mock.invocationCallOrder[0]).toBeLessThan(setLoading.mock.invocationCallOrder[1])
+  })
+})
