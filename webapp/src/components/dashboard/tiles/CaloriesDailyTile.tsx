@@ -1,7 +1,7 @@
 import { DashboardTile, IDashboardTileProps } from "../DashboardTile";
 import { API_ROOT } from "../../../secrets";
 import { getAuthDetails } from "../../../services/AuthenticationDetails";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const colors = {
   caloriesIn: "#3A3",
@@ -37,48 +37,40 @@ export async function getCaloriesForDay(
 }
 
 interface ICaloriesDailyTileProps {
-  FnDashboardTile?: (props: IDashboardTileProps) => JSX.Element;
-  FnGetCaloriesForDay?: (day: Date) => Promise<ICalories>;
+  data: undefined | ICalories
+  FnDashboardTile?: (props: IDashboardTileProps<ICalories>) => JSX.Element;
+  FnGetCalories?:  (
+    setIsErrored: (err: boolean) => void,
+    setIsLoading: (lod: boolean) => void,
+    setCalories: (data: ICalories | undefined) => void
+  ) => Promise<void>;
 }
+
+
+const getCaloriesDataGetter = (
+  setIsErrored: (err: boolean) => void,
+  setIsLoading: (lod: boolean) => void,
+  setCalories: (data: ICalories | undefined) => void,
+  FnGetCaloriesForDay: (day: Date) => Promise<ICalories> = getCaloriesForDay
+) => {
+  return FnGetCaloriesForDay(new Date())
+    .then((calories: ICalories) => {
+      setCalories(calories);
+      setIsErrored(false);
+    })
+    .catch(() => {
+      setIsErrored(true);
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
+};
 
 export function CaloriesDailyTile({
   FnDashboardTile = DashboardTile,
-  FnGetCaloriesForDay = getCaloriesForDay,
+  FnGetCalories = getCaloriesDataGetter,
 }: ICaloriesDailyTileProps) {
   const [calories, setCalories] = useState<ICalories>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isErrored, setIsErrored] = useState<boolean>(false);
-
-  const getCalories = (
-    setIsErrored: React.Dispatch<React.SetStateAction<boolean>>,
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setCalories: React.Dispatch<React.SetStateAction<ICalories | undefined>>,
-    FnGetCaloriesForDay: (day: Date) => Promise<ICalories>
-  ) => {
-    return FnGetCaloriesForDay(new Date())
-      .then((calories: ICalories) => {
-        setCalories(calories);
-        setIsErrored(false);
-      })
-      .catch(() => {
-        setIsErrored(true);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    getCalories(setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay);
-  }, [setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay]);
-
-  useEffect(() => {
-    getCalories(setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay);
-    const interval = setInterval(() => {
-      getCalories(setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay);
-    }, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [setIsErrored, setIsLoading, setCalories, FnGetCaloriesForDay]);
 
   const todayCalorieDelta = calories
     ? calories.caloriesIn - calories.caloriesOut
@@ -86,8 +78,9 @@ export function CaloriesDailyTile({
 
   return (
     <FnDashboardTile
-      error={isErrored}
-      loading={isLoading}
+      dataGet={FnGetCalories}
+      setData={setCalories}
+      refreshIntervalms={5 * 60 * 1000}
       headerText="Today's Calories"
     >
       <div data-testid="calories-daily-tile">

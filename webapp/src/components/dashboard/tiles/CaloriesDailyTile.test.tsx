@@ -7,7 +7,7 @@ describe("CaloriesDailyTile", () => {
     const fakeDashboardTile = ({ children }: { children?: any }) => {
         return <div data-testid={dashboardtiletestid}>{children}</div>
       };
-    render(<CaloriesDailyTile FnDashboardTile={fakeDashboardTile}></CaloriesDailyTile>);
+    render(<CaloriesDailyTile FnDashboardTile={fakeDashboardTile} data={undefined}></CaloriesDailyTile>);
     const wrapper = screen.getByTestId(dashboardtiletestid)
     expect(wrapper).toBeInTheDocument()
     expect(wrapper).toContainElement(screen.getByTestId("calories-daily-tile"))
