@@ -1,76 +1,116 @@
-import { Card, CardContent, CardHeader, ListItemButton } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { LoadingCard } from '../../shared/LoadingCard';
-import { DEFAULT_DASHBOARD_SETTINGS, getSettings, IDashboardSettings, updateSettings } from '../../../services/SettingsService'
-import { AvailableTiles } from '../../dashboard/tiles';
-import * as React from 'react';
-import Grid from '@mui/material/Grid';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Checkbox from '@mui/material/Checkbox';
-import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
-
+import { Card, CardContent, CardHeader, ListItemButton } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  DEFAULT_DASHBOARD_SETTINGS,
+  getSettings,
+  IDashboardSettings,
+  updateSettings,
+} from "../../../services/SettingsService";
+import { AvailableTiles } from "../../dashboard/tiles";
+import * as React from "react";
+import Grid from "@mui/material/Grid";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Checkbox from "@mui/material/Checkbox";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import { Error, Pending } from "@mui/icons-material";
 
 interface ActivityDashboardSettingsProps {
-  fnGetSettings?: <T>(settingId: string) => Promise<T | undefined>,
-  fnUpdateSettings?: <T>(settingId: string, settings: T) => Promise<void>
+  fnGetSettings?: <T>(settingId: string) => Promise<T | undefined>;
+  fnUpdateSettings?: <T>(settingId: string, settings: T) => Promise<void>;
 }
 
 interface IAvailableTileSetting {
-  componentName: string,
-  componentNiceName: string
+  componentName: string;
+  componentNiceName: string;
 }
 
-const ALL_AVAILABLE_TILES: IAvailableTileSetting[] = Object.keys(AvailableTiles).map(key => {
+const ALL_AVAILABLE_TILES: IAvailableTileSetting[] = Object.keys(
+  AvailableTiles
+).map((key) => {
   return {
     componentName: key,
-    componentNiceName: AvailableTiles[key].displayName
-  }
-})
+    componentNiceName: AvailableTiles[key].displayName,
+  };
+});
 
-export default function ActivityDashboardSettings({fnGetSettings = getSettings, fnUpdateSettings = updateSettings}: ActivityDashboardSettingsProps) {
-  const [dashboardSettings, setDashboardSettings] = useState<IDashboardSettings>(DEFAULT_DASHBOARD_SETTINGS)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+export default function ActivityDashboardSettings({
+  fnGetSettings = getSettings,
+  fnUpdateSettings = updateSettings,
+}: ActivityDashboardSettingsProps) {
+  const [dashboardSettings, setDashboardSettings] =
+    useState<IDashboardSettings>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isErrored, setIsErrored] = useState<boolean>(false);
 
   useEffect(() => {
-      const getSettings = async () => {
-        const userSettings = await fnGetSettings<IDashboardSettings>("dashboard")
-        if (!userSettings){
-          fnUpdateSettings("dashboard", DEFAULT_DASHBOARD_SETTINGS)
+    fnGetSettings<IDashboardSettings>("dashboard")
+      .then((userSettings) => {
+        if (!userSettings) {
+          fnUpdateSettings("dashboard", DEFAULT_DASHBOARD_SETTINGS);
         }
-        const currentSettings = (userSettings || DEFAULT_DASHBOARD_SETTINGS)
-        setDashboardSettings(currentSettings)
-        setIsLoading(false)
-      }
-      getSettings()
-    }, [fnGetSettings, fnUpdateSettings, setIsLoading, setDashboardSettings])
+        setDashboardSettings(userSettings || DEFAULT_DASHBOARD_SETTINGS);
+      })
+      .catch(() => setIsErrored(true))
+      .finally(() => setIsLoading(false));
+  }, [
+    fnGetSettings,
+    fnUpdateSettings,
+    setIsLoading,
+    setIsErrored,
+    setDashboardSettings,
+  ]);
 
-  return (<Card>
+  return (
+    <Card>
       <CardHeader title={"Activity Dashboard Settings"} />
       <CardContent>
-          <LoadingCard loading={isLoading}>
-              <TransferList dashboardSettings={dashboardSettings}/>
-          </LoadingCard>
+        {isLoading && <Pending />}
+        {isErrored && <Error />}
+        {dashboardSettings && (
+          <TransferList dashboardSettings={dashboardSettings} />
+        )}
       </CardContent>
-  </Card>)
+    </Card>
+  );
 }
 
-function not(a: readonly IAvailableTileSetting[], b: readonly IAvailableTileSetting[]) {
+function not(
+  a: readonly IAvailableTileSetting[],
+  b: readonly IAvailableTileSetting[]
+) {
   return a.filter((value) => b.indexOf(value) === -1);
 }
 
-function intersection(a: readonly IAvailableTileSetting[], b: readonly IAvailableTileSetting[]) {
+function intersection(
+  a: readonly IAvailableTileSetting[],
+  b: readonly IAvailableTileSetting[]
+) {
   return a.filter((value) => b.indexOf(value) !== -1);
 }
 
-export function TransferList({ dashboardSettings, fnUpdateSettings = updateSettings }: { dashboardSettings: IDashboardSettings, fnUpdateSettings?: <T>(settingId: string, details: T) => Promise<void>  }) {
-  const { tileSettings } = dashboardSettings
+export function TransferList({
+  dashboardSettings,
+  fnUpdateSettings = updateSettings,
+}: {
+  dashboardSettings: IDashboardSettings;
+  fnUpdateSettings?: <T>(settingId: string, details: T) => Promise<void>;
+}) {
+  const { tileSettings } = dashboardSettings;
   const [checked, setChecked] = React.useState<IAvailableTileSetting[]>([]);
-  const [enabled, setEnabled] = React.useState<IAvailableTileSetting[]>(ALL_AVAILABLE_TILES.filter(x => tileSettings.map(y => y.componentName).includes(x.componentName)));
-  const [disabled, setDisabled] = React.useState<IAvailableTileSetting[]>(ALL_AVAILABLE_TILES.filter(x => !tileSettings.map(y => y.componentName).includes(x.componentName)));
+  const [enabled, setEnabled] = React.useState<IAvailableTileSetting[]>(
+    ALL_AVAILABLE_TILES.filter((x) =>
+      tileSettings.map((y) => y.componentName).includes(x.componentName)
+    )
+  );
+  const [disabled, setDisabled] = React.useState<IAvailableTileSetting[]>(
+    ALL_AVAILABLE_TILES.filter(
+      (x) => !tileSettings.map((y) => y.componentName).includes(x.componentName)
+    )
+  );
 
   const enabledChecked = intersection(checked, enabled);
   const disabledChecked = intersection(checked, disabled);
@@ -90,12 +130,13 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
 
   useEffect(() => {
     const updateSettings = async () => {
-      dashboardSettings.tileSettings = enabled.map(e => { return { componentName: e.componentName }})
-      fnUpdateSettings("dashboard", dashboardSettings)
-    }
-    updateSettings()
-  }, [enabled, dashboardSettings, fnUpdateSettings])
-
+      dashboardSettings.tileSettings = enabled.map((e) => {
+        return { componentName: e.componentName };
+      });
+      fnUpdateSettings("dashboard", dashboardSettings);
+    };
+    updateSettings();
+  }, [enabled, dashboardSettings, fnUpdateSettings]);
 
   const handleAllDisable = () => {
     setDisabled(disabled.concat(enabled));
@@ -125,28 +166,50 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
     const oldValue = newEnabled[newIndex];
     newEnabled[newIndex] = newEnabled[index];
     newEnabled[index] = oldValue;
-    setEnabled(newEnabled)
+    setEnabled(newEnabled);
     // This bit is filth. I don't know why I have to duplicate this
     const updateSettings = async () => {
-      dashboardSettings.tileSettings = enabled.map(e => { return { componentName: e.componentName }})
-      fnUpdateSettings("dashboard", dashboardSettings)
-    }
-    updateSettings()
-  }
+      dashboardSettings.tileSettings = enabled.map((e) => {
+        return { componentName: e.componentName };
+      });
+      fnUpdateSettings("dashboard", dashboardSettings);
+    };
+    updateSettings();
+  };
 
   // Definitely should take this to a component...
-  const customList = (items: readonly IAvailableTileSetting[], isEnabledList: boolean = false) => (
-    <Paper sx={{ height: 230, overflow: 'auto' }}>
+  const customList = (
+    items: readonly IAvailableTileSetting[],
+    isEnabledList: boolean = false
+  ) => (
+    <Paper sx={{ height: 230, overflow: "auto" }}>
       <List dense component="div" role="list">
         {items.map((value: IAvailableTileSetting, index: number) => {
           const labelId = `transfer-list-item-${value}-label`;
-          let buttons = <></>
+          let buttons = <></>;
           if (isEnabledList && items.length > 1) {
-            buttons = <><ListItemButton onClick={() => adjustEnabledIndex(index, 1)}>▼</ListItemButton><ListItemButton onClick={() => adjustEnabledIndex(index, -1)}>▲</ListItemButton></>
+            buttons = (
+              <>
+                <ListItemButton onClick={() => adjustEnabledIndex(index, 1)}>
+                  ▼
+                </ListItemButton>
+                <ListItemButton onClick={() => adjustEnabledIndex(index, -1)}>
+                  ▲
+                </ListItemButton>
+              </>
+            );
             if (index === 0) {
-              buttons = (<ListItemButton onClick={() => adjustEnabledIndex(index, 1)}>▼</ListItemButton>)
-            } else if (index === items.length -1) {
-              buttons = (<ListItemButton onClick={() => adjustEnabledIndex(index, -1)}>▲</ListItemButton>)
+              buttons = (
+                <ListItemButton onClick={() => adjustEnabledIndex(index, 1)}>
+                  ▼
+                </ListItemButton>
+              );
+            } else if (index === items.length - 1) {
+              buttons = (
+                <ListItemButton onClick={() => adjustEnabledIndex(index, -1)}>
+                  ▲
+                </ListItemButton>
+              );
             }
           }
           return (
@@ -155,7 +218,7 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
               role="listitem"
               button
               onClick={handleToggle(value)}
-              style={{justifyContent:'flex-start'}}
+              style={{ justifyContent: "flex-start" }}
             >
               <ListItemIcon>
                 <Checkbox
@@ -163,7 +226,7 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
                   tabIndex={-1}
                   disableRipple
                   inputProps={{
-                    'aria-labelledby': labelId,
+                    "aria-labelledby": labelId,
                   }}
                 />
               </ListItemIcon>
@@ -179,8 +242,17 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
 
   return (
     <div style={{ flexGrow: 1 }}>
-      <Grid container spacing={2} justifyContent="center" alignItems="center" direction="column" style={{flexGrow: 1}}>
-        <Grid item xs={12}>{customList(enabled, true)}</Grid>
+      <Grid
+        container
+        spacing={2}
+        justifyContent="center"
+        alignItems="center"
+        direction="column"
+        style={{ flexGrow: 1 }}
+      >
+        <Grid item xs={12}>
+          {customList(enabled, true)}
+        </Grid>
         <Grid item xs={12}>
           <Grid container direction="row" alignItems="center">
             <Button
@@ -225,9 +297,10 @@ export function TransferList({ dashboardSettings, fnUpdateSettings = updateSetti
             </Button>
           </Grid>
         </Grid>
-        <Grid item xs={12}>{customList(disabled)}</Grid>
+        <Grid item xs={12}>
+          {customList(disabled)}
+        </Grid>
       </Grid>
     </div>
-    
   );
 }
