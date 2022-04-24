@@ -15,11 +15,15 @@ import {
   useLocation,
   useHistory,
 } from "react-router-dom";
-import { redeemCode } from "../services/ProvidersService";
 import { Fab } from "@mui/material";
+import { pacemeUserRoutePostRequest } from "../services/PaceMeApiService";
 
 interface ICallbackParameters {
   serviceId: string;
+}
+
+async function redeemCode(providerKey: string, code: string): Promise<{} | undefined> {
+  return pacemeUserRoutePostRequest<{ code: string }, {}>(['/providers', providerKey, 'redeem'].join('/'), { code })
 }
 
 function CallbackRouteChild() {

@@ -1,14 +1,8 @@
 import { Card, CardContent, CardHeader, ListItemButton } from "@mui/material";
 import { useEffect, useState } from "react";
-import {
-  DEFAULT_DASHBOARD_SETTINGS,
-  getSettings,
-  IDashboardSettings,
-  updateSettings,
-} from "../../../services/SettingsService";
 import { AvailableTiles } from "../../dashboard/tiles";
 import * as React from "react";
-import Grid from "@mui/material/Grid";
+import Grid, { GridSize } from "@mui/material/Grid";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -17,6 +11,45 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import { Error, Pending } from "@mui/icons-material";
+import { pacemeUserRouteGetRequest, pacemeUserRoutePutRequest } from "../../../services/PaceMeApiService";
+
+export interface ITileSettings { 
+  componentName: string
+}
+
+export interface IDashboardSettings { 
+  spacing: number, 
+  tileSizes: { 
+      xs: GridSize, 
+      sm: GridSize, 
+      md: GridSize
+  },
+  tileSettings: ITileSettings[]
+}
+
+export const DEFAULT_DASHBOARD_SETTINGS: IDashboardSettings = {
+  spacing: 2,
+  tileSizes: {
+      xs: 12,
+      sm: 6,
+      md: 4
+  },
+  tileSettings: [
+      { componentName: 'CaloriesDailyTile' },
+      { componentName: 'SleepDailyTile' },
+      { componentName: 'StepsGraphTile' },
+      { componentName: 'CaloriesGraphTile' }
+  ]
+}
+
+
+async function getSettings<T>(settingId: string): Promise<T | undefined> {
+  return await pacemeUserRouteGetRequest<T>(['/userSettings', settingId].join('/'))
+}
+
+async function updateSettings<T>(settingId: string, details: T): Promise<void> {
+  return pacemeUserRoutePutRequest(['/userSettings', settingId].join('/'), details)
+}
 
 interface ActivityDashboardSettingsProps {
   fnGetSettings?: <T>(settingId: string) => Promise<T | undefined>;

@@ -1,13 +1,11 @@
 import { getAuthDetails } from "../../services/AuthenticationDetails";
-import {
-  DEFAULT_DASHBOARD_SETTINGS,
-  IDashboardSettings,
-} from "../../services/SettingsService";
 import { API_ROOT } from "../../secrets";
 import "./ActivityDashboard.scss";
 import { useEffect, useState } from "react";
 import { AvailableTiles, IAvailableTiles } from "./tiles";
+import { DEFAULT_DASHBOARD_SETTINGS, IDashboardSettings } from "../settings/sections/ActivityDashboardSettings";
 import { Grid } from "@mui/material";
+
 
 export async function getDashboardSettings(
   fnGetAuthDetails = getAuthDetails,
