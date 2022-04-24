@@ -7,7 +7,7 @@ export async function pacemeUserRouteGetRequest<T>(
   fnPacemeGetRequest = pacemeGetRequest
 ): Promise<T> {
   const response = await fnGetAuthDetails();
-  return fnPacemeGetRequest<T>('/users/' + response.userId + path)
+  return fnPacemeGetRequest<T>("/users/" + response.userId + path);
 }
 
 export async function pacemeUserRoutePostRequest<R, T>(
@@ -17,7 +17,7 @@ export async function pacemeUserRoutePostRequest<R, T>(
   fnPacemePostRequest = pacemePostRequest
 ): Promise<T> {
   const response = await fnGetAuthDetails();
-  return fnPacemePostRequest<R, T>('/users/' + response.userId + path, body)
+  return fnPacemePostRequest<R, T>("/users/" + response.userId + path, body);
 }
 
 export async function pacemeUserRoutePutRequest<R, T>(
@@ -27,7 +27,7 @@ export async function pacemeUserRoutePutRequest<R, T>(
   fnPacemePutRequest = pacemePutRequest
 ): Promise<T> {
   const response = await fnGetAuthDetails();
-  return fnPacemePutRequest<R, T>('/users/' + response.userId + path, body)
+  return fnPacemePutRequest<R, T>("/users/" + response.userId + path, body);
 }
 
 export async function pacemeGetRequest<T>(
@@ -37,7 +37,7 @@ export async function pacemeGetRequest<T>(
 ): Promise<T> {
   const response = await fnFetch(apiRoot + path);
   if (response.status === 200) {
-    return await response.json() as T;
+    return (await response.json()) as T;
   } else {
     throw new Error(`HTTP Status ${response.status}: Error retrieving data`);
   }
@@ -51,10 +51,10 @@ export async function pacemePostRequest<R, T>(
 ): Promise<T> {
   const response = await fnFetch(apiRoot + path, {
     method: "POST",
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
   if (response.status === 200) {
-    return await response.json() as T;
+    return (await response.json()) as T;
   } else {
     throw new Error(`HTTP Status ${response.status}: Error retrieving data`);
   }
@@ -68,10 +68,10 @@ export async function pacemePutRequest<R, T>(
 ): Promise<T> {
   const response = await fnFetch(apiRoot + path, {
     method: "PUT",
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
   if (response.status === 200) {
-    return await response.json() as T;
+    return (await response.json()) as T;
   } else {
     throw new Error(`HTTP Status ${response.status}: Error retrieving data`);
   }

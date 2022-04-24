@@ -1,4 +1,10 @@
-import { pacemeUserRouteGetRequest, pacemeGetRequest, pacemePostRequest, pacemeUserRoutePostRequest, pacemePutRequest } from "./PaceMeApiService";
+import {
+  pacemeUserRouteGetRequest,
+  pacemeGetRequest,
+  pacemePostRequest,
+  pacemeUserRoutePostRequest,
+  pacemePutRequest,
+} from "./PaceMeApiService";
 
 describe("pacemeUserRouteGetRequest", () => {
   test("Gets user details and prepends to request path", async () => {
@@ -16,10 +22,10 @@ describe("pacemeUserRouteGetRequest", () => {
 
     expect(result).toBe(response);
     expect(fakePacemeGetRequest).toBeCalledWith(
-       "/users/" + authDetails.userId + fakeRequestRoute
+      "/users/" + authDetails.userId + fakeRequestRoute
     );
   });
-})
+});
 
 describe("pacemeUserRoutePostRequest", () => {
   test("Gets user details and prepends to request path", async () => {
@@ -28,7 +34,7 @@ describe("pacemeUserRoutePostRequest", () => {
     const response = { whoami: "ReturnedSettings" };
     const fakePacemePostRequest = jest.fn().mockResolvedValue(response);
     const fakeRequestRoute = "/fakeRequestRoute";
-    const fakeRequestBody = { whoami: "FakeRequestBody"}
+    const fakeRequestBody = { whoami: "FakeRequestBody" };
 
     const result = await pacemeUserRoutePostRequest(
       fakeRequestRoute,
@@ -39,11 +45,35 @@ describe("pacemeUserRoutePostRequest", () => {
 
     expect(result).toBe(response);
     expect(fakePacemePostRequest).toBeCalledWith(
-       "/users/" + authDetails.userId + fakeRequestRoute,
-       fakeRequestBody
+      "/users/" + authDetails.userId + fakeRequestRoute,
+      fakeRequestBody
     );
   });
-})
+});
+
+describe("pacemeUserRoutePutRequest", () => {
+  test("Gets user details and prepends to request path", async () => {
+    const authDetails = { userId: "fakeUserId" };
+    const fakeAuthDetails = jest.fn().mockResolvedValue(authDetails);
+    const response = { whoami: "ReturnedSettings" };
+    const fakePacemePutRequest = jest.fn().mockResolvedValue(response);
+    const fakeRequestRoute = "/fakeRequestRoute";
+    const fakeRequestBody = { whoami: "FakeRequestBody" };
+
+    const result = await pacemeUserRoutePostRequest(
+      fakeRequestRoute,
+      fakeRequestBody,
+      fakeAuthDetails,
+      fakePacemePutRequest
+    );
+
+    expect(result).toBe(response);
+    expect(fakePacemePutRequest).toBeCalledWith(
+      "/users/" + authDetails.userId + fakeRequestRoute,
+      fakeRequestBody
+    );
+  });
+});
 
 describe("pacemeGetRequest", () => {
   test("Happy path :: uses URL, rereives data", async () => {
@@ -62,9 +92,7 @@ describe("pacemeGetRequest", () => {
     );
 
     expect(result).toBe(response);
-    expect(fakeFetch).toBeCalledWith(
-      fakeApiRoot + fakeRequestRoute
-    );
+    expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute);
   });
   test("Non 200 status :: throws error", async () => {
     const response = { whoami: "ReturnedSettings" };
@@ -75,22 +103,18 @@ describe("pacemeGetRequest", () => {
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeApiRoot = "http://localhost:9090";
 
-    await expect(pacemeGetRequest(
-      fakeRequestRoute,
-      fakeFetch,
-      fakeApiRoot
-    )).rejects.not.toBeUndefined()
+    await expect(
+      pacemeGetRequest(fakeRequestRoute, fakeFetch, fakeApiRoot)
+    ).rejects.not.toBeUndefined();
     expect(fakeFetch).toBeCalledTimes(1);
-    expect(fakeFetch).toBeCalledWith(
-      fakeApiRoot + fakeRequestRoute
-    );
+    expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute);
   });
-})
+});
 
 describe("pacemePostRequest", () => {
   test("Happy path :: uses URL, uses body, rereives data", async () => {
     const response = { whoami: "ReturnedSettings" };
-    const fakeRequestBody = { whoami: "FakeRequestBody"}
+    const fakeRequestBody = { whoami: "FakeRequestBody" };
     const fakeFetch = jest.fn().mockResolvedValue({
       status: 200,
       json: jest.fn().mockResolvedValue(response),
@@ -106,13 +130,10 @@ describe("pacemePostRequest", () => {
     );
 
     expect(result).toBe(response);
-    expect(fakeFetch).toBeCalledWith(
-      fakeApiRoot + fakeRequestRoute,
-      {
-        method: "POST",
-        body: JSON.stringify(fakeRequestBody)
-      }
-    );
+    expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
+      method: "POST",
+      body: JSON.stringify(fakeRequestBody),
+    });
   });
   test("Non 200 status :: throws error", async () => {
     const response = { whoami: "ReturnedSettings" };
@@ -122,30 +143,28 @@ describe("pacemePostRequest", () => {
     });
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeApiRoot = "http://localhost:9090";
-    const fakeRequestBody = { whoami: "FakeRequestBody"}
+    const fakeRequestBody = { whoami: "FakeRequestBody" };
 
-    await expect(pacemePostRequest(
-      fakeRequestRoute,
-      fakeRequestBody,
-      fakeFetch,
-      fakeApiRoot
-    )).rejects.not.toBeUndefined()
+    await expect(
+      pacemePostRequest(
+        fakeRequestRoute,
+        fakeRequestBody,
+        fakeFetch,
+        fakeApiRoot
+      )
+    ).rejects.not.toBeUndefined();
     expect(fakeFetch).toBeCalledTimes(1);
-    expect(fakeFetch).toBeCalledWith(
-      fakeApiRoot + fakeRequestRoute,
-      {
-        method: "POST",
-        body: JSON.stringify(fakeRequestBody)
-      }
-    );
+    expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
+      method: "POST",
+      body: JSON.stringify(fakeRequestBody),
+    });
   });
-})
-
+});
 
 describe("pacemePutRequest", () => {
   test("Happy path :: uses URL, uses body, rereives data", async () => {
     const response = { whoami: "ReturnedSettings" };
-    const fakeRequestBody = { whoami: "FakeRequestBody"}
+    const fakeRequestBody = { whoami: "FakeRequestBody" };
     const fakeFetch = jest.fn().mockResolvedValue({
       status: 200,
       json: jest.fn().mockResolvedValue(response),
@@ -161,13 +180,10 @@ describe("pacemePutRequest", () => {
     );
 
     expect(result).toBe(response);
-    expect(fakeFetch).toBeCalledWith(
-      fakeApiRoot + fakeRequestRoute,
-      {
-        method: "PUT",
-        body: JSON.stringify(fakeRequestBody)
-      }
-    );
+    expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
+      method: "PUT",
+      body: JSON.stringify(fakeRequestBody),
+    });
   });
   test("Non 200 status :: throws error", async () => {
     const response = { whoami: "ReturnedSettings" };
@@ -177,21 +193,20 @@ describe("pacemePutRequest", () => {
     });
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeApiRoot = "http://localhost:9090";
-    const fakeRequestBody = { whoami: "FakeRequestBody"}
+    const fakeRequestBody = { whoami: "FakeRequestBody" };
 
-    await expect(pacemePutRequest(
-      fakeRequestRoute,
-      fakeRequestBody,
-      fakeFetch,
-      fakeApiRoot
-    )).rejects.not.toBeUndefined()
+    await expect(
+      pacemePutRequest(
+        fakeRequestRoute,
+        fakeRequestBody,
+        fakeFetch,
+        fakeApiRoot
+      )
+    ).rejects.not.toBeUndefined();
     expect(fakeFetch).toBeCalledTimes(1);
-    expect(fakeFetch).toBeCalledWith(
-      fakeApiRoot + fakeRequestRoute,
-      {
-        method: "PUT",
-        body: JSON.stringify(fakeRequestBody)
-      }
-    );
+    expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
+      method: "PUT",
+      body: JSON.stringify(fakeRequestBody),
+    });
   });
-})
+});
