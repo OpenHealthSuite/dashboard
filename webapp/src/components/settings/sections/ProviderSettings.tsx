@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from "@mui/material";
+import { Button, Card, CardContent, CardHeader } from "@mui/material";
 import { useEffect, useState } from "react";
 import {
   pacemeUserRouteGetRequest,
@@ -15,8 +15,6 @@ export interface IProviderStatus {
 }
 
 async function GetChallenge(key: string) {
-  // Send post to api.address/users/:userId/providers/:key/start to get URL w/ challenge
-  // Send user to retreived URL
   const challenge = await await pacemeUserRoutePostRequest<
     {},
     { authUrl: string }
@@ -44,18 +42,17 @@ export default function ProviderSettings() {
       <CardContent>
         {isLoading && <Pending />}
         {isErrored && <Error />}
-        {statuses && (
-          <ul>
-            {statuses.map((s) => (
-              <li key={s.key}>
-                {s.name} - {s.authenticated ? "Authed" : "Unauthed"}:{" "}
-                <button onClick={() => GetChallenge(s.key)}>
-                  Authenticate
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        {statuses &&
+          statuses.map((s) => (
+            <Button
+              variant={s.authenticated ? "contained" : "outlined"}
+              onClick={() => GetChallenge(s.key)}
+            >
+              {s.name}
+              {" - "}
+              {s.authenticated ? "Reauthenticate" : "Authenticate"}
+            </Button>
+          ))}
       </CardContent>
     </Card>
   );
