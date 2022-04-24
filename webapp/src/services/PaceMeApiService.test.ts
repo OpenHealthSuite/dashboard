@@ -1,4 +1,4 @@
-import { pacemeUserRouteGetRequest, pacemeGetRequest, pacemePostRequest, pacemeUserRoutePostRequest } from "./PaceMeApiService";
+import { pacemeUserRouteGetRequest, pacemeGetRequest, pacemePostRequest, pacemeUserRoutePostRequest, pacemePutRequest } from "./PaceMeApiService";
 
 describe("pacemeUserRouteGetRequest", () => {
   test("Gets user details and prepends to request path", async () => {
@@ -135,6 +135,61 @@ describe("pacemePostRequest", () => {
       fakeApiRoot + fakeRequestRoute,
       {
         method: "POST",
+        body: JSON.stringify(fakeRequestBody)
+      }
+    );
+  });
+})
+
+
+describe("pacemePutRequest", () => {
+  test("Happy path :: uses URL, uses body, rereives data", async () => {
+    const response = { whoami: "ReturnedSettings" };
+    const fakeRequestBody = { whoami: "FakeRequestBody"}
+    const fakeFetch = jest.fn().mockResolvedValue({
+      status: 200,
+      json: jest.fn().mockResolvedValue(response),
+    });
+    const fakeRequestRoute = "/fakeRequestRoute";
+    const fakeApiRoot = "http://localhost:9090";
+
+    const result = await pacemePutRequest(
+      fakeRequestRoute,
+      fakeRequestBody,
+      fakeFetch,
+      fakeApiRoot
+    );
+
+    expect(result).toBe(response);
+    expect(fakeFetch).toBeCalledWith(
+      fakeApiRoot + fakeRequestRoute,
+      {
+        method: "PUT",
+        body: JSON.stringify(fakeRequestBody)
+      }
+    );
+  });
+  test("Non 200 status :: throws error", async () => {
+    const response = { whoami: "ReturnedSettings" };
+    const fakeFetch = jest.fn().mockResolvedValue({
+      status: 403,
+      json: jest.fn().mockResolvedValue(response),
+    });
+    const fakeRequestRoute = "/fakeRequestRoute";
+    const fakeApiRoot = "http://localhost:9090";
+    const fakeRequestBody = { whoami: "FakeRequestBody"}
+
+    await expect(pacemePutRequest(
+      fakeRequestRoute,
+      fakeRequestBody,
+      fakeFetch,
+      fakeApiRoot
+    )).rejects.not.toBeUndefined()
+    expect(fakeFetch).toBeCalledTimes(1);
+    expect(fakeFetch).toBeCalledWith(
+      fakeApiRoot + fakeRequestRoute,
+      {
+        method: "PUT",
         body: JSON.stringify(fakeRequestBody)
       }
     );

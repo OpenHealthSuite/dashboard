@@ -20,6 +20,16 @@ export async function pacemeUserRoutePostRequest<R, T>(
   return fnPacemePostRequest<R, T>('/users/' + response.userId + path, body)
 }
 
+export async function pacemeUserRoutePutRequest<R, T>(
+  path: string,
+  body: R,
+  fnGetAuthDetails = getAuthDetails,
+  fnPacemePutRequest = pacemePutRequest
+): Promise<T> {
+  const response = await fnGetAuthDetails();
+  return fnPacemePutRequest<R, T>('/users/' + response.userId + path, body)
+}
+
 export async function pacemeGetRequest<T>(
   path: string,
   fnFetch = fetch,
@@ -33,8 +43,6 @@ export async function pacemeGetRequest<T>(
   }
 }
 
-
-
 export async function pacemePostRequest<R, T>(
   path: string,
   body: R,
@@ -43,6 +51,23 @@ export async function pacemePostRequest<R, T>(
 ): Promise<T> {
   const response = await fnFetch(apiRoot + path, {
     method: "POST",
+    body: JSON.stringify(body)
+  });
+  if (response.status === 200) {
+    return await response.json() as T;
+  } else {
+    throw new Error(`HTTP Status ${response.status}: Error retrieving data`);
+  }
+}
+
+export async function pacemePutRequest<R, T>(
+  path: string,
+  body: R,
+  fnFetch = fetch,
+  apiRoot = API_ROOT
+): Promise<T> {
+  const response = await fnFetch(apiRoot + path, {
+    method: "PUT",
     body: JSON.stringify(body)
   });
   if (response.status === 200) {
