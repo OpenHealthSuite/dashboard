@@ -1,6 +1,6 @@
 {
     "name": "paceme-api",
-    "version": "0.5.1",
+    "version": "0.6.0",
     "description": "The API Behind PaceMe, for serving the web application",
     "main": "dist/index.js",
     "scripts": {
