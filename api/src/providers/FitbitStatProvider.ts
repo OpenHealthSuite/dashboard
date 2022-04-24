@@ -156,12 +156,11 @@ export async function dailySleepProvider (userId: string, date: Date): Promise<I
 }
 
 export async function dateRangeSleepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSleep[] | undefined> {
-  const rawSteps = await getSleepInDateRange(userId, dateStart, dateEnd)
-  if (!rawSteps) {
+  const rawSleep = await getSleepInDateRange(userId, dateStart, dateEnd)
+  if (!rawSleep) {
     return undefined
   }
-  console.log(rawSteps)
-  return rawSteps.sleep.map(rs => { return { date: new Date(rs.dateOfSleep), sleep: { awake: rs.minutesAwake, rem: rs.levels.summary.rem.minutes, asleep: rs.minutesAsleep } } })
+  return rawSleep.sleep.map(rs => { return { date: new Date(rs.dateOfSleep), sleep: { awake: rs.minutesAwake, rem: rs.levels.summary.rem.minutes, asleep: rs.minutesAsleep } } })
 }
 
 export async function dateRangeStepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSteps[] | undefined> {
