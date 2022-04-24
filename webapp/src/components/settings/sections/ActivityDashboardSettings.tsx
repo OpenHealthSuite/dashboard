@@ -81,13 +81,11 @@ export default function ActivityDashboardSettings({
 
   useEffect(() => {
     fnGetSettings<IDashboardSettings>("dashboard")
-      .then((userSettings) => {
-        if (!userSettings) {
-          fnUpdateSettings("dashboard", DEFAULT_DASHBOARD_SETTINGS);
-        }
-        setDashboardSettings(userSettings || DEFAULT_DASHBOARD_SETTINGS);
+      .then(setDashboardSettings)
+      .catch(err => {
+        setDashboardSettings(DEFAULT_DASHBOARD_SETTINGS)
+        fnUpdateSettings('dashboard', DEFAULT_DASHBOARD_SETTINGS)
       })
-      .catch(() => setIsErrored(true))
       .finally(() => setIsLoading(false));
   }, [
     fnGetSettings,

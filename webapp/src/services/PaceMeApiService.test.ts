@@ -132,6 +132,9 @@ describe("pacemePostRequest", () => {
     expect(result).toBe(response);
     expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
       method: "POST",
+      headers: {
+          "Content-Type": "application/json"
+      },
       body: JSON.stringify(fakeRequestBody),
     });
   });
@@ -156,6 +159,9 @@ describe("pacemePostRequest", () => {
     expect(fakeFetch).toBeCalledTimes(1);
     expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
       method: "POST",
+      headers: {
+          "Content-Type": "application/json"
+      },
       body: JSON.stringify(fakeRequestBody),
     });
   });
@@ -182,6 +188,9 @@ describe("pacemePutRequest", () => {
     expect(result).toBe(response);
     expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
       method: "PUT",
+      headers: {
+          "Content-Type": "application/json"
+      },
       body: JSON.stringify(fakeRequestBody),
     });
   });
@@ -206,6 +215,9 @@ describe("pacemePutRequest", () => {
     expect(fakeFetch).toBeCalledTimes(1);
     expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
       method: "PUT",
+      headers: {
+          "Content-Type": "application/json"
+      },
       body: JSON.stringify(fakeRequestBody),
     });
   });

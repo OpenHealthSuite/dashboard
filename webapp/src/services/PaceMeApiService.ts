@@ -51,6 +51,9 @@ export async function pacemePostRequest<R, T>(
 ): Promise<T> {
   const response = await fnFetch(apiRoot + path, {
     method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
     body: JSON.stringify(body),
   });
   if (response.status === 200) {
@@ -68,6 +71,9 @@ export async function pacemePutRequest<R, T>(
 ): Promise<T> {
   const response = await fnFetch(apiRoot + path, {
     method: "PUT",
+    headers: {
+        "Content-Type": "application/json"
+    },
     body: JSON.stringify(body),
   });
   if (response.status === 200) {
