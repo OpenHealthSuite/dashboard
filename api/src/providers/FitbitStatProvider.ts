@@ -41,6 +41,11 @@ interface ISleep {
   awake: number
 }
 
+interface IDatedSleep {
+  date: Date,
+  sleep: ISleep
+}
+
 interface IFitbitDaySummary {
   summary: {
     steps: number,
@@ -68,6 +73,21 @@ interface IFitbitSleepSummary {
   }
 }
 
+interface IFitbitSleepRange {
+  dateOfSleep: string,
+  minutesAsleep: number,
+  minutesAwake: number,
+  timeInBed: number
+  levels: {
+    summary: {
+      deep: { minutes: number },
+      light: { minutes: number },
+      rem: { minutes: number },
+      wake: { minutes: number }
+    }
+  }
+}
+
 // yyyy-MM-dd
 function getFitbitDate (date: Date): string {
   return date.toISOString().split('T')[0]
@@ -86,6 +106,11 @@ async function getFoodSummary (userId: string, date: Date): Promise<IFitbitFoodS
 // https://dev.fitbit.com/build/reference/web-api/sleep/get-sleep-log-by-date/
 async function getSleepSummary (userId: string, date: Date): Promise<IFitbitSleepSummary | undefined> {
   return await makeFitbitRequest<IFitbitSleepSummary>(userId, `/1.2/user/-/sleep/date/${getFitbitDate(date)}.json`)
+}
+
+// https://dev.fitbit.com/build/reference/web-api/sleep/get-sleep-log-by-date-range/
+async function getSleepInDateRange (userId: string, dateStart: Date, dateEnd: Date): Promise<{'sleep': IFitbitSleepRange[]} | undefined> {
+  return await makeFitbitRequest<{'sleep': IFitbitSleepRange[]}>(userId, `/1.2/user/-/sleep/date/${getFitbitDate(dateStart)}/${getFitbitDate(dateEnd)}.json`)
 }
 
 // https://dev.fitbit.com/build/reference/web-api/activity-timeseries/get-activity-timeseries-by-date-range/
@@ -128,6 +153,15 @@ export async function dailySleepProvider (userId: string, date: Date): Promise<I
     rem: stages.rem,
     awake: stages.wake
   }
+}
+
+export async function dateRangeSleepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSleep[] | undefined> {
+  const rawSteps = await getSleepInDateRange(userId, dateStart, dateEnd)
+  if (!rawSteps) {
+    return undefined
+  }
+  console.log(rawSteps)
+  return rawSteps.sleep.map(rs => { return { date: new Date(rs.dateOfSleep), sleep: { awake: rs.minutesAwake, rem: rs.levels.summary.rem.minutes, asleep: rs.minutesAsleep } } })
 }
 
 export async function dateRangeStepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSteps[] | undefined> {
