@@ -1,3 +1,4 @@
+{{- if .Values.ingress.nginx }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -148,3 +149,4 @@ spec:
   selector:
     k8s-app: paceme-oauth2-proxy
   type: ClusterIP
+{{- end }}

@@ -8,3 +8,6 @@ webapp:
   replicas: 3
 
 hostname: app.paceme.info
+ingress:
+  nginx: false
+  traefik: true
