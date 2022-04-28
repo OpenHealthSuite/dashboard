@@ -6,16 +6,65 @@ metadata:
   annotations:
     cert-manager.io/issuer: letsencrypt-prod
     acme.cert-manager.io/http01-edit-in-place: "true"
-  name: oauth2-proxy
+  name: traefik-paceme-api
   namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   routes:
-    - match: "Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/oauth2/auth`)"
+    - match: Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/api`)
       kind: Rule
       middlewares:
-        - name: oauth2-proxy-headers
+        - name: traefik-forward
+        - name: api-stripprefix
       services:
-        - name: oauth2-proxy
+        - name: paceme-api
+          port: 8081
+  tls:
+    secretName: paceme-le-certificate
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: api-stripprefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+    acme.cert-manager.io/http01-edit-in-place: "true"
+  name: traefik-paceme-webapp
+  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
+spec:
+  routes:
+    - match: Host(`{{ required "hostname is required" .Values.hostname }}`)
+      kind: Rule
+      middlewares:
+        - name: traefik-forward
+      services:
+        - name: paceme-webapp
+          port: 9000
+  tls:
+    secretName: paceme-le-certificate
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+    acme.cert-manager.io/http01-edit-in-place: "true"
+  name: traefik-sso-oauth2
+  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
+spec:
+  routes:
+    - match: "Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/oauth2`)"
+      kind: Rule
+      services:
+        - name: paceme-oauth2-proxy
+          namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
           port: 4180
   tls:
     secretName: paceme-le-certificate
@@ -23,35 +72,21 @@ spec:
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: oauth2-proxy-headers
+  name: traefik-forward
   namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
-  headers:
-    sslRedirect: false
-    stsSeconds: 315360000
-    browserXssFilter: true
-    contentTypeNosniff: true
-    forceSTSHeader: true
-    stsIncludeSubdomains: true
-    stsPreload: true
-    frameDeny: true
----
-# Source: oauth2-proxy/templates/serviceaccount.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:
-    app: oauth2-proxy
-  name: oauth2-proxy
-  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
+  forwardAuth:
+    address: https://{{ required "hostname is required" .Values.hostname }}/oauth2/auth #https://
+    authResponseHeaders:
+      - x-auth-request-user
 ---
 # Source: oauth2-proxy/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: oauth2-proxy
-  name: oauth2-proxy
+    app: paceme-oauth2-proxy
+  name: paceme-oauth2-proxy
   namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   type: ClusterIP
@@ -61,15 +96,15 @@ spec:
     protocol: TCP
     targetPort: 4180
   selector:
-    app: oauth2-proxy
+    k8s-app: paceme-oauth2-proxy
 ---
 # Source: oauth2-proxy/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: oauth2-proxy
-  name: oauth2-proxy
+    app: paceme-oauth2-proxy
+  name: paceme-oauth2-proxy
   namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   replicas: 1
@@ -106,78 +141,4 @@ spec:
         ports:
         - containerPort: 4180
           protocol: TCP
-
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  annotations:
-    cert-manager.io/issuer: letsencrypt-prod
-    acme.cert-manager.io/http01-edit-in-place: "true"
-  name: traefik-paceme-api
-  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
-spec:
-  routes:
-    - match: Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/api/`)
-      kind: Rule
-      middlewares:
-        - name: traefik-forward
-      services:
-        - name: paceme-api
-          port: 8081
-  tls:
-    secretName: paceme-le-certificate
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  annotations:
-    cert-manager.io/issuer: letsencrypt-prod
-    acme.cert-manager.io/http01-edit-in-place: "true"
-  name: traefik-paceme-webapp
-  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
-spec:
-  routes:
-    - match: Host(`{{ required "hostname is required" .Values.hostname }}`)
-      kind: Rule
-      middlewares:
-        - name: traefik-forward
-      services:
-        - name: paceme-webapp
-          port: 9000
-  tls:
-    secretName: paceme-le-certificate
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  annotations:
-    cert-manager.io/issuer: letsencrypt-prod
-    acme.cert-manager.io/http01-edit-in-place: "true"
-  name: traefik-sso-oauth2
-  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
-spec:
-  routes:
-    - match: "Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/oauth2/`)"
-      kind: Rule
-      middlewares:
-        - name: oauth2-proxy-headers
-      services:
-        - name: oauth2-proxy
-          namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
-          port: 4180
-  tls:
-    secretName: paceme-le-certificate
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: traefik-forward
-  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
-spec:
-  forwardAuth:
-    address: {{ required "hostname is required" .Values.hostname }}/oauth2/auth #https://
-    trustForwardHeader: true
-    authResponseHeaders:
-      - x-auth-request-user
 {{- end }}
