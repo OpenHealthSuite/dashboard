@@ -8,6 +8,7 @@ import { addSleepHandlers } from './handlers/sleepHandlers'
 import { addUserSettingHandlers } from './handlers/userSettingHandlers'
 import { authenticationMiddleware } from './middlewares/authenticationMiddleware'
 import { runMigrations } from './repositories/_migrationRunner'
+import { addUserHandlers } from './handlers/userHandlers'
 
 const app = express()
 const configuration = {
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 app.use((req, res, next) => authenticationMiddleware(req, res, next))
 
 // Add our Handlers
+addUserHandlers(app)
 addUserSettingHandlers(app)
 addProviderRoutes(app)
 addFitbitHandlers(app)
