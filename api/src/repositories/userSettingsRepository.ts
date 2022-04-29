@@ -22,7 +22,6 @@ export class UserSettingRepository {
       const result = await this._postgresPool.query(insertQuery, [user_id, setting_id, details])
       return result.rowCount > 0 ? ok(result.rows[0]) : err('Nothing Inserted')
     } catch (error: any) {
-      console.log(error)
       return err(error.message)
     }
   }
@@ -39,7 +38,6 @@ export class UserSettingRepository {
       await this._postgresPool.query(updateQuery, [user_id, setting_id, details])
       return ok(null)
     } catch (error: any) {
-      console.log(error)
       return err(error.message)
     }
   }

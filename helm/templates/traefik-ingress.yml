@@ -60,6 +60,7 @@ spec:
     address: http://paceme-oauth2-proxy.{{ required "metadata.namespace is required" .Release.Namespace }}.svc:4181
     authResponseHeaders:
       - X-Forwarded-User
+      - X-Forwarded-User-Id
 ---
 # Source: oauth2-proxy/templates/service.yaml
 apiVersion: v1
@@ -100,19 +101,14 @@ spec:
     spec:
       terminationGracePeriodSeconds: 60
       containers:
-      - image: thomseddon/traefik-forward-auth:2-arm64
+      - image: leemartin77/traefik-forward-auth-arm64:2-userid
         name: paceme-traefik-forward-auth
         ports:
         - containerPort: 4181
           protocol: TCP
         env:
-        # - name: DOMAIN
-        #   value: {{ .Values.hostname }}
         - name: URL_PATH
           value: /oauth2/callback
-        # INSECURE_COOKIE is required unless using https entrypoint
-        # - name: INSECURE_COOKIE
-        #   value: "true"
         - name: DEFAULT_PROVIDER
           value: generic-oauth
         - name: SECRET
@@ -127,3 +123,7 @@ spec:
           value: {{ required "oauth2.authurl is required" .Values.oauth2.authurl }}
         - name: PROVIDERS_GENERIC_OAUTH_TOKEN_URL
           value: {{ required "oauth2.tokenurl is required" .Values.oauth2.tokenurl }}
+        - name: PROVIDERS_GENERIC_OAUTH_TOKEN_STYLE
+          value: {{ required "oauth2.tokenstyle is required" .Values.oauth2.tokenstyle }}
+        - name: PROVIDERS_GENERIC_OAUTH_SCOPE
+          value: openid

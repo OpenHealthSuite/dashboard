@@ -16,8 +16,7 @@ export async function authenticationMiddleware (req: Request, res: Response, nex
   if (process.env.DEV_USER_ID) {
     res.locals.userId = process.env.DEV_USER_ID
   } else {
-    console.log(req.headers)
-    res.locals.userId = req.header('x-forwarded-user')
+    res.locals.userId = req.header(process.env.SECURE_USER_HEADER_ID || 'x-forwarded-user-id')
   }
   next()
 }

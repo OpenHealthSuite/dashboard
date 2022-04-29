@@ -2,12 +2,14 @@ helm upgrade paceme ./helm \
   --namespace paceme \
   --create-namespace \
   --install \
+  --atomic \
   --set "oauth2.clientid=$(credstash get paceme/oauth2.clientid)" \
   --set "oauth2.secret=$(credstash get paceme/oauth2.secret)" \
   --set "oauth2.cookiesecret=$(credstash get paceme/oauth2.cookiesecret)" \
   --set "oauth2.userurl=https://auth.paceme.info/oauth2/userInfo" \
   --set "oauth2.authurl=https://auth.paceme.info/oauth2/authorize" \
   --set "oauth2.tokenurl=https://auth.paceme.info/oauth2/token" \
+  --set "oauth2.tokenstyle=header" \
   --set "fitbit.clientId=$(credstash get paceme/fitbit-client-id)" \
   --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
   --set "api.postgrespw=$(credstash get paceme/postgrespw)" \
