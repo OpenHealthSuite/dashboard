@@ -18,6 +18,7 @@ The core idea is to be a nicely deployable run/training planning application, to
       - `paceme/oauth2.clientid`
       - `paceme/oauth2.secret`
       - `paceme/oauth2.cookiesecret`
+      - `paceme/oauth2.oidcIssuerUrl`
 
 **NOTE: Helm deployment script is basically just for deploying the helm chart to `app.paceme.info`**
 
