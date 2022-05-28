@@ -4,7 +4,8 @@ import { SleepDailyTile } from "./SleepDailyTile";
 import { SleepGraphTile } from "./SleepGraphTile";
 import { StepsDailyTile } from "./StepsDailyTile";
 import { StepsGraphTile } from "./StepsGraphTile";
-
+import { CaloriesOutDailyTile } from "./CaloriesOutDailyTile";
+import { CaloriesOutGraphTile } from "./CaloriesOutGraphTile";
 export interface IAvailableTile {
   displayName: string;
   component: (props: any) => JSX.Element;
@@ -22,6 +23,14 @@ export const AvailableTiles: IAvailableTiles = {
   CaloriesGraphTile: {
     displayName: "Calories Graph",
     component: CaloriesGraphTile,
+  },
+  CaloriesOutDailyTile: {
+    displayName: "Calories Out Daily",
+    component: CaloriesOutDailyTile,
+  },
+  CaloriesOutGraphTile: {
+    displayName: "Calories Out Graph",
+    component: CaloriesOutGraphTile,
   },
   SleepDailyTile: {
     displayName: "Sleep Daily Summary",

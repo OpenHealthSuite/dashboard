@@ -87,9 +87,8 @@ export function StepsGraphTile({
               </BarChart>
             </ResponsiveContainer>
             <p style={{ textAlign: "center" }}>
-              {totalSteps.toLocaleString()} Total Steps |{" "}
-              {Math.floor(totalSteps / lastWeekSteps.length).toLocaleString()}{" "}
-              Avg.
+              Total: {totalSteps.toLocaleString()} |{" "}
+              Avg: {Math.floor(totalSteps / lastWeekSteps.length).toLocaleString()}{" "}
             </p>
           </>
         )}

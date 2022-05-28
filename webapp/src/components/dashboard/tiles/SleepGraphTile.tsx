@@ -104,9 +104,8 @@ export function SleepGraphTile({
               </BarChart>
             </ResponsiveContainer>
             <p style={{ textAlign: "center" }}>
-              {formatMinutesToText(totalSleep)} Total Sleep<br/>
-              {formatMinutesToText(Math.floor(totalSleep / lastWeekSleep.length))}{" "}
-              Avg.
+              Total: {formatMinutesToText(totalSleep)} |<br/>
+              Avg: {formatMinutesToText(Math.floor(totalSleep / lastWeekSleep.length))}
             </p>
           </>
         )}
