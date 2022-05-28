@@ -160,7 +160,16 @@ export async function dateRangeSleepProvider (userId: string, dateStart: Date, d
   if (!rawSleep) {
     return undefined
   }
-  return rawSleep.sleep.map(rs => { return { date: new Date(rs.dateOfSleep), sleep: { awake: rs.minutesAwake, rem: rs.levels.summary.rem.minutes, asleep: rs.minutesAsleep } } })
+  return rawSleep.sleep.map((rs) => {
+    return {
+      date: new Date(rs.dateOfSleep),
+      sleep: {
+        awake: rs.minutesAwake || 0,
+        rem: rs.levels.summary.rem ? rs.levels.summary.rem.minutes : 0,
+        asleep: rs.minutesAsleep || 0
+      }
+    }
+  })
 }
 
 export async function dateRangeStepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSteps[] | undefined> {
