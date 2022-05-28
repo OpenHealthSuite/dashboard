@@ -25,6 +25,8 @@ spec:
             - name: web
               containerPort: 8080
           env:
+            - name: SECURE_USER_HEADER_ID
+              value: x-auth-request-user
             - name: FITBIT_CLIENT_ID
               valueFrom:
                 secretKeyRef:

@@ -12,7 +12,8 @@ spec:
     - match: Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/api`)
       kind: Rule
       middlewares:
-        - name: paceme-traefik-forward
+        - name: oauth-errors
+        - name: paceme-oauth2-proxy
         - name: api-stripprefix
       services:
         - name: paceme-api
@@ -43,7 +44,8 @@ spec:
     - match: Host(`{{ required "hostname is required" .Values.hostname }}`)
       kind: Rule
       middlewares:
-        - name: paceme-traefik-forward
+        - name: oauth-errors
+        - name: paceme-oauth2-proxy
       services:
         - name: paceme-webapp
           port: 9000
@@ -51,18 +53,49 @@ spec:
     secretName: paceme-le-certificate
 ---
 apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-sso-oauth2
+  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
+spec:
+  routes:
+    - match: "Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/oauth2`)"
+      kind: Rule
+      services:
+        - name: paceme-oauth2-proxy
+          namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
+          port: 4180
+      middlewares:
+        - name: oauth-errors
+  tls:
+    secretName: paceme-le-certificate
+---
+apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: paceme-traefik-forward
+  name: oauth-errors
+spec:
+  errors:
+    status:
+      - "401-403"
+    service:
+      name: paceme-oauth2-proxy
+      port: 4180
+    query: "/oauth2/sign_in"
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: paceme-oauth2-proxy
   namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   forwardAuth:
-    address: http://paceme-oauth2-proxy.{{ required "metadata.namespace is required" .Release.Namespace }}.svc:4181
+    address: http://paceme-oauth2-proxy.{{ required "metadata.namespace is required" .Release.Namespace }}.svc:4180/oauth2/auth
+    trustForwardHeader: true
     authResponseHeaders:
-      - X-Forwarded-User
-      - X-Forwarded-User-Id
+      - X-Auth-Request-User
+      - Set-Cookie
 ---
-# Source: oauth2-proxy/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -74,56 +107,50 @@ spec:
   type: ClusterIP
   ports:
   - name: http
-    port: 4181
+    port: 4180
     protocol: TCP
-    targetPort: 4181
+    targetPort: 4180
   selector:
-    app: paceme-traefik-forward-auth
+    k8s-app: paceme-oauth2-proxy
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: paceme-traefik-forward-auth
   labels:
-    app: paceme-traefik-forward-auth
-  namespace: {{ .Release.namespace }}
+    k8s-app: paceme-oauth2-proxy
+  name: paceme-oauth2-proxy
+  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: paceme-traefik-forward-auth
-  strategy:
-    type: Recreate
+      k8s-app: paceme-oauth2-proxy
   template:
     metadata:
       labels:
-        app: paceme-traefik-forward-auth
+        k8s-app: paceme-oauth2-proxy
     spec:
-      terminationGracePeriodSeconds: 60
       containers:
-      - image: leemartin77/traefik-forward-auth-arm64:2-userid
-        name: paceme-traefik-forward-auth
-        ports:
-        - containerPort: 4181
-          protocol: TCP
+      - args:
+        - --provider=oidc
+        - --oidc-issuer-url={{ required "oauth2.oidcIssuerUrl is required" .Values.oauth2.oidcIssuerUrl  }}
+        - --email-domain=*
+        - --upstream=file:///dev/null
+        - --http-address=0.0.0.0:4180
+        - --pass-user-headers=true
+        - --set-authorization-header=true
+        - --set-xauthrequest=true
+        - --reverse-proxy=true
         env:
-        - name: URL_PATH
-          value: /oauth2/callback
-        - name: DEFAULT_PROVIDER
-          value: generic-oauth
-        - name: SECRET
-          value: {{ required "oauth2.cookiesecret is required" .Values.oauth2.cookiesecret }}
-        - name: PROVIDERS_GENERIC_OAUTH_CLIENT_ID
+        - name: OAUTH2_PROXY_CLIENT_ID
           value: {{ required "oauth2.clientid is required" .Values.oauth2.clientid  }}
-        - name: PROVIDERS_GENERIC_OAUTH_CLIENT_SECRET
+        - name: OAUTH2_PROXY_CLIENT_SECRET
           value: {{ required "oauth2.secret is required" .Values.oauth2.secret }}
-        - name: PROVIDERS_GENERIC_OAUTH_USER_URL
-          value: {{ required "oauth2.userurl is required" .Values.oauth2.userurl }}
-        - name: PROVIDERS_GENERIC_OAUTH_AUTH_URL
-          value: {{ required "oauth2.authurl is required" .Values.oauth2.authurl }}
-        - name: PROVIDERS_GENERIC_OAUTH_TOKEN_URL
-          value: {{ required "oauth2.tokenurl is required" .Values.oauth2.tokenurl }}
-        - name: PROVIDERS_GENERIC_OAUTH_TOKEN_STYLE
-          value: {{ required "oauth2.tokenstyle is required" .Values.oauth2.tokenstyle }}
-        - name: PROVIDERS_GENERIC_OAUTH_SCOPE
-          value: openid
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          value: {{ required "oauth2.cookiesecret is required" .Values.oauth2.cookiesecret }}
+        image: quay.io/oauth2-proxy/oauth2-proxy:latest
+        imagePullPolicy: Always
+        name: paceme-oauth2-proxy
+        ports:
+        - containerPort: 4180
+          protocol: TCP
