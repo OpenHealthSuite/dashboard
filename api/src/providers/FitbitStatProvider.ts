@@ -160,8 +160,9 @@ export async function dateRangeSleepProvider (userId: string, dateStart: Date, d
   if (!rawSleep) {
     return undefined
   }
-  return rawSleep.sleep.map((rs) => {
-    return {
+  const returnValue: IDatedSleep[] = []
+  rawSleep.sleep.forEach(rs => {
+    const parsed = {
       date: new Date(new Date(rs.dateOfSleep).toISOString().split('T')[0]),
       sleep: {
         awake: rs.minutesAwake || 0,
@@ -169,7 +170,16 @@ export async function dateRangeSleepProvider (userId: string, dateStart: Date, d
         asleep: rs.minutesAsleep || 0
       }
     }
+    const indexOfexisting = returnValue.findIndex(x => x.date.toISOString() === parsed.date.toISOString())
+    if (indexOfexisting === -1) {
+      returnValue.push(parsed)
+      return
+    }
+    returnValue[indexOfexisting].sleep.awake += parsed.sleep.awake
+    returnValue[indexOfexisting].sleep.rem += parsed.sleep.rem
+    returnValue[indexOfexisting].sleep.asleep += parsed.sleep.asleep
   })
+  return returnValue
 }
 
 export async function dateRangeStepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSteps[] | undefined> {
