@@ -155,14 +155,14 @@ export async function dailySleepProvider (userId: string, date: Date): Promise<I
   }
 }
 
-export async function dateRangeSleepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSleep[] | undefined> {
-  const rawSleep = await getSleepInDateRange(userId, dateStart, dateEnd)
+export async function dateRangeSleepProvider (userId: string, dateStart: Date, dateEnd: Date, fnGetSleepInDateRange = getSleepInDateRange): Promise<IDatedSleep[] | undefined> {
+  const rawSleep = await fnGetSleepInDateRange(userId, dateStart, dateEnd)
   if (!rawSleep) {
     return undefined
   }
   return rawSleep.sleep.map((rs) => {
     return {
-      date: new Date(rs.dateOfSleep),
+      date: new Date(new Date(rs.dateOfSleep).toISOString().split('T')[0]),
       sleep: {
         awake: rs.minutesAwake || 0,
         rem: rs.levels.summary.rem ? rs.levels.summary.rem.minutes : 0,
