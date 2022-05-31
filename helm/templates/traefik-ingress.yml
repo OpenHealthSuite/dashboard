@@ -18,29 +18,14 @@ spec:
       services:
         - name: paceme-api
           port: 8081
-  tls:
-    secretName: paceme-le-certificate
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: api-stripprefix
-  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
-spec:
-  stripPrefix:
-    prefixes:
-      - /api
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  annotations:
-    cert-manager.io/issuer: letsencrypt-prod
-    acme.cert-manager.io/http01-edit-in-place: "true"
-  name: traefik-paceme-webapp
-  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
-spec:
-  routes:
+    - match: "Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/oauth2`)"
+      kind: Rule
+      services:
+        - name: paceme-oauth2-proxy
+          namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
+          port: 4180
+      middlewares:
+        - name: oauth-errors
     - match: Host(`{{ required "hostname is required" .Values.hostname }}`)
       kind: Rule
       middlewares:
@@ -53,22 +38,14 @@ spec:
     secretName: paceme-le-certificate
 ---
 apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+kind: Middleware
 metadata:
-  name: traefik-sso-oauth2
+  name: api-stripprefix
   namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
-  routes:
-    - match: "Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/oauth2`)"
-      kind: Rule
-      services:
-        - name: paceme-oauth2-proxy
-          namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
-          port: 4180
-      middlewares:
-        - name: oauth-errors
-  tls:
-    secretName: paceme-le-certificate
+  stripPrefix:
+    prefixes:
+      - /api
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
