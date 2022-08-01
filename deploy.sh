@@ -7,6 +7,7 @@ helm upgrade paceme ./helm \
   --set "oauth2.secret=$(credstash get paceme/oauth2.secret)" \
   --set "oauth2.cookiesecret=$(credstash get paceme/oauth2.cookiesecret)" \
   --set "oauth2.oidcIssuerUrl=$(credstash get paceme/oauth2.oidcIssuerUrl)" \
+  --set "oauth2.imageversion=v7.2.1" \
   --set "oauth2.tokenstyle=header" \
   --set "fitbit.clientId=$(credstash get paceme/fitbit-client-id)" \
   --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
