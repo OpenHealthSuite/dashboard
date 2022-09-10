@@ -39,6 +39,6 @@ COPY api/package-lock.json package-lock.json
 COPY --from=api-deps /application/node_modules /application/node_modules
 COPY --from=api-builder /application/dist /application/dist
 COPY --from=webapp-builder /app/build /application/static
-COPY api/migrations /appication/migrations
+COPY api/migrations /application/migrations
 EXPOSE 8080
 CMD ["npm", "start"]
