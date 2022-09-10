@@ -1,7 +1,7 @@
 import { Application, Request, Response } from 'express'
 
 export function addUserHandlers (app: Application) {
-  app.get('/whoami', whoamiFunction)
+  app.get('/api/whoami', whoamiFunction)
 }
 
 function whoamiFunction (req: Request, res: Response) {

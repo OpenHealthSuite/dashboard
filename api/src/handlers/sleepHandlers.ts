@@ -4,8 +4,8 @@ import { getFitbitToken } from '../providers/FitbitRequestProvider'
 import { dailySleepProvider, dateRangeSleepProvider } from '../providers/FitbitStatProvider'
 
 export function addSleepHandlers (app: Application) {
-  app.get('/users/:userId/sleep/:date', (req, res) => userRestrictedHandler(req, res, getUserSleepStats))
-  app.get('/users/:userId/sleep/:dateStart/:dateEnd', (req, res) => userRestrictedHandler(req, res, getUserSleepRange))
+  app.get('/api/users/:userId/sleep/:date', (req, res) => userRestrictedHandler(req, res, getUserSleepStats))
+  app.get('/api/users/:userId/sleep/:dateStart/:dateEnd', (req, res) => userRestrictedHandler(req, res, getUserSleepRange))
 }
 
 const getUserSleepStats = async (userId: string, req: Request, res: Response) => {

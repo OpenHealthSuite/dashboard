@@ -9,6 +9,7 @@ import { addUserSettingHandlers } from './handlers/userSettingHandlers'
 import { authenticationMiddleware } from './middlewares/authenticationMiddleware'
 import { runMigrations } from './repositories/_migrationRunner'
 import { addUserHandlers } from './handlers/userHandlers'
+import path from 'path'
 
 const app = express()
 const configuration = {
@@ -18,10 +19,7 @@ const configuration = {
 app.use(cors())
 app.use(json())
 
-// Public route for letsencrypt resolution
-app.get('/', (req, res) => {
-  res.send('Hello world from PaceMe!')
-})
+app.use(express.static('./static'))
 
 app.use((req, res, next) => authenticationMiddleware(req, res, next))
 
@@ -33,6 +31,10 @@ addFitbitHandlers(app)
 addSleepHandlers(app)
 addStepHandlers(app)
 addCaloriesHandlers(app)
+
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/index.html'))
+})
 
 // start the Express server
 // This assumes the node start script is used, which is fine, but it you have issues, look there.

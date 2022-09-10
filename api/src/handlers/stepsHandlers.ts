@@ -4,8 +4,8 @@ import { getFitbitToken } from '../providers/FitbitRequestProvider'
 import { dailyStepsProvider, dateRangeStepProvider } from '../providers/FitbitStatProvider'
 
 export function addStepHandlers (app: Application) {
-  app.get('/users/:userId/activities/:date/steps', (req, res) => userRestrictedHandler(req, res, getUserSteps))
-  app.get('/users/:userId/activities/:dateStart/:dateEnd/steps', (req, res) => userRestrictedHandler(req, res, getUserStepsRange))
+  app.get('/api/users/:userId/activities/:date/steps', (req, res) => userRestrictedHandler(req, res, getUserSteps))
+  app.get('/api/users/:userId/activities/:dateStart/:dateEnd/steps', (req, res) => userRestrictedHandler(req, res, getUserStepsRange))
 }
 
 const getUserSteps = async (userId: string, req: Request, res: Response) => {

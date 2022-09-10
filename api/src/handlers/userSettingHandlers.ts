@@ -9,8 +9,8 @@ const SettingKeys = {
 }
 
 export function addUserSettingHandlers (app: Application) {
-  app.get('/users/:userId/userSettings/:settingId', (req, res) => userRestrictedHandler(req, res, settingsGet))
-  app.put('/users/:userId/userSettings/:settingId', (req, res) => userRestrictedHandler(req, res, settingsUpdate))
+  app.get('/api/users/:userId/userSettings/:settingId', (req, res) => userRestrictedHandler(req, res, settingsGet))
+  app.put('/api/users/:userId/userSettings/:settingId', (req, res) => userRestrictedHandler(req, res, settingsUpdate))
 }
 
 const settingsGet = async (userId: string, req: Request, res: Response) => {

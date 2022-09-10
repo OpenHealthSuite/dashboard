@@ -4,8 +4,8 @@ import { getFitbitToken } from '../providers/FitbitRequestProvider'
 import { dailyCaloriesProvider, dateRangeCaloriesInOutProvider } from '../providers/FitbitStatProvider'
 
 export function addCaloriesHandlers (app: Application) {
-  app.get('/users/:userId/activities/:date/calories', (req, res) => userRestrictedHandler(req, res, getUserCalories))
-  app.get('/users/:userId/activities/:dateStart/:dateEnd/calories', (req, res) => userRestrictedHandler(req, res, getUserCaloriesDateRange))
+  app.get('/api/users/:userId/activities/:date/calories', (req, res) => userRestrictedHandler(req, res, getUserCalories))
+  app.get('/api/users/:userId/activities/:dateStart/:dateEnd/calories', (req, res) => userRestrictedHandler(req, res, getUserCaloriesDateRange))
 }
 
 const getUserCalories = async (userId: string, req: Request, res: Response) => {
