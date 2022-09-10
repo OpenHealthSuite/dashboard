@@ -16,7 +16,7 @@ ARG REACT_APP_API_ROOT=/api
 
 RUN npm run build
 
-FROM --platform=$BUILDPLATFORM node:16.13.1-bullseye-slim AS api-builder
+FROM --platform=$BUILDPLATFORM node:16.13.1 AS api-builder
 WORKDIR /application
 COPY api/package.json package.json
 COPY api/package-lock.json package-lock.json
@@ -26,7 +26,7 @@ COPY api/src src
 COPY api/types types
 RUN npx tsc
 
-FROM node:16.13.1-bullseye-slim AS api-deps
+FROM node:16.13.1 AS api-deps
 WORKDIR /application
 COPY api/package.json package.json
 COPY api/package-lock.json package-lock.json
