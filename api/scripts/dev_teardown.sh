@@ -1,2 +1,2 @@
-docker stop paceme-redis || true && docker rm paceme-redis || true
-docker stop paceme-pg || true && docker rm paceme-pg || true
+podman stop paceme-redis || true && podman rm paceme-redis || true
+podman stop paceme-pg || true && podman rm paceme-pg || true
