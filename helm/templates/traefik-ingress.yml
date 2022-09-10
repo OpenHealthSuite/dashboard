@@ -99,6 +99,8 @@ spec:
         - --set-authorization-header=true
         - --set-xauthrequest=true
         - --reverse-proxy=true
+        - --session-store-type=redis
+        - --redis-connection-url=redis://redis-service.paceme.svc:6379
         env:
         - name: OAUTH2_PROXY_CLIENT_ID
           value: {{ required "oauth2.clientid is required" .Values.oauth2.clientid  }}
