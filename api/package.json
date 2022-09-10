@@ -14,7 +14,7 @@
         "lint": "npx eslint . --ext .ts",
         "dev:spinup": "scripts/dev_prestart.sh",
         "dev:teardown": "scripts/dev_teardown.sh",
-        "dev:generateenv": "scripts/localenvgen.sh",
+        "dev:generateenv": "scripts/localenvgen.sh"
     },
     "author": "Lee Martin <hello@leejohnmartin.co.uk>",
     "license": "GPL-3.0-only",
