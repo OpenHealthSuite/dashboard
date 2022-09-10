@@ -6,8 +6,7 @@
     "stack:spinup": "(cd api && npm run dev:spinup)",
     "stack:devenvfiles": "(cd api && npm run dev:generateenv) && (cd webapp && npm run dev:generateenv)",
     "stack:install": "(cd api && npm i) && (cd webapp && npm i)",
-    "start": "concurrently '(cd api && npm run start:watch)' '(cd webapp && npm start)'",
-    "docker:buildandpush": "(cd api && npm run docker:buildandpush) && (cd webapp && npm run docker:buildandpush)"
+    "start": "concurrently '(cd api && npm run start:watch)' '(cd webapp && npm start)'"
   },
   "repository": {
     "type": "git",

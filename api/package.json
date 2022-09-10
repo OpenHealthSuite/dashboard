@@ -15,7 +15,6 @@
         "dev:spinup": "scripts/dev_prestart.sh",
         "dev:teardown": "scripts/dev_teardown.sh",
         "dev:generateenv": "scripts/localenvgen.sh",
-        "docker:buildandpush": "scripts/build-and-push-to-repo.sh"
     },
     "author": "Lee Martin <hello@leejohnmartin.co.uk>",
     "license": "GPL-3.0-only",
