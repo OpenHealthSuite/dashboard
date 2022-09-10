@@ -9,7 +9,7 @@ interface IProviderStatus {
 }
 
 export function addProviderRoutes (app: Application) {
-  app.get('/users/:userId/providers', (req, res) => userRestrictedHandler(req, res, getProviderStatuses))
+  app.get('/api/users/:userId/providers', (req, res) => userRestrictedHandler(req, res, getProviderStatuses))
 }
 
 async function getProviderStatuses (userId: string, req: Request, res: Response) {
