@@ -9,12 +9,11 @@ metadata:
   namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
 spec:
   routes:
-    - match: Host(`{{ required "hostname is required" .Values.hostname }}`) && PathPrefix(`/api`)
+    - match: Host(`{{ required "hostname is required" .Values.hostname }}`)
       kind: Rule
       middlewares:
         - name: oauth-errors
         - name: paceme-oauth2-proxy
-        - name: api-stripprefix
       services:
         - name: paceme-api
           port: 8081
@@ -26,26 +25,8 @@ spec:
           port: 4180
       middlewares:
         - name: oauth-errors
-    - match: Host(`{{ required "hostname is required" .Values.hostname }}`)
-      kind: Rule
-      middlewares:
-        - name: oauth-errors
-        - name: paceme-oauth2-proxy
-      services:
-        - name: paceme-webapp
-          port: 9000
   tls:
     secretName: paceme-le-certificate
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: api-stripprefix
-  namespace: {{ required "metadata.namespace is required" .Release.Namespace }}
-spec:
-  stripPrefix:
-    prefixes:
-      - /api
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware

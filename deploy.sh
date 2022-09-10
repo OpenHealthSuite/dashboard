@@ -13,5 +13,4 @@ helm upgrade paceme ./helm \
   --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
   --set "api.postgrespw=$(credstash get paceme/postgrespw)" \
   --set "api.postgresconnectionstring=postgresql://paceme:$(credstash get paceme/postgrespw)@postgres.paceme.svc:5432/paceme" \
-  --set "api.tag=$(cat api/package.json | jq -r '.version')" \
-  --set "webapp.tag=$(cat webapp/package.json | jq -r '.version')" 
+  --set "api.tag=v0.0.3"

@@ -1,9 +1,5 @@
 api:
-  image: leemartin77/paceme-api
-  tag: latest
-  replicas: 3
-webapp: 
-  image: leemartin77/paceme-webapp
+  image: ghcr.io/leemartin77/pacemejs
   tag: latest
   replicas: 3
 
