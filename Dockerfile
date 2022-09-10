@@ -34,6 +34,8 @@ RUN npm ci --omit=dev
 
 FROM node:16.13.1-bullseye-slim AS runner
 WORKDIR /application
+COPY api/package.json package.json
+COPY api/package-lock.json package-lock.json
 COPY --from=api-deps /application/node_modules /application/node_modules
 COPY --from=api-builder /application/dist /application/dist
 COPY --from=webapp-builder /app/build /application/static
