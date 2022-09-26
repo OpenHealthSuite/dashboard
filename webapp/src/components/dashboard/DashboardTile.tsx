@@ -57,12 +57,12 @@ export function DashboardTile<T>({
 
   return (
     <div className="dashboard-tile" data-testid="card" onClick={() => dataGetterFunction(setIsErrored, setIsLoading, setData, dataRetreivalFunction)}>
-      {headerText && <div data-testid="card-header" className="dashtile-header" title={headerText} />}
       <div className="dashtile-content" data-testid="card-content">{children}</div>
       <div className="status-bar">
         {isLoading && <div data-testid="card-loading">Loading</div>}
         {isErrored && <div data-testid="card-error">Error</div>}
       </div>
+      {headerText && <div data-testid="card-header" className="dashtile-header">{headerText}</div>}
     </div>
   );
 }
