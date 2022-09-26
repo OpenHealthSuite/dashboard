@@ -66,6 +66,11 @@ export function Root() {
   ));
   return (
     <>
+      <Switch>
+        <Route path="/callback/:serviceId" children={<CallbackRouteChild />} />
+        <Route path="/settings" children={<SettingsDashboard />} />
+        <Route path="/" children={<ActivityDashboard />} />
+      </Switch>
       {drawerOpen && <div>
         {sidebarItems}
       </div>}
@@ -74,11 +79,6 @@ export function Root() {
           Menu
         </button>
       </div>
-      <Switch>
-        <Route path="/callback/:serviceId" children={<CallbackRouteChild />} />
-        <Route path="/settings" children={<SettingsDashboard />} />
-        <Route path="/" children={<ActivityDashboard />} />
-      </Switch>
     </>
   );
 }

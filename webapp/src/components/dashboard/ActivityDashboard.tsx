@@ -47,7 +47,7 @@ export function ActivityDashboard({
   }, [fnGetSettings, setDashboardSettings, setSettingsLoaded]);
   if (settingsLoaded && dashboardSettings) {
     return (
-      <div>
+      <div className={"dashboard-grid"}>
         {dashboardSettings.tileSettings
           .filter((ts) =>
             Object.keys(availableTiles).includes(ts.componentName)
@@ -56,6 +56,7 @@ export function ActivityDashboard({
           .map((tile, i) => {
             return (
               <div
+                className={"dashboard-grid-item"}
                 key={`gridkey-${i}`}
               >
                 <tile.component />
