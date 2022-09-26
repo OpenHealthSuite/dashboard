@@ -1,12 +1,7 @@
 import { DashboardTile, IDashboardTileProps } from "../DashboardTile";
 import { useState } from "react";
 import { pacemeUserRouteGetRequest } from "../../../services/PaceMeApiService";
-
-const colors = {
-  caloriesIn: "#3A3",
-  caloriesOut: "#A33",
-  steps: "#44C",
-};
+import { colors } from "./utilities/Colors";
 
 export interface ICalories {
   caloriesIn: number;

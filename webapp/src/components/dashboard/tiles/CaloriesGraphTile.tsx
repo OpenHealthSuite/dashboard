@@ -3,15 +3,10 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { pacemeUserRouteGetRequest } from "../../../services/PaceMeApiService";
 
 import { IDashboardTileProps, DashboardTile } from "../DashboardTile";
+import { colors } from "./utilities/Colors";
 import { fnLastWeekDate, fnYesterDate } from "./utilities/DateFunctions";
 
 const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const colors = {
-  caloriesIn: "#3A3",
-  caloriesOut: "#A33",
-  steps: "#44C",
-};
 
 export interface IDatedCaloriesInOut {
   caloriesIn: number;

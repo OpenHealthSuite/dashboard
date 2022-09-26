@@ -2,12 +2,7 @@ import { DashboardTile } from "../DashboardTile";
 import { useState } from "react";
 import { pacemeUserRouteGetRequest } from "../../../services/PaceMeApiService";
 import { formatMinutesToText } from "./utilities/TimeFunctions";
-
-export const colors = {
-  asleep: "#44C",
-  rem: "#C4C",
-  awake: "#C44"
-};
+import { colors } from "./utilities/Colors";
 
 export interface ISleep {
   asleep: number;

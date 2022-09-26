@@ -3,10 +3,9 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { pacemeUserRouteGetRequest } from "../../../services/PaceMeApiService";
 
 import { DashboardTile } from "../DashboardTile";
+import { colors } from "./utilities/Colors";
 import { fnLastWeekDate, fnYesterDate } from "./utilities/DateFunctions";
 import { formatMinutesToText } from "./utilities/TimeFunctions";
-
-import { colors } from "./SleepDailyTile";
 
 const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
