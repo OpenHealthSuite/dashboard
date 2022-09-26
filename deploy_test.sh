@@ -10,5 +10,4 @@ helm upgrade paceme-test ./helm \
   --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
   --set "api.postgrespw=$(credstash get paceme/postgrespw)" \
   --set "api.postgresconnectionstring=postgresql://paceme:$(credstash get paceme/postgrespw)@postgres.paceme-test.svc:5432/paceme" \
-  --set "api.tag=v0.0.5" \
   --set "hostname=app-test.paceme.info"
