@@ -1,12 +1,7 @@
-import MenuIcon from "@mui/icons-material/Menu";
 import React from "react";
-import Drawer from "@mui/material/Drawer";
 import { ActivityDashboard } from "./dashboard/ActivityDashboard";
 import SettingsDashboard from "./settings/SettingsDashboard";
 
-import { makeStyles } from "@mui/styles";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
 import {
   Switch,
   Route,
@@ -15,7 +10,6 @@ import {
   useLocation,
   useHistory,
 } from "react-router-dom";
-import { Fab } from "@mui/material";
 import { pacemeUserRoutePostRequest } from "../services/PaceMeApiService";
 
 interface ICallbackParameters {
@@ -43,30 +37,7 @@ function CallbackRouteChild() {
       return <>Error redeeming token</>;
   }
 }
-
-const useStyles = makeStyles((theme: any) => ({
-  root: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  title: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: "center",
-    color: theme.palette.text.secondary,
-  },
-  fabContainer: {
-    position: "absolute",
-    right: theme.spacing(2),
-    bottom: theme.spacing(2),
-  },
-}));
 export function Root() {
-  const classes = useStyles();
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -85,25 +56,23 @@ export function Root() {
     { linkDest: "/", name: "Dashboard" },
     { linkDest: "/settings", name: "Settings" },
   ].map((item) => (
-    <ListItem
-      button
-      component={Link}
+    <Link
       onClick={toggleDrawer(false)}
       to={item.linkDest}
       key={item.name.toLowerCase().replace(" ", "")}
     >
       {item.name}
-    </ListItem>
+    </Link>
   ));
   return (
     <>
-      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <List>{sidebarItems}</List>
-      </Drawer>
-      <div className={classes.fabContainer}>
-        <Fab color="primary" aria-label="menu" onClick={toggleDrawer(true)}>
-          <MenuIcon />
-        </Fab>
+      {drawerOpen && <div>
+        {sidebarItems}
+      </div>}
+      <div>
+        <button aria-label="menu" onClick={toggleDrawer(true)}>
+          Menu
+        </button>
       </div>
       <Switch>
         <Route path="/callback/:serviceId" children={<CallbackRouteChild />} />

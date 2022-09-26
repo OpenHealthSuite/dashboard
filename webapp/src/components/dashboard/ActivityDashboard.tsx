@@ -4,7 +4,6 @@ import "./ActivityDashboard.scss";
 import { useEffect, useState } from "react";
 import { AvailableTiles, IAvailableTiles } from "./tiles";
 import { DEFAULT_DASHBOARD_SETTINGS, IDashboardSettings } from "../settings/sections/ActivityDashboardSettings";
-import { Grid } from "@mui/material";
 
 
 export async function getDashboardSettings(
@@ -48,7 +47,7 @@ export function ActivityDashboard({
   }, [fnGetSettings, setDashboardSettings, setSettingsLoaded]);
   if (settingsLoaded && dashboardSettings) {
     return (
-      <Grid container spacing={dashboardSettings.spacing} alignItems="stretch">
+      <div>
         {dashboardSettings.tileSettings
           .filter((ts) =>
             Object.keys(availableTiles).includes(ts.componentName)
@@ -56,18 +55,14 @@ export function ActivityDashboard({
           .map((ts) => availableTiles[ts.componentName])
           .map((tile, i) => {
             return (
-              <Grid
+              <div
                 key={`gridkey-${i}`}
-                item
-                xs={dashboardSettings.tileSizes.xs}
-                sm={dashboardSettings.tileSizes.sm}
-                md={dashboardSettings.tileSizes.md}
               >
                 <tile.component />
-              </Grid>
+              </div>
             );
           })}
-      </Grid>
+      </div>
     );
   }
   if (settingsLoaded) {

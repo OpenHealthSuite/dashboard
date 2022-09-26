@@ -1,5 +1,3 @@
-import { CardHeader, Card, CardContent } from "@mui/material";
-import { Error, Pending } from '@mui/icons-material';
 import { useEffect, useState } from "react";
 import "./DashboardTile.scss";
 
@@ -58,13 +56,13 @@ export function DashboardTile<T>({
   }, [setIsErrored, setIsLoading, setData, dataGetterFunction, dataRetreivalFunction, refreshIntervalms]);
 
   return (
-    <Card className="dashboard-tile" data-testid="card" onClick={() => dataGetterFunction(setIsErrored, setIsLoading, setData, dataRetreivalFunction)}>
-      {headerText && <CardHeader data-testid="card-header" className="dashtile-header" title={headerText} />}
-      <CardContent className="dashtile-content" data-testid="card-content">{children}</CardContent>
+    <div className="dashboard-tile" data-testid="card" onClick={() => dataGetterFunction(setIsErrored, setIsLoading, setData, dataRetreivalFunction)}>
+      {headerText && <div data-testid="card-header" className="dashtile-header" title={headerText} />}
+      <div className="dashtile-content" data-testid="card-content">{children}</div>
       <div className="status-bar">
-        {isLoading && <Pending data-testid="card-loading" />}
-        {isErrored && <Error data-testid="card-error"/>}
+        {isLoading && <div data-testid="card-loading">Loading</div>}
+        {isErrored && <div data-testid="card-error">Error</div>}
       </div>
-    </Card>
+    </div>
   );
 }

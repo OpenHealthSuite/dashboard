@@ -1,16 +1,6 @@
-import { Card, CardContent, CardHeader, ListItemButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { AvailableTiles } from "../../dashboard/tiles";
 import * as React from "react";
-import Grid, { GridSize } from "@mui/material/Grid";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Checkbox from "@mui/material/Checkbox";
-import Button from "@mui/material/Button";
-import Paper from "@mui/material/Paper";
-import { Error, Pending } from "@mui/icons-material";
 import { pacemeUserRouteGetRequest, pacemeUserRoutePutRequest } from "../../../services/PaceMeApiService";
 
 export interface ITileSettings { 
@@ -20,9 +10,9 @@ export interface ITileSettings {
 export interface IDashboardSettings { 
   spacing: number, 
   tileSizes: { 
-      xs: GridSize, 
-      sm: GridSize, 
-      md: GridSize
+      xs: number, 
+      sm: number, 
+      md: number
   },
   tileSettings: ITileSettings[]
 }
@@ -96,16 +86,16 @@ export default function ActivityDashboardSettings({
   ]);
 
   return (
-    <Card>
-      <CardHeader title={"Activity Dashboard Settings"} />
-      <CardContent>
-        {isLoading && <Pending />}
-        {isErrored && <Error />}
+    <div>
+      <div>Activity Dashboard Settings</div>
+      <div>
+        {isLoading && "Pending"}
+        {isErrored && "Error"}
         {dashboardSettings && (
           <TransferList dashboardSettings={dashboardSettings} />
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -213,125 +203,100 @@ export function TransferList({
     items: readonly IAvailableTileSetting[],
     isEnabledList: boolean = false
   ) => (
-    <Paper sx={{ height: 230, overflow: "auto" }}>
-      <List dense component="div" role="list">
+    <div>
+      <div role="list">
         {items.map((value: IAvailableTileSetting, index: number) => {
           const labelId = `transfer-list-item-${value}-label`;
           let buttons = <></>;
           if (isEnabledList && items.length > 1) {
             buttons = (
               <>
-                <ListItemButton onClick={() => adjustEnabledIndex(index, 1)}>
+                <button onClick={() => adjustEnabledIndex(index, 1)}>
                   ▼
-                </ListItemButton>
-                <ListItemButton onClick={() => adjustEnabledIndex(index, -1)}>
+                </button>
+                <button onClick={() => adjustEnabledIndex(index, -1)}>
                   ▲
-                </ListItemButton>
+                </button>
               </>
             );
             if (index === 0) {
               buttons = (
-                <ListItemButton onClick={() => adjustEnabledIndex(index, 1)}>
+                <button onClick={() => adjustEnabledIndex(index, 1)}>
                   ▼
-                </ListItemButton>
+                </button>
               );
             } else if (index === items.length - 1) {
               buttons = (
-                <ListItemButton onClick={() => adjustEnabledIndex(index, -1)}>
+                <button onClick={() => adjustEnabledIndex(index, -1)}>
                   ▲
-                </ListItemButton>
+                </button>
               );
             }
           }
           return (
-            <ListItem
+            <button
               key={value.componentName}
               role="listitem"
-              button
               onClick={handleToggle(value)}
               style={{ justifyContent: "flex-start" }}
             >
-              <ListItemIcon>
-                <Checkbox
+                <input type="checkbox"
                   checked={checked.indexOf(value) !== -1}
                   tabIndex={-1}
-                  disableRipple
-                  inputProps={{
-                    "aria-labelledby": labelId,
-                  }}
+                  aria-labelledby={labelId}
                 />
-              </ListItemIcon>
               {buttons}
-              <ListItemText id={labelId} primary={value.componentNiceName} />
-            </ListItem>
+              <label id={labelId}>{value.componentNiceName}</label>
+            </button>
           );
         })}
-        <ListItem />
-      </List>
-    </Paper>
+        <div />
+      </div>
+    </div>
   );
 
   return (
     <div style={{ flexGrow: 1 }}>
-      <Grid
-        container
-        spacing={2}
-        justifyContent="center"
-        alignItems="center"
-        direction="column"
-        style={{ flexGrow: 1 }}
-      >
-        <Grid item xs={12}>
+      <div>
+        <div>
           {customList(enabled, true)}
-        </Grid>
-        <Grid item xs={12}>
-          <Grid container direction="row" alignItems="center">
-            <Button
-              sx={{ my: 0.5 }}
-              variant="outlined"
-              size="small"
+        </div>
+        <div>
+          <div>
+            <button
               onClick={handleAllDisable}
               disabled={enabled.length === 0}
               aria-label="disable all"
             >
               ≫
-            </Button>
-            <Button
-              sx={{ my: 0.5 }}
-              variant="outlined"
-              size="small"
+            </button>
+            <button
               onClick={handleCheckedDisable}
               disabled={enabledChecked.length === 0}
               aria-label="disable selected"
             >
               &gt;
-            </Button>
-            <Button
-              sx={{ my: 0.5 }}
-              variant="outlined"
-              size="small"
+            </button>
+            <button
               onClick={handleCheckedEnable}
               disabled={disabledChecked.length === 0}
               aria-label="enable selected"
             >
               &lt;
-            </Button>
-            <Button
-              sx={{ my: 0.5 }}
-              variant="outlined"
-              size="small"
+            </button>
+            <button
               onClick={handleAllEnable}
               disabled={disabled.length === 0}
               aria-label="enable all"
             >
               ≪
-            </Button>
-          </Grid>
-        </Grid>
-        <Grid item xs={12}>
+            </button>
+          </div>
+        </div>
+        <div>
           {customList(disabled)}
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </div>
   );
 }

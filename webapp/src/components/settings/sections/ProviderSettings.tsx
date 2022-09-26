@@ -1,10 +1,8 @@
-import { Button, Card, CardContent, CardHeader } from "@mui/material";
 import { useEffect, useState } from "react";
 import {
   pacemeUserRouteGetRequest,
   pacemeUserRoutePostRequest,
 } from "../../../services/PaceMeApiService";
-import { Error, Pending } from "@mui/icons-material";
 
 const providersRoot = "/providers";
 
@@ -37,23 +35,22 @@ export default function ProviderSettings() {
   }, [setLoading, setError, setStatuses]);
 
   return (
-    <Card>
-      <CardHeader title={"Data Providers"} />
-      <CardContent>
-        {isLoading && <Pending />}
-        {isErrored && <Error />}
+    <div>
+      <div>Data Providers</div>
+      <div>
+        {isLoading && "Pending"}
+        {isErrored && "Error"}
         {statuses &&
           statuses.map((s) => (
-            <Button
-              variant={s.authenticated ? "contained" : "outlined"}
+            <button
               onClick={() => GetChallenge(s.key)}
             >
               {s.name}
               {" - "}
               {s.authenticated ? "Reauthenticate" : "Authenticate"}
-            </Button>
+            </button>
           ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
