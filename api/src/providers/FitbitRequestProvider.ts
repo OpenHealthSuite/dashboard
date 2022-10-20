@@ -56,8 +56,8 @@ const SERVICE_CACHE_KEY = 'servicecache:fitbit'
 const CODE_CHALLENGE_CACHE = 'codechallengecache:fitbit'
 
 export function addFitbitHandlers (app: Application) {
-  app.post('/users/:userId/providers/fitbit/start', (req, res) => userRestrictedHandler(req, res, startAuthenticationFlow))
-  app.post('/users/:userId/providers/fitbit/redeem', (req, res) => userRestrictedHandler(req, res, redeemCode))
+  app.post('/api/users/:userId/providers/fitbit/start', (req, res) => userRestrictedHandler(req, res, startAuthenticationFlow))
+  app.post('/api/users/:userId/providers/fitbit/redeem', (req, res) => userRestrictedHandler(req, res, redeemCode))
 }
 
 function randomString (size: number): string {

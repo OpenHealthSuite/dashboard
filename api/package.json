@@ -9,8 +9,7 @@
         "migrations:validate": "pg-validate-migrations 'migrations'",
         "start": "node .",
         "start:headless": "node dist/headless.js",
-        "start:dev": "concurrently 'node -r dotenv/config dist/index.js' 'node -r dotenv/config dist/headless.js'",
-        "start:watch": "concurrently 'npm run build -- --watch' 'nodemon -r dotenv/config dist/index.js' 'nodemon -r dotenv/config dist/headless.js'",
+        "start:dev": "concurrently 'nodemon -r dotenv/config src/index.ts' 'nodemon -r dotenv/config src/headless.ts'",
         "lint": "npx eslint . --ext .ts",
         "dev:spinup": "scripts/dev_prestart.sh",
         "dev:teardown": "scripts/dev_teardown.sh",
@@ -44,6 +43,7 @@
         "sinon": "^12.0.1",
         "source-map-support": "^0.5.21",
         "ts-jest": "^27.0.7",
+        "ts-node": "^10.9.1",
         "ts-sinon": "^2.0.2",
         "typescript": "^4.5.2"
     },
