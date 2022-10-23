@@ -42,7 +42,4 @@ spec:
             - name: REDIS_HOST
               value: redis-service.paceme.svc
             - name: PG_CONNECTION_STRING
-              valueFrom:
-                secretKeyRef:
-                  name: paceme-api-secrets
-                  key: postgresconnectionstring
+              value: {{ required "api.postgresconnectionstring is required" .Values.api.postgresconnectionstring }}
