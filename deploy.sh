@@ -1,3 +1,5 @@
+PGPWD=$(kubectl get secret/postgres-service -n service -o jsonpath="{.data.postgrespw}" | base64 --decode)
+
 helm upgrade paceme ./helm \
   --namespace paceme \
   --create-namespace \
@@ -5,5 +7,4 @@ helm upgrade paceme ./helm \
   --atomic \
   --set "fitbit.clientId=$(credstash get paceme/fitbit-client-id)" \
   --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
-  --set "api.postgrespw=$(credstash get paceme/postgrespw)" \
-  --set "api.postgresconnectionstring=postgresql://paceme:$(credstash get paceme/postgrespw)@postgres.paceme.svc:5432/paceme"
+  --set "api.postgresconnectionstring=postgresql://postgres:$PGPWD@postgres.service.svc:5432/paceme"
