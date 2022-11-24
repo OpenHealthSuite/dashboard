@@ -33,7 +33,7 @@ export class UserServiceTokenRepository {
 
   async createUserToken (userId: string, token: IRawToken): Promise<Result<IRawToken, string>> {
     try {
-      const insertQuery = `INSERT INTO paceme.${this._tableName} (service_id, paceme_user_id, raw_token, last_updated, expires_in) VALUES (?, ?, ?, ?, ?)`
+      const insertQuery = `INSERT INTO paceme.${this._tableName} (service_id, paceme_user_id, raw_token, last_updated, expires_in) VALUES (?, ?, ?, ?, ?);`
       await this._cassandraClient.execute(insertQuery, [this._serviceId, userId, JSON.stringify(token), new Date(), token.expires_in], { prepare: true })
       return ok(token)
     } catch (error: any) {
@@ -52,7 +52,7 @@ export class UserServiceTokenRepository {
   }
 
   async getUserToken (userId: string): Promise<Result<{ raw_token: IRawToken, last_updated: Date } | null, string>> {
-    const selectQuery = `SELECT raw_token, last_updated FROM paceme.${this._tableName} WHERE service_id = ? AND paceme_user_id = ?`
+    const selectQuery = `SELECT raw_token, last_updated FROM paceme.${this._tableName} WHERE service_id = ? AND paceme_user_id = ?;`
     const result = await this._cassandraClient.execute(selectQuery, [this._serviceId, userId])
     if (result.rowLength > 0) {
       const token = rowToObject(result.rows[0]) as any
@@ -65,7 +65,7 @@ export class UserServiceTokenRepository {
 
   async updateUserToken (userId: string, token: IRawToken): Promise<Result<IRawToken, string>> {
     try {
-      const insertQuery = `INSERT INTO paceme.${this._tableName} (service_id, paceme_user_id, raw_token, last_updated, expires_in) VALUES (?, ?, ?, ?, ?)`
+      const insertQuery = `INSERT INTO paceme.${this._tableName} (service_id, paceme_user_id, raw_token, last_updated, expires_in) VALUES (?, ?, ?, ?, ?);`
       await this._cassandraClient.execute(insertQuery, [this._serviceId, userId, JSON.stringify(token), new Date(), token.expires_in], { prepare: true })
       return ok(token)
     } catch (error: any) {
