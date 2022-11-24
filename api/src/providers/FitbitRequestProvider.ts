@@ -118,9 +118,12 @@ export async function redeemCode (
   const response = await axios.post(queryiedTokenUrl, '', { headers })
   if (response.status !== 200) { return res.send({ status: 'err' }).status(400) }
   const token: IFitbitTokenResponse = JSON.parse(response.data) // date_retrieved: (new Date()).toISOString()
-  await fitbitTokenRepo.deleteUserToken(userId)
-  await fitbitTokenRepo.createUserToken(userId, token)
-  res.send({ status: 'ok' })
+  const storage = await fitbitTokenRepo.createUserToken(userId, token)
+  storage.map(() => res.send({ status: 'ok' }))
+    .mapErr(err => {
+      console.error(err)
+      res.sendStatus(500)
+    })
 }
 
 export async function makeFitbitRequest<T> (

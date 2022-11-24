@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:16.13.1 as webapp-builder
+FROM --platform=$BUILDPLATFORM node:18.7.0 as webapp-builder
 WORKDIR /app
 
 COPY webapp/package*.json ./
@@ -16,7 +16,7 @@ ARG REACT_APP_API_ROOT=/api
 
 RUN npm run build
 
-FROM --platform=$BUILDPLATFORM node:16.13.1 AS api-builder
+FROM --platform=$BUILDPLATFORM node:18.7.0 AS api-builder
 WORKDIR /application
 COPY api/package.json package.json
 COPY api/package-lock.json package-lock.json
@@ -26,13 +26,13 @@ COPY api/src src
 COPY api/types types
 RUN npx tsc
 
-FROM --platform=$BUILDPLATFORM node:16.13.1 AS api-deps
+FROM --platform=$BUILDPLATFORM node:18.7.0 AS api-deps
 WORKDIR /application
 COPY api/package.json package.json
 COPY api/package-lock.json package-lock.json
 RUN npm ci --omit=dev
 
-FROM node:16.13.1-bullseye-slim AS runner
+FROM node:18.7.0-bullseye-slim AS runner
 WORKDIR /application
 COPY api/package.json package.json
 COPY api/package-lock.json package-lock.json

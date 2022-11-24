@@ -1,2 +1,2 @@
 podman stop paceme-redis || true && podman rm paceme-redis || true
-podman stop paceme-pg || true && podman rm paceme-pg || true
+podman stop paceme-cassandra || true && podman rm paceme-cassandra || true
