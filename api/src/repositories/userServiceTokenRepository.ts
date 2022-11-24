@@ -44,7 +44,7 @@ export class UserServiceTokenRepository {
   async deleteUserToken (userId: string): Promise<Result<null, string>> {
     const deleteQuery = `DELETE FROM paceme.${this._tableName} WHERE service_id = ? AND paceme_user_id = ?`
     try {
-      await this._cassandraClient.execute(deleteQuery, [this._serviceId, userId])
+      await this._cassandraClient.execute(deleteQuery, [this._serviceId, userId], { prepare: true })
       return ok(null)
     } catch (error: any) {
       return err(error.message)
@@ -53,7 +53,7 @@ export class UserServiceTokenRepository {
 
   async getUserToken (userId: string): Promise<Result<{ raw_token: IRawToken, last_updated: Date } | null, string>> {
     const selectQuery = `SELECT raw_token, last_updated FROM paceme.${this._tableName} WHERE service_id = ? AND paceme_user_id = ?;`
-    const result = await this._cassandraClient.execute(selectQuery, [this._serviceId, userId])
+    const result = await this._cassandraClient.execute(selectQuery, [this._serviceId, userId], { prepare: true })
     if (result.rowLength > 0) {
       const token = rowToObject(result.rows[0]) as any
       token.raw_token = JSON.parse(token.raw_token)
@@ -76,7 +76,7 @@ export class UserServiceTokenRepository {
   async getTokensThatExpireBefore (date: Date): Promise<Result<{ raw_token: IRawToken, paceme_user_id: string }[], string>> {
     const selectQuery = `SELECT paceme_user_id, raw_token, last_updated, expires_in FROM paceme.${this._tableName} WHERE service_id = ? ALLOW FILTERING;`
     try {
-      const result = await this._cassandraClient.execute(selectQuery, [this._serviceId])
+      const result = await this._cassandraClient.execute(selectQuery, [this._serviceId], { prepare: true })
       const tokens = result.rows.reduce((prev, raw) => {
         const token = rowToObject(raw) as any
         token.raw_token = JSON.parse(token.raw_token)
