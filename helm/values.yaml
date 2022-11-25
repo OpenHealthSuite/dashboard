@@ -2,5 +2,9 @@ api:
   image: ghcr.io/leemartin77/pacemejs
   tag: latest
   replicas: 3
+  cassandra:
+    user: cassandra
+    password: cassandra
+    contactpoints: cassandra.service.svc:9042
 
 hostname: app.paceme.info

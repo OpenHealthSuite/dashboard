@@ -6,5 +6,4 @@ helm upgrade paceme ./helm \
   --install \
   --atomic \
   --set "fitbit.clientId=$(credstash get paceme/fitbit-client-id)" \
-  --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)" \
-  --set "api.postgresconnectionstring=postgresql://postgres:$PGPWD@postgres.service.svc:5432/paceme"
+  --set "fitbit.clientSecret=$(credstash get paceme/fitbit-client-secret)"
