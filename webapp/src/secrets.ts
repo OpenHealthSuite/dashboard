@@ -1,1 +1,1 @@
-export const API_ROOT = process.env.REACT_APP_API_ROOT ?? "/api";
+export const API_ROOT = "/api";
