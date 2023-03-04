@@ -9,9 +9,9 @@ describe("DashboardTile", () => {
     render(
       <DashboardTile
         headerText={headerText}
-        dataGetterFunction={jest.fn()}
-        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
-        setData={jest.fn()}
+        dataGetterFunction={vi.fn() as any}
+        dataRetreivalFunction={vi.fn().mockResolvedValue({})}
+        setData={vi.fn()}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -21,9 +21,9 @@ describe("DashboardTile", () => {
   test("Header Not Displayed When No Text Passed", async () => {
     render(
       <DashboardTile
-        dataGetterFunction={jest.fn()}
-        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
-        setData={jest.fn()}
+        dataGetterFunction={vi.fn() as any}
+        dataRetreivalFunction={vi.fn().mockResolvedValue({})}
+        setData={vi.fn()}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -33,9 +33,9 @@ describe("DashboardTile", () => {
     render(
       <DashboardTile
         headerText=""
-        dataGetterFunction={jest.fn()}
-        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
-        setData={jest.fn()}
+        dataGetterFunction={vi.fn() as any}
+        dataRetreivalFunction={vi.fn().mockResolvedValue({})}
+        setData={vi.fn()}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -48,9 +48,9 @@ describe("DashboardTile", () => {
     const content = <div data-testid={contentTestId}>My Content</div>;
     render(
       <DashboardTile
-        dataGetterFunction={jest.fn()}
-        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
-        setData={jest.fn()}
+        dataGetterFunction={vi.fn() as any}
+        dataRetreivalFunction={vi.fn().mockResolvedValue({})}
+        setData={vi.fn()}
         refreshIntervalms={5000}
       >
         {content}
@@ -63,13 +63,13 @@ describe("DashboardTile", () => {
   });
 
   test("Uses provided data setter", async () => {
-    const dataSetter = jest.fn();
+    const dataSetter = vi.fn();
     const testData = { whoami: "Test Data" }
     render(
       <DashboardTile
         setData={dataSetter}
         refreshIntervalms={5000}
-        dataRetreivalFunction={jest.fn().mockResolvedValue(testData)}
+        dataRetreivalFunction={vi.fn().mockResolvedValue(testData)}
       >
         <></>
       </DashboardTile>
@@ -79,14 +79,14 @@ describe("DashboardTile", () => {
   });
 
   test("On Click :: Reloads data", async () => {
-    const dataSetter = jest.fn();
+    const dataSetter = vi.fn();
     const testData = { whoami: "Test Data" }
     const testDataTwo = { whoami: "Test Data Two" }
     render(
       <DashboardTile
         setData={dataSetter}
         refreshIntervalms={5000}
-        dataRetreivalFunction={jest.fn().mockResolvedValueOnce(testData).mockResolvedValueOnce(testDataTwo)}
+        dataRetreivalFunction={vi.fn().mockResolvedValueOnce(testData).mockResolvedValueOnce(testDataTwo)}
       >
         <></>
       </DashboardTile>
@@ -101,14 +101,14 @@ describe("DashboardTile", () => {
   // Loading Icon
   test("Loading Visible", async () => {
     const loadingTestId = "card-loading";
-    const loadingGetter = jest
+    const loadingGetter = vi
       .fn()
       .mockImplementation((_, setIsLoading) => setIsLoading(true));
     render(
       <DashboardTile
-        setData={jest.fn()}
+        setData={vi.fn()}
         dataGetterFunction={loadingGetter}
-        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
+        dataRetreivalFunction={vi.fn().mockResolvedValue({})}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -116,14 +116,14 @@ describe("DashboardTile", () => {
   });
   test("Loading Not Visible When False", async () => {
     const loadingTestId = "card-loading";
-    const loadingGetter = jest
+    const loadingGetter = vi
       .fn()
       .mockImplementation((_, setIsLoading) => setIsLoading(false));
     render(
       <DashboardTile
-        setData={jest.fn()}
+        setData={vi.fn()}
         dataGetterFunction={loadingGetter}
-        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
+        dataRetreivalFunction={vi.fn().mockResolvedValue({})}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -133,14 +133,14 @@ describe("DashboardTile", () => {
   // Error Icon
   test("Error Visible", async () => {
     const loadingTestId = "card-error";
-    const loadingGetter = jest
+    const loadingGetter = vi
       .fn()
       .mockImplementation((setIsError, _) => setIsError(true));
     render(
       <DashboardTile
-        setData={jest.fn()}
+        setData={vi.fn()}
         dataGetterFunction={loadingGetter}
-        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
+        dataRetreivalFunction={vi.fn().mockResolvedValue({})}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -148,14 +148,14 @@ describe("DashboardTile", () => {
   });
   test("Error Not Visible When False", async () => {
     const loadingTestId = "card-error";
-    const loadingGetter = jest
+    const loadingGetter = vi
       .fn()
       .mockImplementation((setIsError, _) => setIsError(false));
     render(
       <DashboardTile
-        setData={jest.fn()}
+        setData={vi.fn()}
         dataGetterFunction={loadingGetter}
-        dataRetreivalFunction={jest.fn().mockResolvedValue({})}
+        dataRetreivalFunction={vi.fn().mockResolvedValue({})}
         refreshIntervalms={5000}
       ></DashboardTile>
     );
@@ -164,10 +164,10 @@ describe("DashboardTile", () => {
 });
 
 describe("baseDataGetterFunction", () => {
-  const setErrored = jest.fn();
-  const setLoading = jest.fn();
-  const setData = jest.fn();
-  const dataRetreival = jest.fn();
+  const setErrored = vi.fn();
+  const setLoading = vi.fn();
+  const setData = vi.fn();
+  const dataRetreival = vi.fn();
 
   beforeEach(() => {
     setErrored.mockReset()

@@ -8,7 +8,7 @@ import { IAvailableTiles } from "./tiles";
 
 describe("ActivityDashboard", () => {
   test("Loading Renders", async () => {
-    const fakeDashSettings = jest.fn();
+    const fakeDashSettings = vi.fn();
     fakeDashSettings.mockRejectedValue({});
     render(
       <ActivityDashboard fnGetSettings={fakeDashSettings} availableTiles={{}} />
@@ -16,7 +16,7 @@ describe("ActivityDashboard", () => {
     expect((await screen.findAllByText("Loading")).length).toBe(1);
   });
   test("Error Renders", async () => {
-    const fakeDashSettings = jest.fn();
+    const fakeDashSettings = vi.fn();
     fakeDashSettings.mockRejectedValue({});
     render(
       <ActivityDashboard fnGetSettings={fakeDashSettings} availableTiles={{}} />
@@ -26,7 +26,7 @@ describe("ActivityDashboard", () => {
   });
 
   test("Renders All Tiles", async () => {
-    const fakeDashSettings = jest.fn();
+    const fakeDashSettings = vi.fn();
     const componentNames = [
       "SomeComponentName",
       "SomeOtherComponentName",
@@ -65,7 +65,7 @@ describe("ActivityDashboard", () => {
   });
 
   test("Renders Only Available Tiles", async () => {
-    const fakeDashSettings = jest.fn();
+    const fakeDashSettings = vi.fn();
     const componentNames = [
       "SomeComponentName",
       "SomeOtherComponentName",
@@ -107,7 +107,7 @@ describe("ActivityDashboard", () => {
     );
   });
   test("Renders Only Settings Tiles", async () => {
-    const fakeDashSettings = jest.fn();
+    const fakeDashSettings = vi.fn();
     const componentNames = ["SomeComponentName", "LastComponentName"];
     const availableComponentNames = [
       "SomeComponentName",
@@ -154,11 +154,11 @@ describe("ActivityDashboard functions", () => {
   describe("getSettings", () => {
     test("Happy path :: gets and returns settings", async () => {
       const authDetails = { userId: "fakeUserId" };
-      const fakeAuthDetails = jest.fn().mockResolvedValue(authDetails);
+      const fakeAuthDetails = vi.fn().mockResolvedValue(authDetails);
       const response = { whoami: "ReturnedSettings" };
-      const fakeFetch = jest.fn().mockResolvedValue({
+      const fakeFetch = vi.fn().mockResolvedValue({
         status: 200,
-        json: jest.fn().mockResolvedValue(response),
+        json: vi.fn().mockResolvedValue(response),
       });
       const fakeApiRoot = "/fakeApiRoot";
 
@@ -176,11 +176,11 @@ describe("ActivityDashboard functions", () => {
     });
     test("Non 200 status :: returns defaults", async () => {
       const authDetails = { userId: "fakeUserId" };
-      const fakeAuthDetails = jest.fn().mockResolvedValue(authDetails);
+      const fakeAuthDetails = vi.fn().mockResolvedValue(authDetails);
       const response = { whoami: "ReturnedSettings" };
-      const fakeFetch = jest.fn().mockResolvedValue({
+      const fakeFetch = vi.fn().mockResolvedValue({
         status: 403,
-        json: jest.fn().mockResolvedValue(response),
+        json: vi.fn().mockResolvedValue(response),
       });
       const fakeApiRoot = "/fakeApiRoot";
       const defaults = { whoami: "DefaultSettings" };
@@ -200,8 +200,8 @@ describe("ActivityDashboard functions", () => {
     });
     test("Error on auth :: returns defaults", async () => {
       const authDetails = { userId: "fakeUserId" };
-      const fakeAuthDetails = jest.fn().mockRejectedValue(authDetails);
-      const fakeFetch = jest.fn();
+      const fakeAuthDetails = vi.fn().mockRejectedValue(authDetails);
+      const fakeFetch = vi.fn();
       const fakeApiRoot = "/fakeApiRoot";
       const defaults = { whoami: "DefaultSettings" };
 
@@ -217,8 +217,8 @@ describe("ActivityDashboard functions", () => {
     });
     test("Error on user :: returns defaults", async () => {
       const authDetails = { userId: "fakeUserId" };
-      const fakeAuthDetails = jest.fn().mockResolvedValue(authDetails);
-      const fakeFetch = jest.fn().mockRejectedValue({});
+      const fakeAuthDetails = vi.fn().mockResolvedValue(authDetails);
+      const fakeFetch = vi.fn().mockRejectedValue({});
       const fakeApiRoot = "/fakeApiRoot";
       const defaults = { whoami: "DefaultSettings" };
 

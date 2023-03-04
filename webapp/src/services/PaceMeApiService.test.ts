@@ -9,9 +9,9 @@ import {
 describe("pacemeUserRouteGetRequest", () => {
   test("Gets user details and prepends to request path", async () => {
     const authDetails = { userId: "fakeUserId" };
-    const fakeAuthDetails = jest.fn().mockResolvedValue(authDetails);
+    const fakeAuthDetails = vi.fn().mockResolvedValue(authDetails);
     const response = { whoami: "ReturnedSettings" };
-    const fakePacemeGetRequest = jest.fn().mockResolvedValue(response);
+    const fakePacemeGetRequest = vi.fn().mockResolvedValue(response);
     const fakeRequestRoute = "/fakeRequestRoute";
 
     const result = await pacemeUserRouteGetRequest(
@@ -30,9 +30,9 @@ describe("pacemeUserRouteGetRequest", () => {
 describe("pacemeUserRoutePostRequest", () => {
   test("Gets user details and prepends to request path", async () => {
     const authDetails = { userId: "fakeUserId" };
-    const fakeAuthDetails = jest.fn().mockResolvedValue(authDetails);
+    const fakeAuthDetails = vi.fn().mockResolvedValue(authDetails);
     const response = { whoami: "ReturnedSettings" };
-    const fakePacemePostRequest = jest.fn().mockResolvedValue(response);
+    const fakePacemePostRequest = vi.fn().mockResolvedValue(response);
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeRequestBody = { whoami: "FakeRequestBody" };
 
@@ -54,9 +54,9 @@ describe("pacemeUserRoutePostRequest", () => {
 describe("pacemeUserRoutePutRequest", () => {
   test("Gets user details and prepends to request path", async () => {
     const authDetails = { userId: "fakeUserId" };
-    const fakeAuthDetails = jest.fn().mockResolvedValue(authDetails);
+    const fakeAuthDetails = vi.fn().mockResolvedValue(authDetails);
     const response = { whoami: "ReturnedSettings" };
-    const fakePacemePutRequest = jest.fn().mockResolvedValue(response);
+    const fakePacemePutRequest = vi.fn().mockResolvedValue(response);
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeRequestBody = { whoami: "FakeRequestBody" };
 
@@ -78,9 +78,9 @@ describe("pacemeUserRoutePutRequest", () => {
 describe("pacemeGetRequest", () => {
   test("Happy path :: uses URL, rereives data", async () => {
     const response = { whoami: "ReturnedSettings" };
-    const fakeFetch = jest.fn().mockResolvedValue({
+    const fakeFetch = vi.fn().mockResolvedValue({
       status: 200,
-      json: jest.fn().mockResolvedValue(response),
+      json: vi.fn().mockResolvedValue(response),
     });
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeApiRoot = "http://localhost:9090";
@@ -96,9 +96,9 @@ describe("pacemeGetRequest", () => {
   });
   test("Non 200 status :: throws error", async () => {
     const response = { whoami: "ReturnedSettings" };
-    const fakeFetch = jest.fn().mockResolvedValue({
+    const fakeFetch = vi.fn().mockResolvedValue({
       status: 403,
-      json: jest.fn().mockResolvedValue(response),
+      json: vi.fn().mockResolvedValue(response),
     });
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeApiRoot = "http://localhost:9090";
@@ -115,9 +115,9 @@ describe("pacemePostRequest", () => {
   test("Happy path :: uses URL, uses body, rereives data", async () => {
     const response = { whoami: "ReturnedSettings" };
     const fakeRequestBody = { whoami: "FakeRequestBody" };
-    const fakeFetch = jest.fn().mockResolvedValue({
+    const fakeFetch = vi.fn().mockResolvedValue({
       status: 200,
-      json: jest.fn().mockResolvedValue(response),
+      json: vi.fn().mockResolvedValue(response),
     });
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeApiRoot = "http://localhost:9090";
@@ -140,9 +140,9 @@ describe("pacemePostRequest", () => {
   });
   test("Non 200 status :: throws error", async () => {
     const response = { whoami: "ReturnedSettings" };
-    const fakeFetch = jest.fn().mockResolvedValue({
+    const fakeFetch = vi.fn().mockResolvedValue({
       status: 403,
-      json: jest.fn().mockResolvedValue(response),
+      json: vi.fn().mockResolvedValue(response),
     });
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeApiRoot = "http://localhost:9090";
@@ -171,9 +171,9 @@ describe("pacemePutRequest", () => {
   test("Happy path :: uses URL, uses body, rereives data", async () => {
     const response = { whoami: "ReturnedSettings" };
     const fakeRequestBody = { whoami: "FakeRequestBody" };
-    const fakeFetch = jest.fn().mockResolvedValue({
+    const fakeFetch = vi.fn().mockResolvedValue({
       status: 200,
-      json: jest.fn().mockResolvedValue(response),
+      json: vi.fn().mockResolvedValue(response),
     });
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeApiRoot = "http://localhost:9090";
@@ -196,9 +196,9 @@ describe("pacemePutRequest", () => {
   });
   test("Non 200 status :: throws error", async () => {
     const response = { whoami: "ReturnedSettings" };
-    const fakeFetch = jest.fn().mockResolvedValue({
+    const fakeFetch = vi.fn().mockResolvedValue({
       status: 403,
-      json: jest.fn().mockResolvedValue(response),
+      json: vi.fn().mockResolvedValue(response),
     });
     const fakeRequestRoute = "/fakeRequestRoute";
     const fakeApiRoot = "http://localhost:9090";
