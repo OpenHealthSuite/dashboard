@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "dev:generateenv": "scripts/dev-generateenv.sh"
   },
   "dependencies": {
     "@emotion/react": "^11.4.1",
