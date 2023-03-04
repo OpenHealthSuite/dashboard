@@ -1,4 +1,3 @@
-import IORedis from 'ioredis'
 import { GenericCacheValue, GetByKey, SaveOnKey } from './GenericCache'
 
 describe('GetByKey', () => {
@@ -14,7 +13,7 @@ describe('GetByKey', () => {
 
     const cacheKey = 'my-cache-key'
 
-    const result: GenericCacheValue<any> | undefined = await GetByKey(cacheKey, fakeRedis as unknown as IORedis.Redis)
+    const result: GenericCacheValue<any> | undefined = await GetByKey(cacheKey, fakeRedis as any)
 
     expect(fakeRedis.get.mock.calls.length).toBe(1)
     expect(fakeRedis.get.mock.calls[0]).toEqual([cacheKey])
@@ -38,7 +37,7 @@ describe('SaveOnKey', () => {
       set: jest.fn()
     }
 
-    await SaveOnKey(cacheKey, valueToCache, fakeRedis as unknown as IORedis.Redis, savedDate)
+    await SaveOnKey(cacheKey, valueToCache, fakeRedis as any, savedDate)
 
     expect(fakeRedis.set.mock.calls.length).toBe(1)
     const fakeSetCall = fakeRedis.set.mock.calls[0]

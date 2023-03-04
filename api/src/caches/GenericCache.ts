@@ -16,15 +16,15 @@ export interface IGenericCache {
   GetByKey: <T> (cacheKey: string) => Promise<GenericCacheValue<T> | undefined>,
   SaveOnKey: <T> (cacheKey: string, value: T) => Promise<void>,
   // I dislike this
-  REDIS_CLIENT: IORedis.Redis
+  REDIS_CLIENT: IORedis
 }
 
-export async function GetByKey<T> (cacheKey: string, redisConnection: IORedis.Redis = REDIS_CLIENT): Promise<GenericCacheValue<T> | undefined> {
+export async function GetByKey<T> (cacheKey: string, redisConnection: IORedis = REDIS_CLIENT): Promise<GenericCacheValue<T> | undefined> {
   const cachedValueRaw = await redisConnection.get(`${cacheKey}`)
   const cachedValue = cachedValueRaw ? JSON.parse(cachedValueRaw) : undefined
   return cachedValue ? { value: cachedValue.cachedValue, date: new Date(cachedValue.date) } : cachedValue
 }
 
-export async function SaveOnKey<T> (cacheKey: string, value: T, redisConnection: IORedis.Redis = REDIS_CLIENT, saveDate: Date = new Date()): Promise<void> {
+export async function SaveOnKey<T> (cacheKey: string, value: T, redisConnection: IORedis = REDIS_CLIENT, saveDate: Date = new Date()): Promise<void> {
   await redisConnection.set(`${cacheKey}`, JSON.stringify({ cachedValue: value, date: saveDate }))
 }
