@@ -3,37 +3,33 @@ import { ActivityDashboard } from "./dashboard/ActivityDashboard";
 import SettingsDashboard from "./settings/SettingsDashboard";
 
 import {
-  Switch,
+  Routes,
   Route,
   Link,
   useParams,
   useLocation,
-  useHistory,
+  useNavigate,
 } from "react-router-dom";
 import { pacemeUserRoutePostRequest } from "../services/PaceMeApiService";
-
-interface ICallbackParameters {
-  serviceId: string;
-}
 
 async function redeemCode(providerKey: string, code: string): Promise<{} | undefined> {
   return pacemeUserRoutePostRequest<{ code: string }, {}>(['/providers', providerKey, 'redeem'].join('/'), { code })
 }
 
-function CallbackRouteChild() {
-  const { serviceId } = useParams<ICallbackParameters>();
+const CallbackRouteChild: React.FC = () => {
+  const { serviceId } = useParams();
   const searchParams = new URLSearchParams(useLocation().search);
-  const navigate = useHistory();
+  const navigate = useNavigate();
 
   switch (serviceId) {
     case "fitbitauth":
       redeemCode("fitbit", searchParams.get("code") ?? "").finally(() =>
-        navigate.push("/settings")
+        navigate("/settings")
       );
       return <>Redeeming Fitbit Authentication Token...</>;
     default:
       // TODO: Error into a snackbar
-      navigate.push("/settings");
+      navigate("/settings");
       return <>Error redeeming token</>;
   }
 }
@@ -66,11 +62,11 @@ export function Root() {
   ));
   return (
     <>
-      <Switch>
-        <Route path="/callback/:serviceId" children={<CallbackRouteChild />} />
-        <Route path="/settings" children={<SettingsDashboard />} />
-        <Route path="/" children={<ActivityDashboard />} />
-      </Switch>
+      <Routes>
+        <Route path="/callback/:serviceId" element={<CallbackRouteChild />} />
+        <Route path="/settings" element={<SettingsDashboard />} />
+        <Route path="/" element={<ActivityDashboard />} />
+      </Routes>
       {drawerOpen && <div>
         {sidebarItems}
       </div>}
