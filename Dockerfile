@@ -2,10 +2,11 @@ FROM --platform=$BUILDPLATFORM node:18.7.0 as webapp-builder
 WORKDIR /app
 
 COPY webapp/package*.json ./
-COPY webapp/tsconfig.json .
+COPY webapp/tsconfig*.json ./
 
 RUN npm ci
 
+COPY webapp/index.html .
 COPY webapp/src src
 COPY webapp/public public
 
@@ -38,6 +39,7 @@ COPY api/package.json package.json
 COPY api/package-lock.json package-lock.json
 COPY --from=api-deps /application/node_modules /application/node_modules
 COPY --from=api-builder /application/dist /application/dist
-COPY --from=webapp-builder /app/build /application/static
+COPY --from=webapp-builder /app/dist /application/static
+COPY api/migrations /application/migrations
 EXPOSE 8080
 CMD ["npm", "start"]
