@@ -43,6 +43,7 @@ export default function ProviderSettings() {
         {statuses &&
           statuses.map((s) => (
             <button
+              key={s.key}
               onClick={() => GetChallenge(s.key)}
             >
               {s.name}
