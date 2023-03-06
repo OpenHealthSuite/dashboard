@@ -5,22 +5,23 @@ import {
 import { Root } from './components/Root'
 
 import { createContext, useCallback, useEffect, useState } from 'react';
-import { DashboardSettings } from "./components/settings/types";
+import { DashboardSettings, DEFAULT_DASHBOARD_SETTINGS } from "./components/settings/types";
 import { pacemeUserRouteGetRequest, pacemeUserRoutePutRequest } from "./services/PaceMeApiService";
 
-type DashboardSettingsContext = {
+export type DashboardSettingsContextType = {
   dashboardSettings: DashboardSettings,
   setDashboardSettings: (settings: DashboardSettings) => Promise<void>
 }
 
-export const DashboardSettingsContext = createContext<DashboardSettingsContext | undefined>(undefined);
+export const DashboardSettingsContext = createContext<DashboardSettingsContextType | undefined>(undefined);
 
 function App() {
   const [dashboardSettings, setDashboardSettings] = useState<DashboardSettings | undefined>(undefined);
 
   useEffect(() => {
     pacemeUserRouteGetRequest<DashboardSettings>('/userSettings/dashboard')
-      .then(settings =>  setDashboardSettings(settings))
+      .then(settings => setDashboardSettings(settings))
+      .catch(() => setDashboardSettings(DEFAULT_DASHBOARD_SETTINGS))
   }, [setDashboardSettings]);
 
   const apiSetDashboardSettings = useCallback(async (settings: DashboardSettings) => {
