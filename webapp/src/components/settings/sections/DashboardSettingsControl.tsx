@@ -21,12 +21,40 @@ export const DashboardSettingsControl = () => {
             {Object.entries(enabled).map(([key, tile], i) => {
                 return <div key={key}>
                     <div>
-                        {i !== 0 && <button>&uarr;</button>}
-                        {i !== lastIndex && <button>&darr;</button>}
+                        {i !== 0 && <button onClick={() => {
+                            if (settingsContext) {
+                                let {dashboardSettings, setDashboardSettings} = settingsContext;
+                                let reinsert = dashboardSettings.tileSettings.splice(i, 1);
+                                dashboardSettings.tileSettings = [
+                                    ...dashboardSettings.tileSettings.splice(0, i - 1),
+                                    ...reinsert,
+                                    ...dashboardSettings.tileSettings,
+                                ]
+                                setDashboardSettings(dashboardSettings);
+                            }
+                        }}>&uarr;</button>}
+                        {i !== lastIndex && <button onClick={() => {
+                            if (settingsContext) {
+                                let {dashboardSettings, setDashboardSettings} = settingsContext;
+                                let reinsert = dashboardSettings.tileSettings.splice(i, 1);
+                                dashboardSettings.tileSettings = [
+                                    ...dashboardSettings.tileSettings.splice(0, i + 1),
+                                    ...reinsert,
+                                    ...dashboardSettings.tileSettings,
+                                ]
+                                setDashboardSettings(dashboardSettings);
+                            }
+                        }}>&darr;</button>}
                     </div>
                     <div>{tile.displayName}</div>
                     <div>
-                        <button>Disable</button>
+                        <button onClick={() => {
+                            if (settingsContext) {
+                                let {dashboardSettings, setDashboardSettings} = settingsContext;
+                                dashboardSettings.tileSettings = dashboardSettings.tileSettings.filter(x => x.componentName !== key)
+                                setDashboardSettings(dashboardSettings);
+                            }
+                        }}>Disable</button>
                     </div>
                 </div>
             })}
@@ -37,7 +65,13 @@ export const DashboardSettingsControl = () => {
                 return <div key={key}>
                     <div>{tile.displayName}</div>
                     <div>
-                        <button>Enable</button>
+                        <button onClick={() => {
+                            if (settingsContext) {
+                                let {dashboardSettings, setDashboardSettings} = settingsContext;
+                                dashboardSettings.tileSettings.push({ componentName: key })
+                                setDashboardSettings(dashboardSettings);
+                            }
+                        }}>Enable</button>
                     </div>
                 </div>
             })}
