@@ -17,6 +17,8 @@ export const DashboardSettingsContext = createContext<DashboardSettingsContextTy
 
 function App() {
   const [dashboardSettings, setDashboardSettings] = useState<DashboardSettings | undefined>(undefined);
+  const [, updateState] = useState<{} | undefined>();
+  const forceUpdate = useCallback(() => updateState({}), []);
 
   useEffect(() => {
     pacemeUserRouteGetRequest<DashboardSettings>('/userSettings/dashboard')
@@ -27,10 +29,13 @@ function App() {
   const apiSetDashboardSettings = useCallback(async (settings: DashboardSettings) => {
     await pacemeUserRoutePutRequest('/userSettings/dashboard', settings)
       .then(() =>  setDashboardSettings(settings))
-  }, [setDashboardSettings])
+      .finally(() => forceUpdate())
+  }, [setDashboardSettings, forceUpdate])
+
+  const context = dashboardSettings ? {dashboardSettings, setDashboardSettings: apiSetDashboardSettings} : undefined;
 
   return (
-    <DashboardSettingsContext.Provider value={dashboardSettings ? {dashboardSettings, setDashboardSettings: apiSetDashboardSettings} : undefined}>
+    <DashboardSettingsContext.Provider value={context}>
       <Router>
         <Root />
       </Router>
