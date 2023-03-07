@@ -19,8 +19,8 @@ export const DashboardSettingsControl = () => {
         <div>
             <h3>Enabled Tiles</h3>
             {Object.entries(enabled).map(([key, tile], i) => {
-                return <div key={key}>
-                    <div>
+                return <div role="listitem" key={key}>
+                    {/* <div>
                         {i !== 0 && <button onClick={() => {
                             if (settingsContext) {
                                 let {dashboardSettings, setDashboardSettings} = settingsContext;
@@ -29,7 +29,7 @@ export const DashboardSettingsControl = () => {
                                     ...dashboardSettings.tileSettings.splice(0, i - 1),
                                     ...reinsert,
                                     ...dashboardSettings.tileSettings,
-                                ]
+                                ].map((dts, i) => ({...dts, index: i}))
                                 setDashboardSettings(dashboardSettings);
                             }
                         }}>&uarr;</button>}
@@ -41,11 +41,11 @@ export const DashboardSettingsControl = () => {
                                     ...dashboardSettings.tileSettings.splice(0, i + 1),
                                     ...reinsert,
                                     ...dashboardSettings.tileSettings,
-                                ]
+                                ].map((dts, i) => ({...dts, index: i}))
                                 setDashboardSettings(dashboardSettings);
                             }
                         }}>&darr;</button>}
-                    </div>
+                    </div> */}
                     <div>{tile.displayName}</div>
                     <div>
                         <button onClick={() => {
