@@ -107,14 +107,14 @@ describe("DashboardSettingsControl", () => {
 
         it("Expect buttons for reordering", () => {
             const labelOne = within(screen.getByText("First Tile").parentElement!);
-            expect(labelOne.queryByRole("button", { name: "↑" })).not.toBeInTheDocument();
-            expect(labelOne.queryByRole("button", { name: "↓" })).toBeInTheDocument();
+            expect(labelOne.queryByRole("button", { name: "up" })).not.toBeInTheDocument();
+            expect(labelOne.queryByRole("button", { name: "down" })).toBeInTheDocument();
             const labelTwo = within(screen.getByText("Second Tile").parentElement!);
-            expect(labelTwo.queryByRole("button", { name: "↑" })).toBeInTheDocument();
-            expect(labelTwo.queryByRole("button", { name: "↓" })).toBeInTheDocument();
+            expect(labelTwo.queryByRole("button", { name: "up" })).toBeInTheDocument();
+            expect(labelTwo.queryByRole("button", { name: "down" })).toBeInTheDocument();
             const labelThree = within(screen.getByText("Third Tile").parentElement!);
-            expect(labelThree.queryByRole("button", { name: "↑" })).toBeInTheDocument();
-            expect(labelThree.queryByRole("button", { name: "↓" })).not.toBeInTheDocument();
+            expect(labelThree.queryByRole("button", { name: "up" })).toBeInTheDocument();
+            expect(labelThree.queryByRole("button", { name: "down" })).not.toBeInTheDocument();
         })
 
         it.each(["Fourth Tile", "Fifth Tile"])("Disabled entries have enable buttons", (tile) => {
@@ -175,7 +175,7 @@ describe("DashboardSettingsControl", () => {
 
         it("Top click down :: moves down", () => {
             const label = within(screen.getByText("First Tile").parentElement!);
-            const button = label.getByRole("button", { name: "↓" });
+            const button = label.getByRole("button", { name: "down" });
             fireEvent.click(button);
             let testTileSettings = structuredClone(dashboardSettings);
             testTileSettings.tileSettings = [
@@ -190,7 +190,7 @@ describe("DashboardSettingsControl", () => {
 
         it("Middle click down :: moves down", () => {
             const label = within(screen.getByText("Second Tile").parentElement!);
-            const button = label.getByRole("button", { name: "↓" });
+            const button = label.getByRole("button", { name: "down" });
             fireEvent.click(button);
             let testTileSettings = structuredClone(dashboardSettings);
             testTileSettings.tileSettings = [
@@ -205,7 +205,7 @@ describe("DashboardSettingsControl", () => {
 
         it("Middle click up :: moves up", () => {
             const label = within(screen.getByText("Second Tile").parentElement!);
-            const button = label.getByRole("button", { name: "↑" });
+            const button = label.getByRole("button", { name: "up" });
             fireEvent.click(button);
             let testTileSettings = structuredClone(dashboardSettings);
             testTileSettings.tileSettings = [
@@ -220,7 +220,7 @@ describe("DashboardSettingsControl", () => {
 
         it("Bottom click up :: moves up", () => {
             const label = within(screen.getByText("Third Tile").parentElement!);
-            const button = label.getByRole("button", { name: "↑" });
+            const button = label.getByRole("button", { name: "up" });
             fireEvent.click(button);
             let testTileSettings = structuredClone(dashboardSettings);
             testTileSettings.tileSettings = [

@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { DashboardSettingsContext } from '../../../App';
 import { AvailableTiles, IAvailableTile } from '../../dashboard/tiles'
+import './DashboardSettingsControl.scss'
 
 export const DashboardSettingsControl = () => {
     const settingsContext = useContext(DashboardSettingsContext);
@@ -18,13 +19,14 @@ export const DashboardSettingsControl = () => {
 
     const lastIndex = Object.keys(enabled).length - 1;
     
-    return <div>
+    return <div className='container'>
         <div>
             <h3>Enabled Tiles</h3>
+            <ol>
             {enabled.map(([key, tile], i) => {
-                return <div role="listitem" key={key}>
-                    <div>
-                        {i !== 0 && <button onClick={() => {
+                return <li key={key} className="dashboard-setting">
+                    <div className="order-buttons">
+                        {i !== 0 && <button aria-label="up" onClick={() => {
                             if (settingsContext) {
                                 let {dashboardSettings, setDashboardSettings} = settingsContext;
                                 let reinsert = dashboardSettings.tileSettings.splice(i, 1);
@@ -36,7 +38,7 @@ export const DashboardSettingsControl = () => {
                                 setDashboardSettings(dashboardSettings);
                             }
                         }}>&uarr;</button>}
-                        {i !== lastIndex && <button onClick={() => {
+                        {i !== lastIndex && <button aria-label="down" onClick={() => {
                             if (settingsContext) {
                                 let {dashboardSettings, setDashboardSettings} = settingsContext;
                                 let reinsert = dashboardSettings.tileSettings.splice(i, 1);
@@ -59,13 +61,15 @@ export const DashboardSettingsControl = () => {
                             }
                         }}>Disable</button>
                     </div>
-                </div>
+                </li>
             })}
+            </ol>
         </div>
         <div>
         <h5>Other Available Tiles</h5>
+        <ul>
             {disabled.map(([key, tile], i) => {
-                return <div key={key}>
+                return <li key={key} className="dashboard-setting">
                     <div>{tile.displayName}</div>
                     <div>
                         <button onClick={() => {
@@ -76,8 +80,10 @@ export const DashboardSettingsControl = () => {
                             }
                         }}>Enable</button>
                     </div>
-                </div>
+                </li>
             })}
+
+        </ul>
         </div>
     </div>
 }
