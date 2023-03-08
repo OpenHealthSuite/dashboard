@@ -5,26 +5,26 @@ import { DashboardSettingsControl } from "./DashboardSettingsControl";
 
 vi.mock('../../dashboard/tiles', () => ({
     AvailableTiles: {
-        FirstTile: {
-            displayName: "First Tile",
-            component: () => <>First Tile Comp</>
+        ThirdTile: {
+            displayName: "Third Tile",
+            component: () => <>Third Tile Comp</>
         },
         SecondTile: {
             displayName: "Second Tile",
             component: () => <>Second Tile Comp</>
         },
-        ThirdTile: {
-            displayName: "Third Tile",
-            component: () => <>Third Tile Comp</>
+        FirstTile: {
+            displayName: "First Tile",
+            component: () => <>First Tile Comp</>
+        },
+        FifthTile: {
+            displayName: "Fifth Tile",
+            component: () => <>Fifth Tile Comp</>
         },
         FourthTile: {
             displayName: "Fourth Tile",
             component: () => <>Fourth Tile Comp</>
         },
-        FifthTile: {
-            displayName: "Fifth Tile",
-            component: () => <>Fifth Tile Comp</>
-        }
     }
 }));
 
@@ -82,7 +82,7 @@ describe("DashboardSettingsControl", () => {
             expect(label.parentElement).toHaveTextContent("Third Tile");
         })
 
-        it("Orders using index prop not order", () => {
+        it("Orders using index not module order", () => {
             const items = within(screen.getByText("Enabled Tiles").parentElement!).getAllByRole("listitem");
             expect(items[0]).toHaveTextContent("First Tile");
             expect(items[1]).toHaveTextContent("Second Tile");
@@ -105,7 +105,7 @@ describe("DashboardSettingsControl", () => {
             expect(label.getByRole("button", { name: "Disable" })).toBeInTheDocument();
         })
 
-        it.skip("Expect buttons for reordering", () => {
+        it("Expect buttons for reordering", () => {
             const labelOne = within(screen.getByText("First Tile").parentElement!);
             expect(labelOne.queryByRole("button", { name: "↑" })).not.toBeInTheDocument();
             expect(labelOne.queryByRole("button", { name: "↓" })).toBeInTheDocument();
@@ -173,7 +173,7 @@ describe("DashboardSettingsControl", () => {
             expect(mockSetDashboardSettings).toBeCalledWith(testTileSettings)
         })
 
-        it.skip("Top click down :: moves down", () => {
+        it("Top click down :: moves down", () => {
             const label = within(screen.getByText("First Tile").parentElement!);
             const button = label.getByRole("button", { name: "↓" });
             fireEvent.click(button);
@@ -188,7 +188,7 @@ describe("DashboardSettingsControl", () => {
         })
 
 
-        it.skip("Middle click down :: moves down", () => {
+        it("Middle click down :: moves down", () => {
             const label = within(screen.getByText("Second Tile").parentElement!);
             const button = label.getByRole("button", { name: "↓" });
             fireEvent.click(button);
@@ -203,7 +203,7 @@ describe("DashboardSettingsControl", () => {
         })
 
 
-        it.skip("Middle click up :: moves up", () => {
+        it("Middle click up :: moves up", () => {
             const label = within(screen.getByText("Second Tile").parentElement!);
             const button = label.getByRole("button", { name: "↑" });
             fireEvent.click(button);
@@ -218,7 +218,7 @@ describe("DashboardSettingsControl", () => {
         })
 
 
-        it.skip("Bottom click up :: moves up", () => {
+        it("Bottom click up :: moves up", () => {
             const label = within(screen.getByText("Third Tile").parentElement!);
             const button = label.getByRole("button", { name: "↑" });
             fireEvent.click(button);

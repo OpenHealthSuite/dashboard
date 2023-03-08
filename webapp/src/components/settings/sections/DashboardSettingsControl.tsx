@@ -5,22 +5,25 @@ import { AvailableTiles, IAvailableTile } from '../../dashboard/tiles'
 export const DashboardSettingsControl = () => {
     const settingsContext = useContext(DashboardSettingsContext);
     const enabledTileKeys = (settingsContext?.dashboardSettings.tileSettings ?? []).map(x => x.componentName);
-    const [enabled, disabled] = Object.entries(AvailableTiles)
-    .reduce<[typeof AvailableTiles, typeof AvailableTiles]>(([en, dis], tile) => {
-        if (enabledTileKeys.includes(tile[0])) {
-            return [{...en, [tile[0]]: tile[1]}, dis]
+    const disabled = Object.entries(AvailableTiles);
+
+    const enabled= enabledTileKeys.reduce<[string, IAvailableTile][]>((en, tile) => {
+        const inx = disabled.findIndex(x => x[0] === tile)
+        if (inx > -1) {
+            const tile = disabled.splice(inx, 1)[0];
+            return [...en, [tile[0], tile[1]]]
         }
-        return [en, {...dis, [tile[0]]: tile[1]}];
-    }, [{}, {}])
+        return en;
+    }, [])
 
     const lastIndex = Object.keys(enabled).length - 1;
     
     return <div>
         <div>
             <h3>Enabled Tiles</h3>
-            {Object.entries(enabled).map(([key, tile], i) => {
+            {enabled.map(([key, tile], i) => {
                 return <div role="listitem" key={key}>
-                    {/* <div>
+                    <div>
                         {i !== 0 && <button onClick={() => {
                             if (settingsContext) {
                                 let {dashboardSettings, setDashboardSettings} = settingsContext;
@@ -29,7 +32,7 @@ export const DashboardSettingsControl = () => {
                                     ...dashboardSettings.tileSettings.splice(0, i - 1),
                                     ...reinsert,
                                     ...dashboardSettings.tileSettings,
-                                ].map((dts, i) => ({...dts, index: i}))
+                                ]
                                 setDashboardSettings(dashboardSettings);
                             }
                         }}>&uarr;</button>}
@@ -41,11 +44,11 @@ export const DashboardSettingsControl = () => {
                                     ...dashboardSettings.tileSettings.splice(0, i + 1),
                                     ...reinsert,
                                     ...dashboardSettings.tileSettings,
-                                ].map((dts, i) => ({...dts, index: i}))
+                                ]
                                 setDashboardSettings(dashboardSettings);
                             }
                         }}>&darr;</button>}
-                    </div> */}
+                    </div>
                     <div>{tile.displayName}</div>
                     <div>
                         <button onClick={() => {
@@ -61,7 +64,7 @@ export const DashboardSettingsControl = () => {
         </div>
         <div>
         <h5>Other Available Tiles</h5>
-            {Object.entries(disabled).map(([key, tile]) => {
+            {disabled.map(([key, tile], i) => {
                 return <div key={key}>
                     <div>{tile.displayName}</div>
                     <div>
