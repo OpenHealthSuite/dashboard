@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LeeMartin77/PaceMe.js.git"
+    "url": "git+https://github.com/openhealthsuite/dashboard.git"
   },
   "keywords": [
     "running",
@@ -20,9 +20,9 @@
   "author": "Lee Martin <hello@leejohnmartin.co.uk>",
   "license": "GPL-3.0-only",
   "bugs": {
-    "url": "https://github.com/LeeMartin77/PaceMe.js/issues"
+    "url": "https://github.com/openhealthsuite/dashboard/issues"
   },
-  "homepage": "https://github.com/LeeMartin77/PaceMe.js#readme",
+  "homepage": "https://github.com/openhealthsuite/dashboard#readme",
   "devDependencies": {
     "concurrently": "^6.5.1",
     "ts-sinon": "^2.0.2"

@@ -1,5 +1,5 @@
 api:
-  image: ghcr.io/leemartin77/pacemejs
+  image: ghcr.io/openhealthsuite/dashboard
   tag: latest
   replicas: 3
   cassandra:
