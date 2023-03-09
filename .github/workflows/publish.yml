@@ -1,5 +1,8 @@
 name: Publish PaceMeJs Container
 
+permissions:
+  packages: write
+  
 on:
   release:
     types: [published]
