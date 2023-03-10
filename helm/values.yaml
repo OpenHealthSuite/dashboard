@@ -3,8 +3,8 @@ api:
   tag: latest
   replicas: 3
   cassandra:
-    user: cassandra
-    password: cassandra
+    # expects a "cassandrauser" and "cassandrapassword" data key
+    credentialssecret: paceme-casscreds
     contactpoints: cassandra.service.svc:9042
 
 hostname: app.paceme.info

@@ -62,6 +62,12 @@ spec:
             - name: CASSANDRA_CONTACT_POINTS
               value: {{ required "api.cassandra.contactpoints is required" .Values.api.cassandra.contactpoints }}
             - name: CASSANDRA_USER
-              value: {{ required "api.cassandra.user is required" .Values.api.cassandra.user }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "api.cassandra.credentialssecret is required" .Values.api.cassandra.credentialssecret }}
+                  key: cassandrauser
             - name: CASSANDRA_PASSWORD
-              value: {{ required "api.cassandra.password is required" .Values.api.cassandra.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "api.cassandra.credentialssecret is required" .Values.api.cassandra.credentialssecret }}
+                  key: cassandrapassword
