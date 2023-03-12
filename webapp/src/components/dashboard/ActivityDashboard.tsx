@@ -1,7 +1,7 @@
-import "./ActivityDashboard.scss";
 import { useContext } from "react";
 import { AvailableTiles, IAvailableTiles } from "./tiles";
 import { DashboardSettingsContext } from "../../App";
+import { Flex } from "@chakra-ui/react";
 
 interface IDashboardProps {
   availableTiles?: IAvailableTiles;
@@ -15,7 +15,12 @@ export function ActivityDashboard({
   const dashboardSettings = settingsContext?.dashboardSettings;
   if (settingsContext && dashboardSettings) {
     return (
-      <div className={"dashboard-grid"}>
+      <Flex display="grid"
+        gridTemplateColumns="repeat(3, minmax(200px, 1fr))"
+        gridAutoRows="minmax(100px, auto)"
+        gap="1em"
+        padding="1em"
+        >
         {dashboardSettings.tileSettings
           .filter((ts) =>
             Object.keys(availableTiles).includes(ts.componentName)
@@ -23,15 +28,17 @@ export function ActivityDashboard({
           .map((ts) => availableTiles[ts.componentName])
           .map((tile, i) => {
             return (
-              <div
-                className={"dashboard-grid-item"}
+              <Flex
+                border="1px solid gray"
+                borderRadius="1em"
+                padding="1em"
                 key={`gridkey-${i}`}
               >
                 <tile.component />
-              </div>
+              </Flex>
             );
           })}
-      </div>
+      </Flex>
     );
   }
   if (settingsContext) {

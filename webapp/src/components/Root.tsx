@@ -11,6 +11,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { pacemeUserRoutePostRequest } from "../services/PaceMeApiService";
+import { Box, Button, Container } from "@chakra-ui/react";
 
 async function redeemCode(providerKey: string, code: string): Promise<{} | undefined> {
   return pacemeUserRoutePostRequest<{ code: string }, {}>(['/providers', providerKey, 'redeem'].join('/'), { code })
@@ -33,6 +34,7 @@ const CallbackRouteChild: React.FC = () => {
       return <>Error redeeming token</>;
   }
 }
+
 export function Root() {
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -48,33 +50,38 @@ export function Root() {
     setDrawerOpen(open);
   };
 
+  const path = useLocation().pathname
+
   const sidebarItems = [
     { linkDest: "/", name: "Dashboard" },
     { linkDest: "/settings", name: "Settings" },
-  ].map((item) => (
+  ].filter(i => i.linkDest !== path)
+  .map((item) => (
     <Link
       onClick={toggleDrawer(false)}
       to={item.linkDest}
       key={item.name.toLowerCase().replace(" ", "")}
     >
-      {item.name}
+      <Button size="sm">
+        {item.name}
+      </Button>
     </Link>
   ));
   return (
-    <>
-      <Routes>
-        <Route path="/callback/:serviceId" element={<CallbackRouteChild />} />
-        <Route path="/settings" element={<SettingsDashboard />} />
-        <Route path="/" element={<ActivityDashboard />} />
-      </Routes>
-      {drawerOpen && <div>
-        {sidebarItems}
-      </div>}
-      <div>
-        <button aria-label="menu" onClick={toggleDrawer(true)}>
-          Menu
-        </button>
-      </div>
-    </>
+      <Box width="100vw" minHeight="100vh" position="relative" paddingBottom="2em">
+        <Routes>
+          <Route path="/callback/:serviceId" element={<CallbackRouteChild />} />
+          <Route path="/settings" element={<SettingsDashboard />} />
+          <Route path="/" element={<ActivityDashboard />} />
+        </Routes>
+        <Box position="absolute"
+          bottom="0.5em"
+          width="100%"
+          display="flex"
+          justifyContent="center"
+          gap="1em">
+          {sidebarItems}
+        </Box>
+      </Box>
   );
 }

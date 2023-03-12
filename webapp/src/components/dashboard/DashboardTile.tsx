@@ -1,6 +1,5 @@
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import "./DashboardTile.scss";
-
 export interface IDashboardTileProps<T> {
   headerText?: string;
   children?: JSX.Element;
@@ -56,13 +55,28 @@ export function DashboardTile<T>({
   }, [setIsErrored, setIsLoading, setData, dataGetterFunction, dataRetreivalFunction, refreshIntervalms]);
 
   return (
-    <div className="dashboard-tile" data-testid="card" onClick={() => dataGetterFunction(setIsErrored, setIsLoading, setData, dataRetreivalFunction)}>
-      <div className="dashtile-content" data-testid="card-content">{children}</div>
-      <div className="status-bar">
-        {isLoading && <div data-testid="card-loading">Loading</div>}
-        {isErrored && <div data-testid="card-error">Error</div>}
-      </div>
-      {headerText && <div data-testid="card-header" className="dashtile-header">{headerText}</div>}
-    </div>
+    <Flex 
+      minHeight="100%"
+      width="100%"
+      position="relative"
+      flexDirection="column"
+      justifyContent="center"
+      data-testid="card" onClick={() => dataGetterFunction(setIsErrored, setIsLoading, setData, dataRetreivalFunction)}>
+      <Box data-testid="card-content" paddingBottom="3rem">{children}</Box>
+      {headerText && <Text as="span" data-testid="card-header" 
+        width="100%"
+        textAlign="center"
+        position="absolute"
+        bottom="0"
+        >{headerText}</Text>}
+      <Flex position="absolute"
+        bottom="0"
+        width="100%"
+        flexDirection="row"
+        padding="0.3rem">
+        {isLoading && <Text as="span" data-testid="card-loading">Loading</Text>}
+        {isErrored && <Text as="span" data-testid="card-error">Error</Text>}
+      </Flex>
+    </Flex>
   );
 }
