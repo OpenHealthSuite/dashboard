@@ -48,12 +48,12 @@ spec:
             - name: FITBIT_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: paceme-api-secrets
+                  name: paceme-fitbit
                   key: fitbit-client-id
             - name: FITBIT_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: paceme-api-secrets
+                  name: paceme-fitbit
                   key: fitbit-client-secret
             - name: REDIS_PORT
               value: '6379'
