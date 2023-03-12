@@ -1,31 +1,33 @@
-name: Publish PaceMeJs Container
+name: Publish Dashboard Container
 
-permissions:
-  packages: write
-  
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v*.*.*"
 
 jobs:
+  build-and-test-webapp:
+    uses: ./.github/workflows/build_and_test_webapp.yml
+
+  build-and-test-api:
+    uses: ./.github/workflows/build_and_test_api.yml
+
   publish:
+    needs:
+      - build-and-test-webapp
+      - build-and-test-api
+    uses: ./.github/workflows/build_docker_image.yml
+    with:
+      VERSION: ${{ github.ref_name }}
+      PUSH: true
+      PUSH_LATEST: true
+
+  publish-release:
+    needs:
+      - publish
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Login to GHCR
-      uses: docker/login-action@v2
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Set up Docker Buildx
-      id: buildx
-      uses: docker/setup-buildx-action@v2
-      
-    - name: Build and Publish the Docker image
-      working-directory: .
-      run: |
-        export REPOSITORY="ghcr.io/openhealthsuite/dashboard"
-        export VERSION=${{ github.event.release.tag_name }}
-        docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 -t "$REPOSITORY:latest" -t "$REPOSITORY:$VERSION" --push .
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: false

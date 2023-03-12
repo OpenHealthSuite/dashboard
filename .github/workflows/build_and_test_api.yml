@@ -1,0 +1,46 @@
+name: Api Build and Test
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * *" # run at 2 AM UTC
+  push:
+    branches: ["main"]
+    paths:
+      - "api/**"
+      - .github/workflows/build_and_test_api.yml
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "api/**"
+      - .github/workflows/build_and_test_api.yml
+
+jobs:
+  unit-test-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./api/.nvmrc"
+      - name: Restore dependencies
+        working-directory: ./api
+        run: npm ci
+      - name: Test
+        working-directory: ./api
+        run: npm test
+
+  build-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./api/.nvmrc"
+      - name: Restore dependencies
+        working-directory: ./api
+        run: npm ci
+      - name: Build
+        working-directory: ./api
+        run: npm run build

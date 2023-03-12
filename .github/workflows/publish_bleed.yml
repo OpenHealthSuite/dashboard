@@ -1,0 +1,18 @@
+name: Publish Bleed Dashboard Container
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: "publish-bleed"
+  cancel-in-progress: true
+
+jobs:
+  publish-bleed:
+    uses: ./.github/workflows/build_docker_image.yml
+    with:
+      VERSION: bleed
+      PUSH: true
+      PUSH_LATEST: false
