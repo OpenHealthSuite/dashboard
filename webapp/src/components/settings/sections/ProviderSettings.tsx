@@ -1,3 +1,4 @@
+import { Container, Heading, UnorderedList, Text, Button, ListItem } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
   pacemeUserRouteGetRequest,
@@ -35,23 +36,26 @@ export default function ProviderSettings() {
   }, [setLoading, setError, setStatuses]);
 
   return (
-    <div>
-      <div>Data Providers</div>
-      <div>
-        {isLoading && "Pending"}
-        {isErrored && "Error"}
-        {statuses &&
-          statuses.map((s) => (
-            <button
-              key={s.key}
-              onClick={() => GetChallenge(s.key)}
-            >
-              {s.name}
-              {" - "}
-              {s.authenticated ? "Reauthenticate" : "Authenticate"}
-            </button>
+    <Container maxWidth="420px">
+      <Heading as="h5">Data Providers</Heading>
+        {isLoading && <Text>Pending</Text>}
+        {isErrored && <Text>Error</Text>}
+        {statuses &&<UnorderedList listStyleType="none" margin="0">
+        
+          {statuses.map((s) => (
+            <ListItem>
+              <Button
+                key={s.key}
+                size="sm"
+                onClick={() => GetChallenge(s.key)}
+              >
+                {s.name}
+                {" - "}
+                {s.authenticated ? "Reauthenticate" : "Authenticate"}
+              </Button>
+            </ListItem>
           ))}
-      </div>
-    </div>
+        </UnorderedList>}
+    </Container>
   );
 }

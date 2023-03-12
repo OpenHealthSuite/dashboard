@@ -32,11 +32,11 @@ export const DashboardSettingsControl = () => {
                     display={"flex"}
                     justifyContent="flex-start"
                     alignItems="center">
-                    <Flex minWidth={"100px"}
+                    <Flex minWidth={"80px"}
                         alignItems={"center"} 
                         justifyContent={"space-between"}
                         marginRight="1em">
-                        {i !== 0 && <Button justifySelf={"flex-start"} aria-label="up" onClick={() => {
+                        {i !== 0 && <Button justifySelf={"flex-start"} aria-label="up" size="sm" onClick={() => {
                             if (settingsContext) {
                                 let {dashboardSettings, setDashboardSettings} = settingsContext;
                                 let reinsert = dashboardSettings.tileSettings.splice(i, 1);
@@ -48,7 +48,7 @@ export const DashboardSettingsControl = () => {
                                 setDashboardSettings(dashboardSettings);
                             }
                         }}>&uarr;</Button>}
-                        {i !== lastIndex && <Button justifySelf={"flex-end"} aria-label="down" onClick={() => {
+                        {i !== lastIndex && <Button justifySelf={"flex-end"} aria-label="down" size="sm" onClick={() => {
                             if (settingsContext) {
                                 let {dashboardSettings, setDashboardSettings} = settingsContext;
                                 let reinsert = dashboardSettings.tileSettings.splice(i, 1);
@@ -62,7 +62,7 @@ export const DashboardSettingsControl = () => {
                         }}>&darr;</Button>}
                     </Flex>
                     <Text as="span">{tile.displayName}</Text>
-                    <Button marginLeft="auto" onClick={() => {
+                    <Button marginLeft="auto" size="sm" onClick={() => {
                         if (settingsContext) {
                             let {dashboardSettings, setDashboardSettings} = settingsContext;
                             dashboardSettings.tileSettings = dashboardSettings.tileSettings.filter(x => x.componentName !== key)
@@ -86,7 +86,7 @@ export const DashboardSettingsControl = () => {
                         justifyContent="flex-start"
                         alignItems="center">
                     <Text as="span">{tile.displayName}</Text>
-                    <Button marginLeft="auto" onClick={() => {
+                    <Button marginLeft="auto" size="sm" onClick={() => {
                         if (settingsContext) {
                             let {dashboardSettings, setDashboardSettings} = settingsContext;
                             dashboardSettings.tileSettings.push({ componentName: key })
