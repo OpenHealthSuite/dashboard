@@ -1,6 +1,8 @@
 import {
   BrowserRouter as Router,
 } from "react-router-dom";
+import { ChakraProvider } from '@chakra-ui/react'
+import { extendTheme } from "@chakra-ui/react";
 
 import { Root } from './components/Root'
 
@@ -14,6 +16,12 @@ export type DashboardSettingsContextType = {
 }
 
 export const DashboardSettingsContext = createContext<DashboardSettingsContextType | undefined>(undefined);
+
+const colors = {
+  brand: {},
+};
+
+const theme = extendTheme({ colors });
 
 function App() {
   const [dashboardSettings, setDashboardSettings] = useState<DashboardSettings | undefined>(undefined);
@@ -35,11 +43,13 @@ function App() {
   const context = dashboardSettings ? {dashboardSettings, setDashboardSettings: apiSetDashboardSettings} : undefined;
 
   return (
-    <DashboardSettingsContext.Provider value={context}>
-      <Router>
-        <Root />
-      </Router>
-    </DashboardSettingsContext.Provider>
+    <ChakraProvider theme={theme}>
+      <DashboardSettingsContext.Provider value={context}>
+        <Router>
+          <Root />
+        </Router>
+      </DashboardSettingsContext.Provider>
+    </ChakraProvider>
   );
 }
 

@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { DashboardSettingsContext } from '../../../App';
 import { AvailableTiles, IAvailableTile } from '../../dashboard/tiles'
-import './DashboardSettingsControl.scss'
+import { Button, Container, Flex, Heading, ListItem, UnorderedList, Text } from '@chakra-ui/react';
 
 export const DashboardSettingsControl = () => {
     const settingsContext = useContext(DashboardSettingsContext);
@@ -19,14 +19,24 @@ export const DashboardSettingsControl = () => {
 
     const lastIndex = Object.keys(enabled).length - 1;
     
-    return <div className='container'>
-        <div>
-            <h3>Enabled Tiles</h3>
-            <ol>
+    return <Flex flexWrap="wrap">
+        <Container maxWidth="420px">
+            <Heading as="h5">Enabled Tiles</Heading>
+            <UnorderedList margin={0} 
+                gap={"0.5em"} 
+                display={"flex"}
+                flexDirection={"column"}
+                listStyleType={"none"}>
             {enabled.map(([key, tile], i) => {
-                return <li key={key} className="dashboard-setting">
-                    <div className="order-buttons">
-                        {i !== 0 && <button aria-label="up" onClick={() => {
+                return <ListItem key={key}
+                    display={"flex"}
+                    justifyContent="flex-start"
+                    alignItems="center">
+                    <Flex minWidth={"100px"}
+                        alignItems={"center"} 
+                        justifyContent={"space-between"}
+                        marginRight="1em">
+                        {i !== 0 && <Button justifySelf={"flex-start"} aria-label="up" onClick={() => {
                             if (settingsContext) {
                                 let {dashboardSettings, setDashboardSettings} = settingsContext;
                                 let reinsert = dashboardSettings.tileSettings.splice(i, 1);
@@ -37,8 +47,8 @@ export const DashboardSettingsControl = () => {
                                 ]
                                 setDashboardSettings(dashboardSettings);
                             }
-                        }}>&uarr;</button>}
-                        {i !== lastIndex && <button aria-label="down" onClick={() => {
+                        }}>&uarr;</Button>}
+                        {i !== lastIndex && <Button justifySelf={"flex-end"} aria-label="down" onClick={() => {
                             if (settingsContext) {
                                 let {dashboardSettings, setDashboardSettings} = settingsContext;
                                 let reinsert = dashboardSettings.tileSettings.splice(i, 1);
@@ -49,41 +59,44 @@ export const DashboardSettingsControl = () => {
                                 ]
                                 setDashboardSettings(dashboardSettings);
                             }
-                        }}>&darr;</button>}
-                    </div>
-                    <div>{tile.displayName}</div>
-                    <div>
-                        <button onClick={() => {
-                            if (settingsContext) {
-                                let {dashboardSettings, setDashboardSettings} = settingsContext;
-                                dashboardSettings.tileSettings = dashboardSettings.tileSettings.filter(x => x.componentName !== key)
-                                setDashboardSettings(dashboardSettings);
-                            }
-                        }}>Disable</button>
-                    </div>
-                </li>
+                        }}>&darr;</Button>}
+                    </Flex>
+                    <Text as="span">{tile.displayName}</Text>
+                    <Button marginLeft="auto" onClick={() => {
+                        if (settingsContext) {
+                            let {dashboardSettings, setDashboardSettings} = settingsContext;
+                            dashboardSettings.tileSettings = dashboardSettings.tileSettings.filter(x => x.componentName !== key)
+                            setDashboardSettings(dashboardSettings);
+                        }
+                    }}>Disable</Button>
+                </ListItem>
             })}
-            </ol>
-        </div>
-        <div>
-        <h5>Other Available Tiles</h5>
-        <ul>
+            </UnorderedList>
+        </Container>
+        <Container maxWidth="420px">
+        <Heading as="h5">Other Available Tiles</Heading>
+        <UnorderedList margin={0} 
+                gap={"0.5em"} 
+                display={"flex"}
+                flexDirection={"column"}
+                listStyleType={"none"}>
             {disabled.map(([key, tile], i) => {
-                return <li key={key} className="dashboard-setting">
-                    <div>{tile.displayName}</div>
-                    <div>
-                        <button onClick={() => {
-                            if (settingsContext) {
-                                let {dashboardSettings, setDashboardSettings} = settingsContext;
-                                dashboardSettings.tileSettings.push({ componentName: key })
-                                setDashboardSettings(dashboardSettings);
-                            }
-                        }}>Enable</button>
-                    </div>
-                </li>
+                return <ListItem key={key}  
+                        display={"flex"}
+                        justifyContent="flex-start"
+                        alignItems="center">
+                    <Text as="span">{tile.displayName}</Text>
+                    <Button marginLeft="auto" onClick={() => {
+                        if (settingsContext) {
+                            let {dashboardSettings, setDashboardSettings} = settingsContext;
+                            dashboardSettings.tileSettings.push({ componentName: key })
+                            setDashboardSettings(dashboardSettings);
+                        }
+                    }}>Enable</Button>
+                </ListItem>
             })}
 
-        </ul>
-        </div>
-    </div>
+        </UnorderedList>
+        </Container>
+    </Flex>
 }

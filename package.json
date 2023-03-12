@@ -25,6 +25,7 @@
   "homepage": "https://github.com/openhealthsuite/dashboard#readme",
   "devDependencies": {
     "concurrently": "^6.5.1",
-    "ts-sinon": "^2.0.2"
+    "ts-sinon": "^2.0.2",
+    "typescript": "^4.9.5"
   }
 }
