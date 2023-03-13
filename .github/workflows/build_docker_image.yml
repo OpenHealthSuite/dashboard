@@ -40,7 +40,9 @@ jobs:
 
       - name: Push Version
         if: ${{ inputs.PUSH }}
-        run: podman manifest push ${{ inputs.REPOSITORY }}:${{ inputs.VERSION }} ${{ inputs.REPOSITORY }}:${{ inputs.VERSION }}
+        run: | 
+          podman manifest push ${{ inputs.REPOSITORY }}:${{ inputs.VERSION }} ${{ inputs.REPOSITORY }}:${{ github.sha }}
+          podman manifest push ${{ inputs.REPOSITORY }}:${{ inputs.VERSION }} ${{ inputs.REPOSITORY }}:${{ inputs.VERSION }}
 
       - name: Push Latest
         if: ${{ inputs.PUSH && inputs.PUSH_LATEST }}
