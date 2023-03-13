@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
+import legacy from '@vitejs/plugin-legacy'
 
 const proxy = {
   "/api": {
@@ -20,7 +21,12 @@ export default defineConfig({
     port:3000,
       proxy,
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    legacy({
+      targets: ['defaults', 'not IE 11'],
+    })
+  ],
   test: {
     globals: true,
     environment: 'jsdom',
