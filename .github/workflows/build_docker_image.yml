@@ -18,6 +18,10 @@ on:
         type: string
         required: false
         default: ghcr.io/openhealthsuite/dashboard
+      PLATFORMS:
+        type: string
+        required: false
+        default: linux/arm64/v8,linux/amd64
 
 jobs:
   build-and-publish:
@@ -35,7 +39,7 @@ jobs:
         working-directory: .
         run: |
           sudo apt install qemu-user-static
-          platarch=linux/arm/v7,linux/arm64/v8,linux/amd64
+          platarch=${{ inputs.PLATFORMS }}
           podman build --jobs=6 --platform=$platarch --manifest ${{ inputs.REPOSITORY }}:${{ inputs.VERSION }} .
 
       - name: Push Version
