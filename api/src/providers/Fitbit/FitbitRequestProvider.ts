@@ -1,9 +1,10 @@
 import { Application, Request, Response } from 'express'
-import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
+import { userRestrictedHandler } from '../../utilities/UserRestrictedHandler'
 import { createHash, randomBytes } from 'crypto'
 import { Axios } from 'axios'
-import { UserServiceTokenRepository } from '../repositories/userServiceTokenRepository'
-import * as GenericCache from '../caches/GenericCache'
+import { UserServiceTokenRepository } from '../../repositories/userServiceTokenRepository'
+import * as GenericCache from '../../caches/GenericCache'
+import { DashboardLocals } from '../..'
 
 const AXIOS = new Axios({})
 
@@ -56,8 +57,8 @@ const SERVICE_CACHE_KEY = 'servicecache:fitbit'
 const CODE_CHALLENGE_CACHE = 'codechallengecache:fitbit'
 
 export function addFitbitHandlers (app: Application) {
-  app.post('/api/users/:userId/providers/fitbit/start', (req, res) => userRestrictedHandler(req, res, startAuthenticationFlow))
-  app.post('/api/users/:userId/providers/fitbit/redeem', (req, res) => userRestrictedHandler(req, res, redeemCode))
+  app.post('/api/users/:userId/providers/fitbit/start', (req, res: Response<any, DashboardLocals>) => userRestrictedHandler(req, res, startAuthenticationFlow))
+  app.post('/api/users/:userId/providers/fitbit/redeem', (req, res: Response<any, DashboardLocals>) => userRestrictedHandler(req, res, redeemCode))
 }
 
 function randomString (size: number): string {

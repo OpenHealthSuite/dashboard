@@ -1,6 +1,7 @@
 import { Application, Request, Response } from 'express'
 import { UserSettingRepository } from '../repositories/userSettingsRepository'
 import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
+import { DashboardLocals } from '..'
 
 const repository = new UserSettingRepository()
 
@@ -9,8 +10,8 @@ const SettingKeys = {
 }
 
 export function addUserSettingHandlers (app: Application) {
-  app.get('/api/users/:userId/userSettings/:settingId', (req, res) => userRestrictedHandler(req, res, settingsGet))
-  app.put('/api/users/:userId/userSettings/:settingId', (req, res) => userRestrictedHandler(req, res, settingsUpdate))
+  app.get('/api/users/:userId/userSettings/:settingId', (req, res: Response<any, DashboardLocals>) => userRestrictedHandler(req, res, settingsGet))
+  app.put('/api/users/:userId/userSettings/:settingId', (req, res: Response<any, DashboardLocals>) => userRestrictedHandler(req, res, settingsUpdate))
 }
 
 const settingsGet = async (userId: string, req: Request, res: Response) => {

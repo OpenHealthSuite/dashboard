@@ -1,15 +1,16 @@
 import express, { json } from 'express'
 import cors from 'cors'
-import { addProviderRoutes } from './providers/ProvidersHandler'
-import { addFitbitHandlers } from './providers/FitbitRequestProvider'
+import { addProviderRoutes } from './handlers/ProvidersHandler'
+import { addFitbitHandlers } from './providers/Fitbit/FitbitRequestProvider'
 import { addStepHandlers } from './handlers/stepsHandlers'
 import { addCaloriesHandlers } from './handlers/caloriesHandlers'
 import { addSleepHandlers } from './handlers/sleepHandlers'
 import { addUserSettingHandlers } from './handlers/userSettingHandlers'
-import { authenticationMiddleware } from './middlewares/authenticationMiddleware'
+import { AuthenticatedLocals, authenticationMiddleware } from './middlewares/authenticationMiddleware'
 import { runMigrations } from './repositories/_migrationRunner'
 import { addUserHandlers } from './handlers/userHandlers'
 import path from 'path'
+import { DataProviderLocals, dataProviderMiddleware } from './middlewares/dataProviderMiddleware'
 
 const app = express()
 const configuration = {
@@ -22,6 +23,9 @@ app.use(json())
 app.use(express.static('./static'))
 
 app.use((req, res, next) => authenticationMiddleware(req, res, next))
+app.use((req, res, next) => dataProviderMiddleware(req, res, next))
+
+export type DashboardLocals = DataProviderLocals & AuthenticatedLocals;
 
 // Add our Handlers
 addUserHandlers(app)

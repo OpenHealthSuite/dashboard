@@ -25,7 +25,7 @@ describe('authenticationMiddleware', () => {
 
     await authenticationMiddleware(
       fakeReq as unknown as Request,
-      fakeRes as unknown as Response,
+      fakeRes as unknown as any,
       fakeNextFunction
     )
 

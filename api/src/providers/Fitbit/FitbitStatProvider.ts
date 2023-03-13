@@ -1,49 +1,9 @@
+import { ICaloriesIn, ICaloriesOut, IDatedCaloriesBurned, IDatedCaloriesConsumed, IDatedCaloriesInOut, IDatedSleep, IDatedSteps, ISleep, IStepCount, DataProvider } from '../types'
 import { makeFitbitRequest } from './FitbitRequestProvider'
-
-interface IStepCount {
-  count: number
-}
-
-interface IDatedSteps {
-  steps: number,
-  date: Date
-}
 
 interface IFitbitDateValue {
   value: number,
   dateTime: string
-}
-
-interface IDatedCaloriesBurned {
-  caloriesOut: number,
-  date: Date
-}
-
-interface IDatedCaloriesConsumed {
-  caloriesIn: number,
-  date: Date
-}
-
-interface IDatedCaloriesInOut {
-  caloriesIn: number,
-  caloriesOut: number,
-  date: Date
-}
-
-interface ICalories {
-  caloriesIn: number,
-  caloriesOut: number
-}
-
-interface ISleep {
-  asleep: number,
-  rem: number,
-  awake: number
-}
-
-interface IDatedSleep {
-  date: Date,
-  sleep: ISleep
 }
 
 interface IFitbitDaySummary {
@@ -128,21 +88,27 @@ async function getCaloriesConsumedInDateRange (userId: string, dateStart: Date, 
   return await makeFitbitRequest<{'foods-log-caloriesIn': IFitbitDateValue[]}>(userId, `/1/user/-/foods/log/caloriesIn/date/${getFitbitDate(dateStart)}/${getFitbitDate(dateEnd)}.json`)
 }
 
-export async function dailyStepsProvider (userId: string, date: Date): Promise<IStepCount | undefined> {
+async function dailyStepsProvider (userId: string, date: Date): Promise<IStepCount | undefined> {
   const daySummary = await getDaySummary(userId, date)
   return { count: daySummary && daySummary.summary ? daySummary.summary.steps : 0 }
 }
 
-export async function dailyCaloriesProvider (userId: string, date: Date): Promise<ICalories | undefined> {
-  const daySummary = await getDaySummary(userId, date)
+async function dailyCaloriesConsumedProvider (userId: string, date: Date): Promise<ICaloriesIn | undefined> {
   const foodSummary = await getFoodSummary(userId, date)
   return {
-    caloriesIn: foodSummary && foodSummary.summary ? foodSummary.summary.calories : 0,
+    caloriesIn: foodSummary && foodSummary.summary ? foodSummary.summary.calories : 0
+  }
+}
+
+async function dailyCaloriesBurnedProvider (userId: string, date: Date): Promise<ICaloriesOut | undefined> {
+  const daySummary = await getDaySummary(userId, date)
+  return {
     caloriesOut: daySummary && daySummary.summary ? daySummary.summary.caloriesOut : 0
   }
 }
 
-export async function dailySleepProvider (userId: string, date: Date): Promise<ISleep | undefined> {
+
+async function dailySleepProvider (userId: string, date: Date): Promise<ISleep | undefined> {
   const rawData = await getSleepSummary(userId, date)
   if (!rawData || !rawData.summary || !rawData.summary.stages) {
     return undefined
@@ -182,7 +148,7 @@ export async function dateRangeSleepProvider (userId: string, dateStart: Date, d
   return returnValue
 }
 
-export async function dateRangeStepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSteps[] | undefined> {
+async function dateRangeStepProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedSteps[] | undefined> {
   const rawSteps = await getStepsInDateRange(userId, dateStart, dateEnd)
   if (!rawSteps) {
     return undefined
@@ -190,7 +156,7 @@ export async function dateRangeStepProvider (userId: string, dateStart: Date, da
   return rawSteps['activities-steps'].map(rs => { return { steps: rs.value, date: new Date(rs.dateTime) } })
 }
 
-export async function dateRangeCaloriesBurnedProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesBurned[] | undefined> {
+async function dateRangeCaloriesBurnedProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesBurned[] | undefined> {
   const rawCaloriesBurned = await getCaloriesBurnedInDateRange(userId, dateStart, dateEnd)
   if (!rawCaloriesBurned) {
     return undefined
@@ -198,7 +164,7 @@ export async function dateRangeCaloriesBurnedProvider (userId: string, dateStart
   return rawCaloriesBurned['activities-calories'].map(rs => { return { caloriesOut: rs.value, date: new Date(rs.dateTime) } })
 }
 
-export async function dateRangeCaloriesConsumedrovider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesConsumed[] | undefined> {
+async function dateRangeCaloriesConsumedProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesConsumed[] | undefined> {
   const rawCaloriesConsumed = await getCaloriesConsumedInDateRange(userId, dateStart, dateEnd)
   if (!rawCaloriesConsumed) {
     return undefined
@@ -206,18 +172,14 @@ export async function dateRangeCaloriesConsumedrovider (userId: string, dateStar
   return rawCaloriesConsumed['foods-log-caloriesIn'].map(rs => { return { caloriesIn: rs.value, date: new Date(rs.dateTime) } })
 }
 
-export async function dateRangeCaloriesInOutProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesInOut[] | undefined> {
-  // This is a convenience provider
-  const rawCaloriesBurned = await getCaloriesBurnedInDateRange(userId, dateStart, dateEnd)
-  const rawCaloriesConsumed = await getCaloriesConsumedInDateRange(userId, dateStart, dateEnd)
-  if (!rawCaloriesBurned || !rawCaloriesConsumed) {
-    return undefined
-  }
-  return rawCaloriesBurned['activities-calories'].map(x => {
-    return {
-      date: new Date(x.dateTime),
-      caloriesIn: rawCaloriesConsumed['foods-log-caloriesIn'].find(y => y.dateTime === x.dateTime)?.value ?? 0,
-      caloriesOut: x.value
-    }
-  })
+
+export const fitbitDataProvider: DataProvider = {
+  dailyStepsProvider,
+  dailyCaloriesBurnedProvider,
+  dailyCaloriesConsumedProvider,
+  dailySleepProvider,
+  dateRangeSleepProvider,
+  dateRangeStepProvider,
+  dateRangeCaloriesBurnedProvider,
+  dateRangeCaloriesConsumedProvider
 }

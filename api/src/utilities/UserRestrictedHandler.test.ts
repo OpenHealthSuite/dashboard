@@ -14,7 +14,7 @@ describe('User Restricted Handler', () => {
     fakeResponse.locals.userId = localUserId
     fakeRequest.params.userId = parameterUserId
     const next = sinon.stub()
-    await userRestrictedHandler(fakeRequest, fakeResponse, next)
+    await userRestrictedHandler(fakeRequest, fakeResponse as any, next)
     sinon.assert.calledOnceWithExactly(next, parameterUserId, fakeRequest, fakeResponse)
     expect(fakeResponse.sendStatus.notCalled).toBe(true)
   })
@@ -32,7 +32,7 @@ describe('User Restricted Handler', () => {
     fakeResponse.locals.userId = localUserId
     fakeRequest.params.userId = parameterUserId as string
     const next = sinon.stub()
-    await userRestrictedHandler(fakeRequest, fakeResponse, next)
+    await userRestrictedHandler(fakeRequest, fakeResponse as any, next)
     sinon.assert.notCalled(next)
     expect(fakeResponse.sendStatus.calledOnceWithExactly(403)).toBe(true)
   })

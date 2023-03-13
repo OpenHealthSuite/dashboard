@@ -1,6 +1,7 @@
 import { Application, Request, Response } from 'express'
-import { getFitbitToken } from './FitbitRequestProvider'
+import { getFitbitToken } from '../providers/Fitbit/FitbitRequestProvider'
 import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
+import { DashboardLocals } from '..'
 
 interface IProviderStatus {
   key: string,
@@ -9,7 +10,7 @@ interface IProviderStatus {
 }
 
 export function addProviderRoutes (app: Application) {
-  app.get('/api/users/:userId/providers', (req, res) => userRestrictedHandler(req, res, getProviderStatuses))
+  app.get('/api/users/:userId/providers', (req, res: Response<any, DashboardLocals>) => userRestrictedHandler(req, res, getProviderStatuses))
 }
 
 async function getProviderStatuses (userId: string, req: Request, res: Response) {

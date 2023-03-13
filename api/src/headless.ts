@@ -1,5 +1,5 @@
 // This is for headless operations
-import { refreshTokens } from './providers/FitbitRequestProvider'
+import { refreshTokens } from './providers/Fitbit/FitbitRequestProvider'
 import { runMigrations } from './repositories/_migrationRunner'
 
 // We have to duplicate migrations, we should pull migrations

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
+import { DashboardLocals } from '..'
 
-export async function userRestrictedHandler (req: Request, res: Response, next: (userId: string, req: Request, res: Response) => void) {
+export async function userRestrictedHandler (req: Request, res: Response<any, DashboardLocals>, next: (userId: string, req: Request, res: Response<any, DashboardLocals>) => void) {
   const localUserId = res.locals.userId
   const userId = req.params.userId
 

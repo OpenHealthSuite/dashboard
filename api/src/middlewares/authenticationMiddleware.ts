@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 
+export type AuthenticatedLocals = {
+  userId: string
+}
+
 export async function authenticationMiddleware (req: Request, res: Response, next: NextFunction) {
   // TODO: We should actually double check all this is necessary.
   res.setHeader(
