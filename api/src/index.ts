@@ -1,4 +1,4 @@
-import express, { json } from 'express'
+import express, { json, Response } from 'express'
 import cors from 'cors'
 import { addProviderRoutes } from './handlers/ProvidersHandler'
 import { addFitbitHandlers } from './providers/Fitbit/FitbitRequestProvider'
@@ -22,10 +22,10 @@ app.use(json())
 
 app.use(express.static('./static'))
 
-app.use((req, res, next) => authenticationMiddleware(req, res, next))
-app.use((req, res, next) => dataProviderMiddleware(req, res, next))
-
 export type DashboardLocals = DataProviderLocals & AuthenticatedLocals;
+
+app.use((req, res, next) => authenticationMiddleware(req, res, next))
+app.use((req, res: Response<any, DashboardLocals>, next) => dataProviderMiddleware(req, res, next))
 
 // Add our Handlers
 addUserHandlers(app)
