@@ -7,7 +7,6 @@ export type IDatedSteps = {
   date: Date
 }
 
-
 export type IDatedCaloriesBurned = {
   caloriesOut: number,
   date: Date
@@ -42,7 +41,6 @@ export type IDatedSleep = {
   date: Date,
   sleep: ISleep
 }
-
 
 export type dailyStepsProvider = (userId: string, date: Date) => Promise<IStepCount | undefined>
 

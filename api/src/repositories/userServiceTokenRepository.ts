@@ -21,9 +21,9 @@ export interface IUserServiceToken {
 }
 
 export class UserServiceTokenRepository {
-  private readonly _serviceId: string;
+  private readonly _serviceId: string
   private readonly _tableName: string = 'user_service_token'
-  private readonly _cassandraClient: cassandra.Client;
+  private readonly _cassandraClient: cassandra.Client
   private readonly _dbName: string = 'user'
   private readonly _collectionName: string = 'token'
   constructor (serviceId: string, cassandraClient = CASSANDRA_CLIENT) {

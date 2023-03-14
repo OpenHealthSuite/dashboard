@@ -1,5 +1,5 @@
-import { fitbitDataProvider } from "./Fitbit/FitbitStatProvider";
+import { fitbitDataProvider } from './Fitbit/FitbitStatProvider'
 
 export {
-    fitbitDataProvider
+  fitbitDataProvider
 }

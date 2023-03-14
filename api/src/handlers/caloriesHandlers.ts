@@ -1,6 +1,5 @@
 import { Application, Request, Response } from 'express'
 import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
-import { getFitbitToken } from '../providers/Fitbit/FitbitRequestProvider'
 import { DataProvider, ICaloriesIn, ICaloriesOut } from '../providers/types'
 import { DashboardLocals } from '..'
 
@@ -11,12 +10,12 @@ export function addCaloriesHandlers (app: Application) {
 
 const dailyCalories = async (userId: string, dateStart: Date, dataProvider: DataProvider): Promise<ICaloriesIn & ICaloriesOut | undefined> => {
   if (!dataProvider.dailyCaloriesBurnedProvider || !dataProvider.dailyCaloriesConsumedProvider) {
-    return undefined;
+    return undefined
   }
-  const consumed = await dataProvider.dailyCaloriesConsumedProvider(userId, dateStart);
-  const burned = await dataProvider.dailyCaloriesBurnedProvider(userId, dateStart);
+  const consumed = await dataProvider.dailyCaloriesConsumedProvider(userId, dateStart)
+  const burned = await dataProvider.dailyCaloriesBurnedProvider(userId, dateStart)
   if (!consumed || !burned) {
-    return undefined;
+    return undefined
   }
   return {
     ...consumed,

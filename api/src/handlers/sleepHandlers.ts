@@ -1,6 +1,5 @@
 import { Application, Request, Response } from 'express'
 import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
-import { getFitbitToken } from '../providers/Fitbit/FitbitRequestProvider'
 import { DashboardLocals } from '..'
 
 export function addSleepHandlers (app: Application) {
@@ -10,7 +9,7 @@ export function addSleepHandlers (app: Application) {
 
 const getUserSleepStats = async (userId: string, req: Request, res: Response<any, DashboardLocals>) => {
   const { date } = req.params
-  
+
   if (!res.locals.dataProvider.dailySleepProvider) {
     return res.sendStatus(404)
   }

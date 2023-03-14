@@ -1,4 +1,4 @@
-import { ICaloriesIn, ICaloriesOut, IDatedCaloriesBurned, IDatedCaloriesConsumed, IDatedCaloriesInOut, IDatedSleep, IDatedSteps, ISleep, IStepCount, DataProvider } from '../types'
+import { ICaloriesIn, ICaloriesOut, IDatedCaloriesBurned, IDatedCaloriesConsumed, IDatedSleep, IDatedSteps, ISleep, IStepCount, DataProvider } from '../types'
 import { makeFitbitRequest } from './FitbitRequestProvider'
 
 interface IFitbitDateValue {
@@ -107,7 +107,6 @@ async function dailyCaloriesBurnedProvider (userId: string, date: Date): Promise
   }
 }
 
-
 async function dailySleepProvider (userId: string, date: Date): Promise<ISleep | undefined> {
   const rawData = await getSleepSummary(userId, date)
   if (!rawData || !rawData.summary || !rawData.summary.stages) {
@@ -171,7 +170,6 @@ async function dateRangeCaloriesConsumedProvider (userId: string, dateStart: Dat
   }
   return rawCaloriesConsumed['foods-log-caloriesIn'].map(rs => { return { caloriesIn: rs.value, date: new Date(rs.dateTime) } })
 }
-
 
 export const fitbitDataProvider: DataProvider = {
   dailyStepsProvider,

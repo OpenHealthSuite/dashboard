@@ -102,7 +102,7 @@ export async function redeemCode (
   const codeVerifier = await GetCache(`${CODE_CHALLENGE_CACHE}:${userId}`)
   const tokenParameters = {
     client_id: fitbitSettings.clientId,
-    code: code,
+    code,
     code_verifier: codeVerifier?.value,
     grant_type: 'authorization_code'
   }

@@ -1,5 +1,5 @@
 import { authenticationMiddleware } from './authenticationMiddleware'
-import { Request, Response } from 'express'
+import { Request } from 'express'
 
 describe('authenticationMiddleware', () => {
   test('Happy Path :: Current Setup', async () => {

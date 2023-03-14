@@ -11,7 +11,7 @@ export interface IUserSetting {
 }
 
 export class UserSettingRepository {
-  private readonly _cassandraClient: cassandra.Client;
+  private readonly _cassandraClient: cassandra.Client
   private readonly _tableName: string = 'user_setting'
   constructor (cassandraClient = CASSANDRA_CLIENT) {
     this._cassandraClient = cassandraClient
