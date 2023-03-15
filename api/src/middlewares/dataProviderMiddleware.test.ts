@@ -1,9 +1,10 @@
+import { ok } from 'neverthrow'
 import { dataProviderMiddleware } from './dataProviderMiddleware'
 
 describe('dataProviderMiddleware', () => {
   test("No fitbit configured :: doesn't check token", async () => {
     const mockRepository = {
-      getSetting: jest.fn().mockResolvedValue({ caloriesIn: 'openfooddiary' })
+      getSetting: jest.fn().mockResolvedValue(ok({ details: { caloriesIn: 'openfooddiary' } }))
     }
     const mockTokenRetreiver = {
       fitbit: jest.fn()
@@ -23,7 +24,7 @@ describe('dataProviderMiddleware', () => {
   })
   test('Fitbit configured :: checks token :: happy', async () => {
     const mockRepository = {
-      getSetting: jest.fn().mockResolvedValue({ caloriesIn: 'fitbit' })
+      getSetting: jest.fn().mockResolvedValue(ok({ details: { caloriesIn: 'fitbit' } }))
     }
     const mockTokenRetreiver = {
       fitbit: jest.fn().mockResolvedValue({ whoami: 'token' })
@@ -43,7 +44,7 @@ describe('dataProviderMiddleware', () => {
   })
   test('Fitbit configured :: checks token :: unhappy', async () => {
     const mockRepository = {
-      getSetting: jest.fn().mockResolvedValue({ caloriesIn: 'fitbit' })
+      getSetting: jest.fn().mockResolvedValue(ok({ details: { caloriesIn: 'fitbit' } }))
     }
     const mockTokenRetreiver = {
       fitbit: jest.fn().mockResolvedValue(undefined)
@@ -67,5 +68,41 @@ describe('dataProviderMiddleware', () => {
     expect(mockTokenRetreiver.fitbit).toBeCalledWith('jimmy-blogs')
     expect(mockRes.status).toBeCalledWith(400)
     expect(mockNext).not.toBeCalled()
+  })
+  test('Uses user configuration to pull various functions', async () => {
+    const mockUserSettings = {
+      caloriesIn: 'prov1',
+      caloriesOut: 'some_provider',
+      stepsMade: 'something'
+    }
+    const mockRepository = {
+      getSetting: jest.fn().mockResolvedValue(ok({ details: mockUserSettings }))
+    }
+
+    const mockProviders = {
+      prov1: {
+        caloriesIn: { whoami: 'prov1CalIn' }
+      },
+      some_provider: {
+        caloriesOut: { whoami: 'som_prov_calOut' }
+      }
+    }
+
+    const mockNext = jest.fn()
+
+    const res: any = { locals: { userId: 'jimmy-blogs' } }
+
+    await dataProviderMiddleware({} as any,
+      res,
+      mockNext,
+      mockRepository as any,
+      {} as any,
+      mockProviders as any)
+
+    expect(mockNext).toBeCalled()
+    expect(res.locals.dataProvider).toEqual({
+      caloriesIn: mockProviders.prov1.caloriesIn,
+      caloriesOut: mockProviders.some_provider.caloriesOut
+    })
   })
 })
