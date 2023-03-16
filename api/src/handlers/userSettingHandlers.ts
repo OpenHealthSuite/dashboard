@@ -2,6 +2,7 @@ import { Application, Request, Response } from 'express'
 import { UserSettingRepository } from '../repositories/userSettingsRepository'
 import { userRestrictedHandler } from '../utilities/UserRestrictedHandler'
 import { DashboardLocals } from '..'
+import * as providers from '../providers'
 
 const repository = new UserSettingRepository()
 
@@ -12,6 +13,24 @@ const SettingKeys = {
 export function addUserSettingHandlers (app: Application) {
   app.get('/api/users/:userId/userSettings/:settingId', (req, res: Response<any, DashboardLocals>) => userRestrictedHandler(req, res, settingsGet))
   app.put('/api/users/:userId/userSettings/:settingId', (req, res: Response<any, DashboardLocals>) => userRestrictedHandler(req, res, settingsUpdate))
+  app.get('/api/providers/available', availableProviders)
+}
+
+export const availableProviders = (req: Request, res: Response) => {
+  const collection: {[key: string]: string[]} = {}
+  Object.entries(providers).forEach(([prov, fncs]) => {
+    Object.keys(fncs).forEach(fn => {
+      if (prov === 'default') {
+        return
+      }
+      if (collection[fn]) {
+        collection[fn].push(prov)
+      } else {
+        collection[fn] = [prov]
+      }
+    })
+  })
+  return res.send(collection)
 }
 
 const settingsGet = async (userId: string, req: Request, res: Response) => {
