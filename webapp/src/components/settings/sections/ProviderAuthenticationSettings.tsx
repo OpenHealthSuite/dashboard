@@ -23,7 +23,7 @@ async function GetChallenge(key: string) {
   }
 }
 
-export default function ProviderSettings() {
+export default function ProviderAuthenticationSettings() {
   const [statuses, setStatuses] = useState<IProviderStatus[]>();
   const [isLoading, setLoading] = useState(true);
   const [isErrored, setError] = useState(false);
