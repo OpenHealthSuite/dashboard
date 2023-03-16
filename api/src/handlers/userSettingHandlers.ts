@@ -7,7 +7,8 @@ import * as providers from '../providers'
 const repository = new UserSettingRepository()
 
 const SettingKeys = {
-  Dashboard: 'dashboard'
+  Dashboard: 'dashboard',
+  ProviderSettings: 'provider_settings'
 }
 
 export function addUserSettingHandlers (app: Application) {
