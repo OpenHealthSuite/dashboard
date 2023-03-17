@@ -150,5 +150,26 @@ describe('openFoodDiaryDataProvider', () => {
       expect(res).not.toBeUndefined()
       expect(res!).toEqual(expected)
     })
+
+    test('orders dates', async () => {
+      const mockResponse = {
+        json: jest.fn().mockResolvedValue([]),
+        status: 200
+      }
+      const spy = jest.spyOn(global, 'fetch').mockResolvedValue(mockResponse as any)
+      const userId = randomUUID()
+      const endDate = new Date(2017, 10, 9, 9, 2, 12)
+      const startDate = new Date(2017, 10, 12, 22, 12, 10)
+      await openFoodDiaryDataProvider.dateRangeCaloriesConsumedProvider!(userId, startDate, endDate)
+
+      expect(spy).toBeCalledWith(TEST_OPEN_FOOD_DIARY_API + '/logs?' + new URLSearchParams({
+        startDate: endDate.toISOString(), endDate: startDate.toISOString()
+      }), {
+        method: 'GET',
+        headers: {
+          [TEST_OPEN_FOOD_DIARY_API_HEADER]: userId
+        }
+      })
+    })
   })
 })

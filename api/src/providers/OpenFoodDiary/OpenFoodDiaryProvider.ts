@@ -13,7 +13,7 @@ type FoodLog = {
 }
 export const openFoodDiaryDataProvider = {
   async dailyCaloriesConsumedProvider (userId: string, date: Date): Promise<ICaloriesIn | undefined> {
-    const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0)
     const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59)
 
     const res = await fetch(`${process.env.OPEN_FOOD_DIARY_API}/logs?` + new URLSearchParams({
@@ -31,8 +31,9 @@ export const openFoodDiaryDataProvider = {
     return undefined
   },
   async dateRangeCaloriesConsumedProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesConsumed[] | undefined> {
+    const [sd, ed] = dateStart.getTime() < dateEnd.getTime() ? [dateStart, dateEnd] : [dateEnd, dateStart]
     const res = await fetch(`${process.env.OPEN_FOOD_DIARY_API}/logs?` + new URLSearchParams({
-      startDate: dateStart.toISOString(), endDate: dateEnd.toISOString()
+      startDate: sd.toISOString(), endDate: ed.toISOString()
     }), {
       method: 'GET',
       headers: {
