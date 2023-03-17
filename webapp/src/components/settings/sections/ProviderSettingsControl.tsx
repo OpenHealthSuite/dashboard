@@ -1,6 +1,6 @@
 import { Flex, FormControl, FormLabel, Select } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
-import { pacemeUserRouteGetRequest, pacemeGetRequest } from '../../../services/PaceMeApiService'
+import { useCallback, useEffect, useState } from 'react'
+import { pacemeUserRouteGetRequest, pacemeUserRoutePutRequest, pacemeGetRequest } from '../../../services/PaceMeApiService'
 
 type UserProviderSettings = {
   [key: string]: string
@@ -20,7 +20,7 @@ export const ProviderSettingsControl: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [availableProviders, setAvailableProviders] = useState<AvailableProviders | undefined>(undefined)
-  const [userProviderSettings, setUserProviderSettings] = useState<UserProviderSettings | undefined>(undefined)
+  const [userProviderSettings, setUserProviderSettings] = useState<UserProviderSettings>({})
 
   useEffect(() => {
     Promise.allSettled([
@@ -40,14 +40,22 @@ export const ProviderSettingsControl: React.FC<{}> = () => {
       setLoading(false);
     })
   }, [setLoading, setError, setAvailableProviders, setUserProviderSettings])
-  
-  return <Flex>
+
+  const changeHandler = useCallback((ev: React.ChangeEvent<HTMLSelectElement>, key: string) => {
+    userProviderSettings[key] = ev.target.value;
+    setUserProviderSettings(userProviderSettings);
+    pacemeUserRoutePutRequest('/userSettings/provider_settings', userProviderSettings);
+  },[userProviderSettings, setUserProviderSettings])
+
+  return <Flex wrap={'wrap'}>
     {loading && <>Loading</>}
     {!loading && error && <>Something went wrong</>}
     {!loading && !error && availableProviders && Object.entries(availableProviders)
-      .map(([key, options]) => (<FormControl key={key}>
+      .map(([key, options]) => (<FormControl maxWidth={300} key={key}>
         <FormLabel>{deCamelCaser(key)}</FormLabel>
-        <Select placeholder='Select provider'>
+        <Select placeholder='Select provider' 
+          onChange={(ev) => changeHandler(ev, key)}
+          defaultValue={(userProviderSettings[key])}>
           {options.map(option => <option value={option} key={option}>{deCamelCaser(option)}</option>)}
         </Select>
       </FormControl>))}
