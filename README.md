@@ -1,8 +1,8 @@
-# PaceMe.js - Run planning application, in javascript.
+# Dashboard
 
-The core idea is to be a nicely deployable run/training planning application, to help keep track of the runs being done.
+This dashboard comprises the always-on visiblity part of the [OpenHealthSuite](https://openhealthsuite.com) puzzle. It is the oldest part, and will probably be the last part completed.
 
-## Prerequisites
+## Development Prerequisites
 
 - Node (ideally, use a version manager like `fnm` or `nvm`)
 - Docker
@@ -12,16 +12,6 @@ The core idea is to be a nicely deployable run/training planning application, to
     - Local:
       - `paceme-local/fitbit-client-id`
       - `paceme-local/fitbit-client-secret`
-    - Helm deployment script
-      - `paceme/fitbit-client-id`
-      - `paceme/fitbit-client-secret`
-      - `paceme/oauth2.clientid`
-      - `paceme/oauth2.secret`
-      - `paceme/oauth2.cookiesecret`
-      - `paceme/oauth2.oidcIssuerUrl`
-
-**NOTE: Helm deployment script is basically just for deploying the helm chart to `app.paceme.info`**
-
 ## Getting Started
 
 From the root, run:
@@ -30,3 +20,18 @@ From the root, run:
 - `npm run stack:devenvfiles` to generate your .env files
 - `npm run stack:install` to do the needed `npm install`'s
 - `npm run start` to start both the API and Webapp concurrently
+
+## Configuration
+
+- `FITBIT_CLIENT_ID`: Registered client for fitbit integration
+- `FITBIT_CLIENT_SECRET`: Registered secret for fitbit integration
+- `DEV_USER_ID`: User ID for "single user"/dev mode
+- `SECURE_USER_HEADER_ID`: Header that will have a UserId in it
+- `REDIS_HOST`: Host for redis cache
+- `REDIS_PORT`: Port for redis cache
+- `OPEN_FOOD_DIARY_API`: API root for OFD
+- `OPEN_FOOD_DIARY_API_HEADER`: Header that should contain the User Id for OFD
+- `CASSANDRA_CONTACT_POINTS`: `;` seperated list of cassandra contact points
+- `CASSANDRA_LOCALDATACENTER`: the local datacenter for cassandra
+- `CASSANDRA_USER`: username for cassandra
+- `CASSANDRA_PASSWORD`: password for cassandra

@@ -11,54 +11,50 @@ type FoodLog = {
       [key: string]: number
   }
 }
-const configured = process.env.OPEN_FOOD_DIARY_API && process.env.OPEN_FOOD_DIARY_API_HEADER
+export const openFoodDiaryDataProvider = {
+  async dailyCaloriesConsumedProvider (userId: string, date: Date): Promise<ICaloriesIn | undefined> {
+    const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59)
 
-export const openFoodDiaryDataProvider = !configured
-  ? {} as DataProvider
-  : {
-    async dailyCaloriesConsumedProvider (userId: string, date: Date): Promise<ICaloriesIn | undefined> {
-      const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-      const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59)
-
-      const res = await fetch(`${process.env.OPEN_FOOD_DIARY_API ?? 'http://openfooddiary.openfooddiary.svc/api'}/logs?` + new URLSearchParams({
-        startDate: startDate.toISOString(), endDate: endDate.toISOString()
-      }), {
-        method: 'GET',
-        headers: {
-          [process.env.OPEN_FOOD_DIARY_API_HEADER ?? 'x-openfooddiary-userid']: userId
-        }
-      })
-      if (res.status === 200) {
-        const logs: FoodLog[] = await res.json()
-        return { caloriesIn: logs.reduce((acc, curr) => acc + (curr.metrics.calories ?? 0), 0) }
+    const res = await fetch(`${process.env.OPEN_FOOD_DIARY_API}/logs?` + new URLSearchParams({
+      startDate: startDate.toISOString(), endDate: endDate.toISOString()
+    }), {
+      method: 'GET',
+      headers: {
+        [process.env.OPEN_FOOD_DIARY_API_HEADER!]: userId
       }
-      return undefined
-    },
-    async dateRangeCaloriesConsumedProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesConsumed[] | undefined> {
-      const res = await fetch(`${process.env.OPEN_FOOD_DIARY_API ?? 'http://openfooddiary.openfooddiary.svc/api'}/logs?` + new URLSearchParams({
-        startDate: dateStart.toISOString(), endDate: dateEnd.toISOString()
-      }), {
-        method: 'GET',
-        headers: {
-          [process.env.OPEN_FOOD_DIARY_API_HEADER ?? 'x-openfooddiary-userid']: userId
-        }
-      })
-      if (res.status === 200) {
-        const logs: FoodLog[] = await res.json()
-        return Object.entries(logs.reduce<{ [key: string]: number }>((acc, curr) => {
-          const date = new Date(curr.time.start).toISOString().split('T')[0]
-          if (acc[date]) {
-            acc[date] += (curr.metrics.calories ?? 0)
-          } else {
-            acc[date] = curr.metrics.calories
-          }
-          return acc
-        }, {}))
-          .map(([date, caloriesIn]) => ({
-            date: new Date(date),
-            caloriesIn
-          }))
-      }
-      return undefined
+    })
+    if (res.status === 200) {
+      const logs: FoodLog[] = await res.json()
+      return { caloriesIn: logs.reduce((acc, curr) => acc + (curr.metrics.calories ?? 0), 0) }
     }
-  } as DataProvider
+    return undefined
+  },
+  async dateRangeCaloriesConsumedProvider (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesConsumed[] | undefined> {
+    const res = await fetch(`${process.env.OPEN_FOOD_DIARY_API}/logs?` + new URLSearchParams({
+      startDate: dateStart.toISOString(), endDate: dateEnd.toISOString()
+    }), {
+      method: 'GET',
+      headers: {
+        [process.env.OPEN_FOOD_DIARY_API_HEADER!]: userId
+      }
+    })
+    if (res.status === 200) {
+      const logs: FoodLog[] = await res.json()
+      return Object.entries(logs.reduce<{ [key: string]: number }>((acc, curr) => {
+        const date = new Date(curr.time.start).toISOString().split('T')[0]
+        if (acc[date]) {
+          acc[date] += (curr.metrics.calories ?? 0)
+        } else {
+          acc[date] = curr.metrics.calories
+        }
+        return acc
+      }, {}))
+        .map(([date, caloriesIn]) => ({
+          date: new Date(date),
+          caloriesIn
+        }))
+    }
+    return undefined
+  }
+} as DataProvider
