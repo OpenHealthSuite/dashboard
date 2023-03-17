@@ -3,7 +3,7 @@ import { openFoodDiaryDataProvider as ofdProvider } from './OpenFoodDiary/OpenFo
 
 const ofdConfigured = process.env.OPEN_FOOD_DIARY_API && process.env.OPEN_FOOD_DIARY_API_HEADER
 
-const openfooddiary = ofdConfigured ? ofdProvider : undefined
+const openfooddiary = ofdConfigured ? ofdProvider : {}
 export {
   fitbit,
   openfooddiary
