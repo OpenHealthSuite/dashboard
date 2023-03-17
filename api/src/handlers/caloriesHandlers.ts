@@ -35,7 +35,7 @@ const dateRangeCaloriesInOut = async (userId: string, dateStart: Date, dateEnd: 
   return rawCaloriesBurned.map(x => {
     return {
       date: new Date(x.date),
-      caloriesIn: rawCaloriesConsumed.find(y => y.date === x.date)?.caloriesIn ?? 0,
+      caloriesIn: rawCaloriesConsumed.find(y => y.date.toISOString().split('T')[0] === x.date.toISOString().split('T')[0])?.caloriesIn ?? 0,
       caloriesOut: x.caloriesOut
     }
   })
