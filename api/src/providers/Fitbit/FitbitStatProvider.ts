@@ -172,12 +172,12 @@ async function dateRangeCaloriesConsumedProvider (userId: string, dateStart: Dat
 }
 
 export const fitbitDataProvider: DataProvider = {
-  dailyStepsProvider,
-  dailyCaloriesBurnedProvider,
-  dailyCaloriesConsumedProvider,
-  dailySleepProvider,
-  dateRangeSleepProvider,
-  dateRangeStepProvider,
-  dateRangeCaloriesBurnedProvider,
-  dateRangeCaloriesConsumedProvider
+  stepsForGivenDay: dailyStepsProvider,
+  caloriesBurnedForGivenDay: dailyCaloriesBurnedProvider,
+  caloriesIngestedForGivenDay: dailyCaloriesConsumedProvider,
+  sleepInformationForGivenDay: dailySleepProvider,
+  sleepInformationForRangeOfDays: dateRangeSleepProvider,
+  stepsForRangeOfDays: dateRangeStepProvider,
+  caloriesBurnedForRangeOfDays: dateRangeCaloriesBurnedProvider,
+  caloriesIngestedForRangeOfDays: dateRangeCaloriesConsumedProvider
 }

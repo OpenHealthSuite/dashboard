@@ -9,11 +9,11 @@ export function addCaloriesHandlers (app: Application) {
 }
 
 const dailyCalories = async (userId: string, dateStart: Date, dataProvider: DataProvider): Promise<ICaloriesIn & ICaloriesOut | undefined> => {
-  if (!dataProvider.dailyCaloriesBurnedProvider || !dataProvider.dailyCaloriesConsumedProvider) {
+  if (!dataProvider.caloriesBurnedForGivenDay || !dataProvider.caloriesIngestedForGivenDay) {
     return undefined
   }
-  const consumed = await dataProvider.dailyCaloriesConsumedProvider(userId, dateStart)
-  const burned = await dataProvider.dailyCaloriesBurnedProvider(userId, dateStart)
+  const consumed = await dataProvider.caloriesIngestedForGivenDay(userId, dateStart)
+  const burned = await dataProvider.caloriesBurnedForGivenDay(userId, dateStart)
   if (!consumed || !burned) {
     return undefined
   }
@@ -24,11 +24,11 @@ const dailyCalories = async (userId: string, dateStart: Date, dataProvider: Data
 }
 
 const dateRangeCaloriesInOut = async (userId: string, dateStart: Date, dateEnd: Date, dataProvider: DataProvider) => {
-  if (!dataProvider.dateRangeCaloriesBurnedProvider || !dataProvider.dateRangeCaloriesConsumedProvider) {
+  if (!dataProvider.caloriesBurnedForRangeOfDays || !dataProvider.caloriesIngestedForRangeOfDays) {
     return undefined
   }
-  const rawCaloriesBurned = await dataProvider.dateRangeCaloriesBurnedProvider(userId, dateStart, dateEnd)
-  const rawCaloriesConsumed = await dataProvider.dateRangeCaloriesConsumedProvider(userId, dateStart, dateEnd)
+  const rawCaloriesBurned = await dataProvider.caloriesBurnedForRangeOfDays(userId, dateStart, dateEnd)
+  const rawCaloriesConsumed = await dataProvider.caloriesIngestedForRangeOfDays(userId, dateStart, dateEnd)
   if (!rawCaloriesBurned || !rawCaloriesConsumed) {
     return undefined
   }

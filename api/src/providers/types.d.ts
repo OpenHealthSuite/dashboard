@@ -42,29 +42,29 @@ export type IDatedSleep = {
   sleep: ISleep
 }
 
-export type dailyStepsProvider = (userId: string, date: Date) => Promise<IStepCount | undefined>
+export type stepsForGivenDay = (userId: string, day: Date) => Promise<IStepCount | undefined>
 
-export type dailyCaloriesBurnedProvider = (userId: string, date: Date) => Promise<ICaloriesOut | undefined>
+export type caloriesBurnedForGivenDay = (userId: string, day: Date) => Promise<ICaloriesOut | undefined>
 
-export type dailyCaloriesConsumedProvider = (userId: string, date: Date) => Promise<ICaloriesIn | undefined>
+export type caloriesIngestedForGivenDay = (userId: string, day: Date) => Promise<ICaloriesIn | undefined>
 
-export type dailySleepProvider = (userId: string, date: Date) => Promise<ISleep | undefined>
+export type sleepInformationforGivenDay = (userId: string, day: Date) => Promise<ISleep | undefined>
 
-export type dateRangeSleepProvider = (userId: string, dateStart: Date, dateEnd: Date) => Promise<IDatedSleep[] | undefined>
+export type sleepInformationForRangeOfDays = (userId: string, beginningDay: Date, endingDay: Date) => Promise<IDatedSleep[] | undefined>
 
-export type dateRangeStepProvider = (userId: string, dateStart: Date, dateEnd: Date) => Promise<IDatedSteps[] | undefined>
+export type stepsForRangeOfDays = (userId: string, beginningDay: Date, endingDay: Date) => Promise<IDatedSteps[] | undefined>
 
-export type dateRangeCaloriesBurnedProvider = (userId: string, dateStart: Date, dateEnd: Date) => Promise<IDatedCaloriesBurned[] | undefined>
+export type caloriesBurnedForRangeOfDays = (userId: string, beginningDay: Date, endingDay: Date) => Promise<IDatedCaloriesBurned[] | undefined>
 
-export type dateRangeCaloriesConsumedrovider = (userId: string, dateStart: Date, dateEnd: Date) => Promise<IDatedCaloriesConsumed[] | undefined>
+export type caloriesIngestedForRangeOfDays = (userId: string, beginningDay: Date, endingDay: Date) => Promise<IDatedCaloriesConsumed[] | undefined>
 
 export type DataProvider = {
-  dailyStepsProvider?: dailyStepsProvider,
-  dailyCaloriesBurnedProvider?: dailyCaloriesBurnedProvider,
-  dailyCaloriesConsumedProvider?: dailyCaloriesConsumedProvider,
-  dailySleepProvider?: dailySleepProvider,
-  dateRangeSleepProvider?: dateRangeSleepProvider,
-  dateRangeStepProvider?: dateRangeStepProvider,
-  dateRangeCaloriesBurnedProvider?: dateRangeCaloriesBurnedProvider,
-  dateRangeCaloriesConsumedProvider?: dateRangeCaloriesConsumedrovider
+  stepsForGivenDay?: stepsForGivenDay,
+  caloriesBurnedForGivenDay?: caloriesBurnedForGivenDay,
+  caloriesIngestedForGivenDay?: caloriesIngestedForGivenDay,
+  sleepInformationForGivenDay?: sleepInformationforGivenDay,
+  sleepInformationForRangeOfDays?: sleepInformationForRangeOfDays,
+  stepsForRangeOfDays?: stepsForRangeOfDays,
+  caloriesBurnedForRangeOfDays?: caloriesBurnedForRangeOfDays,
+  caloriesIngestedForRangeOfDays?: caloriesIngestedForRangeOfDays
 }

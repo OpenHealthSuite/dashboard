@@ -18,7 +18,7 @@ describe('openFoodDiaryDataProvider', () => {
     process.env.OPEN_FOOD_DIARY_API = ogUrl
     process.env.OPEN_FOOD_DIARY_API_HEADER = ogHeader
   })
-  describe('dailyCaloriesConsumedProvider', () => {
+  describe('caloriesIngestedForGivenDay', () => {
     test('Gets open food diary logs :: translates to CaloriesIn', async () => {
       const mockData = [
         {
@@ -58,7 +58,7 @@ describe('openFoodDiaryDataProvider', () => {
       const date = new Date(2017, 10, 12, 12, 39, 10)
       const startDate = new Date(2017, 10, 12)
       const endDate = new Date(2017, 10, 12, 23, 59, 59)
-      const res = await openFoodDiaryDataProvider.dailyCaloriesConsumedProvider!(userId, date)
+      const res = await openFoodDiaryDataProvider.caloriesIngestedForGivenDay!(userId, date)
 
       expect(spy).toBeCalledWith(TEST_OPEN_FOOD_DIARY_API + '/logs?' + new URLSearchParams({
         startDate: startDate.toISOString(), endDate: endDate.toISOString()
@@ -73,7 +73,7 @@ describe('openFoodDiaryDataProvider', () => {
       expect(res!).toEqual({ caloriesIn: mockData.reduce((acc, curr) => acc + (curr.metrics.calories ?? 0), 0) })
     })
   })
-  describe('dateRangeCaloriesConsumedProvider', () => {
+  describe('caloriesIngestedForRangeOfDays', () => {
     test('Gets open food diary logs :: translates to DatedCaloriesIn', async () => {
       const mockData = [
         {
@@ -136,7 +136,7 @@ describe('openFoodDiaryDataProvider', () => {
       const userId = randomUUID()
       const startDate = new Date(2017, 10, 9, 9, 2, 12)
       const endDate = new Date(2017, 10, 12, 22, 12, 10)
-      const res = await openFoodDiaryDataProvider.dateRangeCaloriesConsumedProvider!(userId, startDate, endDate)
+      const res = await openFoodDiaryDataProvider.caloriesIngestedForRangeOfDays!(userId, startDate, endDate)
 
       expect(spy).toBeCalledWith(TEST_OPEN_FOOD_DIARY_API + '/logs?' + new URLSearchParams({
         startDate: startDate.toISOString(), endDate: endDate.toISOString()
@@ -160,7 +160,7 @@ describe('openFoodDiaryDataProvider', () => {
       const userId = randomUUID()
       const endDate = new Date(2017, 10, 9, 9, 2, 12)
       const startDate = new Date(2017, 10, 12, 22, 12, 10)
-      await openFoodDiaryDataProvider.dateRangeCaloriesConsumedProvider!(userId, startDate, endDate)
+      await openFoodDiaryDataProvider.caloriesIngestedForRangeOfDays!(userId, startDate, endDate)
 
       expect(spy).toBeCalledWith(TEST_OPEN_FOOD_DIARY_API + '/logs?' + new URLSearchParams({
         startDate: endDate.toISOString(), endDate: startDate.toISOString()
