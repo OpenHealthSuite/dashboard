@@ -138,8 +138,15 @@ describe('openFoodDiaryDataProvider', () => {
       const endDate = new Date(2017, 10, 12, 22, 12, 10)
       const res = await openFoodDiaryDataProvider.caloriesIngestedForRangeOfDays!(userId, startDate, endDate)
 
+      const expectedSentStartDate = new Date(startDate.toISOString().split('T')[0])
+      const expectedSentEndDate = new Date(endDate.toISOString().split('T')[0])
+      expectedSentEndDate.setHours(23)
+      expectedSentEndDate.setMinutes(59)
+      expectedSentEndDate.setSeconds(59)
+
       expect(spy).toBeCalledWith(TEST_OPEN_FOOD_DIARY_API + '/logs?' + new URLSearchParams({
-        startDate: startDate.toISOString(), endDate: endDate.toISOString()
+        startDate: expectedSentStartDate.toISOString(),
+        endDate: expectedSentEndDate.toISOString()
       }), {
         method: 'GET',
         headers: {
@@ -160,10 +167,17 @@ describe('openFoodDiaryDataProvider', () => {
       const userId = randomUUID()
       const endDate = new Date(2017, 10, 9, 9, 2, 12)
       const startDate = new Date(2017, 10, 12, 22, 12, 10)
+
+      const expectedSentStartDate = new Date(endDate.toISOString().split('T')[0])
+      const expectedSentEndDate = new Date(startDate.toISOString().split('T')[0])
+      expectedSentEndDate.setHours(23)
+      expectedSentEndDate.setMinutes(59)
+      expectedSentEndDate.setSeconds(59)
+
       await openFoodDiaryDataProvider.caloriesIngestedForRangeOfDays!(userId, startDate, endDate)
 
       expect(spy).toBeCalledWith(TEST_OPEN_FOOD_DIARY_API + '/logs?' + new URLSearchParams({
-        startDate: endDate.toISOString(), endDate: startDate.toISOString()
+        startDate: expectedSentStartDate.toISOString(), endDate: expectedSentEndDate.toISOString()
       }), {
         method: 'GET',
         headers: {

@@ -31,9 +31,13 @@ export const openFoodDiaryDataProvider = {
     return undefined
   },
   async caloriesIngestedForRangeOfDays (userId: string, dateStart: Date, dateEnd: Date): Promise<IDatedCaloriesConsumed[] | undefined> {
-    const [sd, ed] = dateStart.getTime() < dateEnd.getTime() ? [dateStart, dateEnd] : [dateEnd, dateStart]
+    const [startDate, endDate] = dateStart.getTime() < dateEnd.getTime() ? [dateStart, dateEnd] : [dateEnd, dateStart]
+    endDate.setHours(23)
+    endDate.setMinutes(59)
+    endDate.setSeconds(59)
     const res = await fetch(`${process.env.OPEN_FOOD_DIARY_API}/logs?` + new URLSearchParams({
-      startDate: sd.toISOString(), endDate: ed.toISOString()
+      startDate: new Date(startDate.toISOString().split('T')[0]).toISOString(),
+      endDate: endDate.toISOString()
     }), {
       method: 'GET',
       headers: {
