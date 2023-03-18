@@ -1,5 +1,5 @@
 import { baseDataGetterFunction, DashboardTile } from "./DashboardTile";
-import { screen, render, waitFor } from "@testing-library/react";
+import { screen, render, waitFor, act } from "@testing-library/react";
 import { Simulate } from "react-dom/test-utils";
 
 describe("DashboardTile", () => {
@@ -93,7 +93,7 @@ describe("DashboardTile", () => {
     );
     await waitFor(() => expect(dataSetter).toHaveBeenCalledTimes(1));
     expect(dataSetter).toBeCalledWith(testData);
-    Simulate.click(screen.getByTestId("card"))
+    await act(() => Simulate.click(screen.getByTestId("card")))
     await waitFor(() => expect(dataSetter).toHaveBeenCalledTimes(2));
     expect(dataSetter).toBeCalledWith(testDataTwo);
   });
