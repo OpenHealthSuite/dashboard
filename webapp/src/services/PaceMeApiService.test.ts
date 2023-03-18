@@ -76,6 +76,22 @@ describe("pacemeUserRoutePutRequest", () => {
 });
 
 describe("pacemeGetRequest", () => {
+   const { location } = window;
+
+  beforeAll(() => {
+    // @ts-ignore
+    delete window.location;
+    // @ts-ignore
+    window.location = { reload: vi.fn() };
+  });
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  afterAll(() => {
+    window.location = location;
+  });
   test("Happy path :: uses URL, rereives data", async () => {
     const response = { whoami: "ReturnedSettings" };
     const fakeFetch = vi.fn().mockResolvedValue({
@@ -97,7 +113,7 @@ describe("pacemeGetRequest", () => {
   test("Non 200 status :: throws error", async () => {
     const response = { whoami: "ReturnedSettings" };
     const fakeFetch = vi.fn().mockResolvedValue({
-      status: 403,
+      status: 500,
       json: vi.fn().mockResolvedValue(response),
     });
     const fakeRequestRoute = "/fakeRequestRoute";
@@ -108,10 +124,45 @@ describe("pacemeGetRequest", () => {
     ).rejects.not.toBeUndefined();
     expect(fakeFetch).toBeCalledTimes(1);
     expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute);
+    expect(vi.mocked(window.location.reload)).not.toBeCalled();
+  });
+  test.each([401, 403])("%s status :: refreshes page", async (status) => {
+    const response = { whoami: "ReturnedSettings" };
+    const fakeFetch = vi.fn().mockResolvedValue({
+      status,
+      json: vi.fn().mockResolvedValue(response),
+    });
+    const fakeRequestRoute = "/fakeRequestRoute";
+    const fakeApiRoot = "http://localhost:9090";
+    
+    await expect(
+      pacemeGetRequest(fakeRequestRoute, fakeFetch, fakeApiRoot)
+    ).rejects.not.toBeUndefined();
+
+    expect(fakeFetch).toBeCalledTimes(1);
+    expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute);
+
+    expect(vi.mocked(window.location.reload)).toBeCalledTimes(1);
   });
 });
 
 describe("pacemePostRequest", () => {
+     const { location } = window;
+
+  beforeAll(() => {
+    // @ts-ignore
+    delete window.location;
+    // @ts-ignore
+    window.location = { reload: vi.fn() };
+  });
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  afterAll(() => {
+    window.location = location;
+  });
   test("Happy path :: uses URL, uses body, rereives data", async () => {
     const response = { whoami: "ReturnedSettings" };
     const fakeRequestBody = { whoami: "FakeRequestBody" };
@@ -141,7 +192,7 @@ describe("pacemePostRequest", () => {
   test("Non 200 status :: throws error", async () => {
     const response = { whoami: "ReturnedSettings" };
     const fakeFetch = vi.fn().mockResolvedValue({
-      status: 403,
+      status: 500,
       json: vi.fn().mockResolvedValue(response),
     });
     const fakeRequestRoute = "/fakeRequestRoute";
@@ -164,10 +215,56 @@ describe("pacemePostRequest", () => {
       },
       body: JSON.stringify(fakeRequestBody),
     });
+    expect(vi.mocked(window.location.reload)).not.toBeCalled();
+  });
+
+  test.each([401, 403])("%s status :: refreshes page", async (status) => {
+    const response = { whoami: "ReturnedSettings" };
+    const fakeFetch = vi.fn().mockResolvedValue({
+      status,
+      json: vi.fn().mockResolvedValue(response),
+    });
+    const fakeRequestRoute = "/fakeRequestRoute";
+    const fakeApiRoot = "http://localhost:9090";
+    const fakeRequestBody = { whoami: "FakeRequestBody" };
+
+    await expect(
+      pacemePostRequest(
+        fakeRequestRoute,
+        fakeRequestBody,
+        fakeFetch,
+        fakeApiRoot
+      )
+    ).rejects.not.toBeUndefined();
+    expect(fakeFetch).toBeCalledTimes(1);
+    expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json"
+      },
+      body: JSON.stringify(fakeRequestBody),
+    });
+    expect(vi.mocked(window.location.reload)).toBeCalledTimes(1);
   });
 });
 
 describe("pacemePutRequest", () => {
+     const { location } = window;
+
+  beforeAll(() => {
+    // @ts-ignore
+    delete window.location;
+    // @ts-ignore
+    window.location = { reload: vi.fn() };
+  });
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  afterAll(() => {
+    window.location = location;
+  });
   test("Happy path :: uses URL, uses body, rereives data", async () => {
     const response = { whoami: "ReturnedSettings" };
     const fakeRequestBody = { whoami: "FakeRequestBody" };
@@ -197,7 +294,7 @@ describe("pacemePutRequest", () => {
   test("Non 200 status :: throws error", async () => {
     const response = { whoami: "ReturnedSettings" };
     const fakeFetch = vi.fn().mockResolvedValue({
-      status: 403,
+      status: 500,
       json: vi.fn().mockResolvedValue(response),
     });
     const fakeRequestRoute = "/fakeRequestRoute";
@@ -220,5 +317,34 @@ describe("pacemePutRequest", () => {
       },
       body: JSON.stringify(fakeRequestBody),
     });
+    expect(vi.mocked(window.location.reload)).not.toBeCalled();
+  });
+  test.each([401, 403])("%s status :: refreshes page", async (status) => {
+    const response = { whoami: "ReturnedSettings" };
+    const fakeFetch = vi.fn().mockResolvedValue({
+      status,
+      json: vi.fn().mockResolvedValue(response),
+    });
+    const fakeRequestRoute = "/fakeRequestRoute";
+    const fakeApiRoot = "http://localhost:9090";
+    const fakeRequestBody = { whoami: "FakeRequestBody" };
+
+    await expect(
+      pacemePutRequest(
+        fakeRequestRoute,
+        fakeRequestBody,
+        fakeFetch,
+        fakeApiRoot
+      )
+    ).rejects.not.toBeUndefined();
+    expect(fakeFetch).toBeCalledTimes(1);
+    expect(fakeFetch).toBeCalledWith(fakeApiRoot + fakeRequestRoute, {
+      method: "PUT",
+      headers: {
+          "Content-Type": "application/json"
+      },
+      body: JSON.stringify(fakeRequestBody),
+    });
+    expect(vi.mocked(window.location.reload)).toBeCalledTimes(1);
   });
 });
