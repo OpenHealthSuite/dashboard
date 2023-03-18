@@ -1,4 +1,4 @@
-import { Flex, FormControl, FormLabel, Select } from '@chakra-ui/react'
+import { Flex, FormControl, FormLabel, Heading, Select } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { pacemeUserRouteGetRequest, pacemeUserRoutePutRequest, pacemeGetRequest } from '../../../services/PaceMeApiService'
 
@@ -47,17 +47,20 @@ export const ProviderSettingsControl: React.FC<{}> = () => {
     pacemeUserRoutePutRequest('/userSettings/provider_settings', userProviderSettings);
   },[userProviderSettings, setUserProviderSettings])
 
-  return <Flex wrap={'wrap'}>
-    {loading && <>Loading</>}
-    {!loading && error && <>Something went wrong</>}
-    {!loading && !error && availableProviders && Object.entries(availableProviders)
-      .map(([key, options]) => (<FormControl maxWidth={300} key={key}>
-        <FormLabel>{deCamelCaser(key)}</FormLabel>
-        <Select placeholder='Select provider' 
-          onChange={(ev) => changeHandler(ev, key)}
-          defaultValue={(userProviderSettings[key])}>
-          {options.map(option => <option value={option} key={option}>{deCamelCaser(option)}</option>)}
-        </Select>
-      </FormControl>))}
+  return <Flex flexDirection={"column"} alignItems="center">
+    <Heading as="h5" marginBottom={'0.5em'}>Provider Configuration</Heading>
+    <Flex wrap={'wrap'} justifyContent="center">
+      {loading && <>Loading</>}
+      {!loading && error && <>Something went wrong</>}
+      {!loading && !error && availableProviders && Object.entries(availableProviders)
+        .map(([key, options]) => (<FormControl maxWidth={300} key={key}>
+          <FormLabel>{deCamelCaser(key)}</FormLabel>
+          <Select placeholder='Select provider' 
+            onChange={(ev) => changeHandler(ev, key)}
+            defaultValue={(userProviderSettings[key])}>
+            {options.map(option => <option value={option} key={option}>{deCamelCaser(option)}</option>)}
+          </Select>
+        </FormControl>))}
+    </Flex>
   </Flex>
 }
