@@ -41,6 +41,12 @@ spec:
               value: '6379'
             - name: REDIS_HOST
               value: redis-service.paceme.svc
+            {{ if .Values.api.ofd.enabled }}
+            - name: OPEN_FOOD_DIARY_API
+              value: http://openfooddiary.openfooddiary.svc:3012/api
+            - name: OPEN_FOOD_DIARY_API_HEADER
+              value: x-auth-request-user
+            {{ end }}
             - name: CASSANDRA_CONTACT_POINTS
               value: {{ required "api.cassandra.contactpoints is required" .Values.api.cassandra.contactpoints }}
             - name: CASSANDRA_USER

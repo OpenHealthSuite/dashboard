@@ -6,5 +6,6 @@ api:
     # expects a "cassandrauser" and "cassandrapassword" data key
     credentialssecret: paceme-casscreds
     contactpoints: cassandra.service.svc:9042
-
+  ofd:
+    enabled: true
 hostname: dashboard.openhealthsuite.com
