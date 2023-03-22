@@ -1,7 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
-import legacy from '@vitejs/plugin-legacy'
 
 const proxy = {
   "/api": {
@@ -23,9 +22,6 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    legacy({
-      targets: ['last 2 versions, not dead, > 0.2%'],
-    })
   ],
   test: {
     globals: true,
