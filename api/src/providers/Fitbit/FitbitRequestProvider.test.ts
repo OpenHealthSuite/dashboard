@@ -25,8 +25,7 @@ test('startAuthenticationFlow :: generates code, caches code, and returns authUr
   const expectedScopeParam = 'scope1 scope2 soimething'
   const codeChallengeCache = sinon.fake()
   const fakeRandomString = 'TotallyARandomStringasdkmasd123'
-  const fakeEncodedString = 'ajdksfnWEQO-IDJQWDksdjfanlikdj-n312094u123++++='
-  const expectedFitbitCodeChallengeString = encodeURIComponent('ajdksfnWEQO-IDJQWDksdjfanlikdj-n312094u123----')
+  const fakeEncodedString = 'ajdksfnWEQO-IDJQWDksdjfanlikdj-n312094u123'
   const fnRandomString = sinon.fake.returns(fakeRandomString)
   const fnCreatesha256String = sinon.fake.returns(fakeEncodedString)
 
@@ -49,7 +48,7 @@ test('startAuthenticationFlow :: generates code, caches code, and returns authUr
   const authUrl = new URL(authUrlString)
   expect(authUrl.searchParams.get('client_id')).toBe(fitbitSettings.clientId)
   expect(authUrl.searchParams.get('response_type')).toBe('code')
-  expect(authUrl.searchParams.get('code_challenge')).toBe(expectedFitbitCodeChallengeString)
+  expect(authUrl.searchParams.get('code_challenge')).toBe(fakeEncodedString)
   expect(authUrl.searchParams.get('code_challenge_method')).toBe('S256')
   expect(authUrl.searchParams.get('scope')).toBe(expectedScopeParam)
 })

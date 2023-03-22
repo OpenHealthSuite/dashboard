@@ -66,7 +66,7 @@ function randomString (size: number): string {
 }
 
 function createsha256String (input: string) {
-  return createHash('sha256').update(input).digest('base64')
+  return createHash('sha256').update(input).digest('base64url')
 }
 
 export async function startAuthenticationFlow (
@@ -82,7 +82,7 @@ export async function startAuthenticationFlow (
   await SetCache(`${CODE_CHALLENGE_CACHE}:${userId}`, codeVerifier)
   // Apparently fitbit wants - instead of +?
   // https://dev.fitbit.com/build/reference/web-api/developer-guide/authorization/
-  const challengeHash = encodeURIComponent(fnCreatesha256String(codeVerifier).replace('=', '').replace(/\+/g, '-'))
+  const challengeHash = fnCreatesha256String(codeVerifier)
   const authUrl = `${fitbitSettings.authUrl}?client_id=${fitbitSettings.clientId}&response_type=code` +
     `&code_challenge=${challengeHash}&code_challenge_method=S256` +
     `&scope=${fitbitSettings.neededScopes.join('%20')}`
