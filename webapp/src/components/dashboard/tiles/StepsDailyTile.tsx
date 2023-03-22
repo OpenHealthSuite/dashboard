@@ -1,6 +1,7 @@
 import { DashboardTile } from "../DashboardTile";
 import { useState } from "react";
 import { pacemeUserRouteGetRequest } from "../../../services/PaceMeApiService";
+import { colors } from "./utilities/Colors";
 
 export interface ISteps {
   count: number;
@@ -36,7 +37,7 @@ export function StepsDailyTile({
         )}
         {steps && (
           <div style={{ textAlign: "center" }}>
-            <h1>{steps.count.toLocaleString()} Steps</h1>
+            <h1 style={{color: colors.steps}}>{steps.count.toLocaleString()} Steps</h1>
           </div>
         )}
       </>

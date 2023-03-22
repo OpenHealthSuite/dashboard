@@ -1,9 +1,9 @@
 
 export const colors = {
-    caloriesIn: "#888",
-    caloriesOut: "#7F7F7F",
-    steps: "#2B2B2B",
-    asleep: "#636363",
+    caloriesIn: "#888888",
+    caloriesOut: "#353535",
+    steps: "#222222",
+    asleep: "#444444",
     rem: "#0F0F0F",
-    awake: "#D4D4D4"
+    awake: "#888888"
   };
