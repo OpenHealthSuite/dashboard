@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: paceme-api-headless
+  name: dashboard-headless
   namespace: {{ .Release.Namespace }}
   labels:
-    app: paceme-api-headless
+    app: dashboard-headless
 spec:
   ports:
   - name: http
@@ -12,32 +12,32 @@ spec:
     protocol: TCP
     targetPort: 8080
   selector:
-    app: paceme-api-headless
+    app: dashboard-headless
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: paceme-api-headless
+    app: dashboard-headless
   namespace: {{ .Release.Namespace }}
-  name: paceme-api-headless
+  name: dashboard-headless
 spec:
-  serviceName: paceme-api-headless
+  serviceName: dashboard-headless
   replicas: 1
   revisionHistoryLimit: 2
   selector:
     matchLabels:
-      app: paceme-api-headless
+      app: dashboard-headless
   template:
     metadata:
       labels:
-        app: paceme-api-headless
+        app: dashboard-headless
       namespace: {{ .Release.Namespace }}
-      name: paceme-api-headless
+      name: dashboard-headless
     spec:
       containers:
-        - name: paceme-api-headless
+        - name: dashboard-headless
           image: {{ required "api.image is required" .Values.api.image }}:{{  required "api.tag is required" .Values.api.tag }}
           imagePullPolicy: IfNotPresent
           command:
@@ -48,17 +48,17 @@ spec:
             - name: FITBIT_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: paceme-fitbit
+                  name: dashboard-fitbit
                   key: fitbit-client-id
             - name: FITBIT_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: paceme-fitbit
+                  name: dashboard-fitbit
                   key: fitbit-client-secret
             - name: REDIS_PORT
               value: '6379'
             - name: REDIS_HOST
-              value: redis-service.paceme.svc
+              value: dashboard-redis-service.{{ .Release.Namespace }}.svc
             - name: CASSANDRA_CONTACT_POINTS
               value: {{ required "api.cassandra.contactpoints is required" .Values.api.cassandra.contactpoints }}
             - name: CASSANDRA_USER

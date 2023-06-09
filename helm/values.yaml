@@ -4,8 +4,10 @@ api:
   replicas: 3
   cassandra:
     # expects a "cassandrauser" and "cassandrapassword" data key
-    credentialssecret: paceme-casscreds
+    credentialssecret: cassandra-creds
     contactpoints: cassandra.service.svc:9042
   ofd:
     enabled: true
+    host: openfooddiary.openhealthsuite.svc
+    port: 3012
 hostname: dashboard.openhealthsuite.com

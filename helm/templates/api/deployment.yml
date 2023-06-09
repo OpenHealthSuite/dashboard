@@ -2,23 +2,23 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: paceme-api
+    app: dashboard
   namespace: {{ .Release.Namespace }}
-  name: paceme-api
+  name: dashboard
 spec:
   replicas: {{ required "api.replicas is required" .Values.api.replicas }}
   selector:
     matchLabels:
-      app: paceme-api
+      app: dashboard
   template:
     metadata:
       labels:
-        app: paceme-api
+        app: dashboard
       namespace: {{ .Release.Namespace }}
-      name: paceme-api
+      name: dashboard
     spec:
       containers:
-        - name: paceme-api
+        - name: dashboard
           image: {{ required "api.image is required" .Values.api.image }}:{{  required "api.tag is required" .Values.api.tag }}
           imagePullPolicy: IfNotPresent
           ports:
@@ -30,20 +30,20 @@ spec:
             - name: FITBIT_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: paceme-fitbit
+                  name: dashboard-fitbit
                   key: fitbit-client-id
             - name: FITBIT_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: paceme-fitbit
+                  name: dashboard-fitbit
                   key: fitbit-client-secret
             - name: REDIS_PORT
               value: '6379'
             - name: REDIS_HOST
-              value: redis-service.paceme.svc
+              value: dashboard-redis-service.{{ .Release.Namespace }}.svc
             {{ if .Values.api.ofd.enabled }}
             - name: OPEN_FOOD_DIARY_API
-              value: http://openfooddiary.openfooddiary.svc:3012/api
+              value: http://{{ required "missing ofd config" .Values.api.ofd.host }}:{{ required "missing ofd config" .Values.api.ofd.port }}/api
             - name: OPEN_FOOD_DIARY_API_HEADER
               value: x-auth-request-user
             {{ end }}

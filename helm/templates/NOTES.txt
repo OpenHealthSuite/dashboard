@@ -1,3 +1,3 @@
-Your copy of paceme is deployed at:
+Your copy of dashboard is deployed at:
 
 https://{{ .Values.hostname }}

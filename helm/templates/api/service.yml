@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: paceme-api
+  name: dashboard
   namespace: {{ .Release.Namespace }}
   labels:
-    app: paceme-api
+    app: dashboard
 spec:
   ports:
   - name: http
@@ -12,5 +12,5 @@ spec:
     protocol: TCP
     targetPort: 8080
   selector:
-    app: paceme-api
+    app: dashboard
   type: ClusterIP

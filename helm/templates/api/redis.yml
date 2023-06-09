@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: redis-config-map
+  name: dashboard-redis-config-map
   namespace: {{ .Release.Namespace }}
 data:
   redis-config: |
@@ -11,7 +11,7 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-service
+  name: dashboard-redis-service
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -20,28 +20,28 @@ spec:
     protocol: TCP
     targetPort: 6379
   selector:
-    infra: redis
+    infra: dashboard-redis
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    infra: redis
+    infra: dashboard-redis
   namespace: {{ .Release.Namespace }}
-  name: paceme-api-redis
+  name: dashboard-redis
 spec:
   serviceName: redis-service
   replicas: 1
   selector:
     matchLabels:
-      infra: redis
+      infra: dashboard-redis
   template:
     metadata:
       labels:
-        infra: redis
+        infra: dashboard-redis
       namespace: {{ .Release.Namespace }}
-      name: paceme-api-redis
+      name: dashboard-redis
     spec:
       containers:
       - name: redis
@@ -64,7 +64,7 @@ spec:
           emptyDir: {}
         - name: config
           configMap:
-            name: redis-config-map
+            name: dashboard-redis-config-map
             items:
             - key: redis-config
               path: redis.conf

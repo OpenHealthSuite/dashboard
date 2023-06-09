@@ -1,5 +1,5 @@
 apiVersion: v2
-name: paceme
+name: dashboard
 description: Application for fitness stat tracking
 type: application
-version: 0.3.2
+version: 0.3.4
