@@ -8,6 +8,15 @@ import { DashboardLocals } from '../..'
 
 const AXIOS = new Axios({})
 
+export interface FitbitToken {
+  access_token: string,
+  expires_in: number,
+  refresh_token: string,
+  scope: string,
+  token_type: string,
+  user_id: string
+}
+
 export interface IFitbitSettings {
   clientId: string,
   clientSecret: string,
@@ -52,7 +61,7 @@ export interface IFitbitTokenResponse {
   user_id: string
 }
 
-const FITBIT_TOKEN_REPO = new UserServiceTokenRepository('fitbit')
+const FITBIT_TOKEN_REPO = new UserServiceTokenRepository<FitbitToken>('fitbit')
 const SERVICE_CACHE_KEY = 'servicecache:fitbit'
 const CODE_CHALLENGE_CACHE = 'codechallengecache:fitbit'
 
@@ -96,7 +105,7 @@ export async function redeemCode (
   axios: Axios = AXIOS,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
   GetCache: (key: string) => Promise<GenericCache.GenericCacheValue<string> | undefined> = GenericCache.GetByKey,
-  fitbitTokenRepo: UserServiceTokenRepository = FITBIT_TOKEN_REPO
+  fitbitTokenRepo: UserServiceTokenRepository<FitbitToken> = FITBIT_TOKEN_REPO
 ) {
   const { code } = req.body
   const codeVerifier = await GetCache(`${CODE_CHALLENGE_CACHE}:${userId}`)
@@ -157,7 +166,7 @@ export async function makeFitbitRequest<T> (
 
 export async function getFitbitToken (
   userId: string,
-  fitbitTokenRepo: UserServiceTokenRepository = FITBIT_TOKEN_REPO
+  fitbitTokenRepo: UserServiceTokenRepository<FitbitToken> = FITBIT_TOKEN_REPO
 ): Promise<IFitbitTokenResponse | null> {
   const storedToken = await (await fitbitTokenRepo.getUserToken(userId)).unwrapOr(null)
   if (!storedToken) {
@@ -171,7 +180,7 @@ const defaultNowGenerator = () => new Date()
 export async function refreshTokens (
   expiryOffestMs: number = 60 * 1000,
   fitbitSettings: IFitbitSettings = FITBIT_SETTINGS,
-  fitbitTokenRepo: UserServiceTokenRepository = FITBIT_TOKEN_REPO,
+  fitbitTokenRepo: UserServiceTokenRepository<FitbitToken> = FITBIT_TOKEN_REPO,
   axios: Axios = AXIOS,
   nowGenerator: () => Date = defaultNowGenerator
 ): Promise<void> {
