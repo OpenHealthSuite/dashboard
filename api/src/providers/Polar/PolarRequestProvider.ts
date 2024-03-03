@@ -75,6 +75,28 @@ export async function redeemCode (
   const response = await axios.post(polarSettings.tokenUrl, '', { params: tokenParameters, headers })
   if (response.status !== 200) { return res.send({ status: 'err' }).status(400) }
   const token: IPolarTokenResponse = JSON.parse(response.data) // date_retrieved: (new Date()).toISOString()
+  // we have to register as well
+  const registerBody = {
+    'member-id': token.x_user_id
+  }
+  const registerHeaders = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    Authorization: 'Bearer ' + token.access_token
+  }
+
+  const regresponse = await axios.post(polarSettings.rootApiUrl + '/v3/users',
+    {
+      method: 'POST',
+      body: registerBody,
+      headers: registerHeaders
+    })
+  // 200 is registered, 409 is already registered
+  if (regresponse.status !== 200 && regresponse.status !== 409) {
+    console.error(regresponse.data)
+    res.sendStatus(500)
+    return
+  }
   const storage = await polarTokenRepo.createUserToken(userId, token)
   storage.map(() => res.send({ status: 'ok' }))
     .mapErr((err: any) => {
