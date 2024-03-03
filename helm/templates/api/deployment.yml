@@ -27,6 +27,7 @@ spec:
           env:
             - name: SECURE_USER_HEADER_ID
               value: x-auth-request-user
+            {{ if .Values.api.fitbit.enabled }}
             - name: FITBIT_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -37,6 +38,19 @@ spec:
                 secretKeyRef:
                   name: dashboard-fitbit
                   key: fitbit-client-secret
+            {{ end }}
+            {{ if .Values.api.polar.enabled }}
+            - name: POLAR_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: dashboard-polar
+                  key: polar-client-id
+            - name: POLAR_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dashboard-polar
+                  key: polar-client-secret
+            {{ end }}
             - name: REDIS_PORT
               value: '6379'
             - name: REDIS_HOST

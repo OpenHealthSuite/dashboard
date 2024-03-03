@@ -10,4 +10,8 @@ api:
     enabled: true
     host: openfooddiary.openhealthsuite.svc
     port: 3012
+  polar: 
+    enabled: true
+  fitbit:
+    enabled: true
 hostname: dashboard.openhealthsuite.com
